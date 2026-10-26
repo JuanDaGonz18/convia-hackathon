@@ -55,6 +55,18 @@ Template for each entry:
   - Clips cut from 5 s to 3 s: measured cost $0.025–0.039 per check (was ~$0.065 estimated), latency 13–27 s end to end.
   - Migration and function deployed to the hackathon's Supabase project.
 
+### October 26, 2026 (late afternoon) — verify-pickup under 10 seconds
+
+- **Built:** the verify-pickup function now answers in 6–8 s instead of 13–27 s, with the same accuracy (3/3 real clips; measured from the request to the answer, without the phone's upload), and the screen shows real progress: car detected ✓ → plate found ✓ → reading the plate → result.
+- **Meta model:** SAM 3.1 now streams its answer frame by frame; Muse Spark 1.3 runs with `reasoning_effort: minimal` and starts at the same time as SAM.
+- **PRs:** [#1](https://github.com/JuanDaGonz18/convia-hackathon/pull/1)
+- **Notes:**
+  - Measured each step first: SAM's first line arrives at 2.6–5.2 s and its last at 6.4–7.8 s; Muse took 6–7 s at `low` and 3–4 s at `minimal`, with the same readings on the 3 clips.
+  - Muse no longer waits for SAM: it reads the middle frame while SAM streams. If SAM ends up placing the main car's plate elsewhere, that reading is dropped and SAM's frame is read.
+  - Early exit only for "it's your ride": once Muse read the trip's plate and SAM's stream shows that plate on the main car (5+ frames), the answer goes out without waiting for the rest of the stream. "Don't get in" still waits for the whole clip.
+  - The function streams its progress as NDJSON; the answer is sent before the row is saved and the files are deleted.
+  - In the app, the clip uploads while frames are being extracted.
+
 ### October 27, 2026
 
 ### October 28, 2026

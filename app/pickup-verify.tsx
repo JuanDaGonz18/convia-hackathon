@@ -24,6 +24,9 @@ import { errorMessage } from '@/utils/format';
 const T = PICKUP_TEXTS;
 type Phase = 'camera' | 'recording' | 'processing' | 'result';
 
+/** Which progress row is running for each stage the server reports (rows before it are done). */
+const STAGE_STEP: Record<PickupStage, number> = { uploading: 0, analyzing: 1, car_found: 2, plate_found: 3, reading_plate: 3 };
+
 /** What differs between the car filmed and the trip's car, in one sentence. */
 function mismatchDetail({ reason, plateRead, brandRead, colorRead, vehicle }: PickupVerification) {
   if (!vehicle) return null;
@@ -199,18 +202,19 @@ export default function PickupVerifyScreen() {
 
         {phase === 'processing' ? (
           <View accessibilityLiveRegion="polite" style={styles.processing}>
-            <ActivityIndicator color={colors.primary} size="large" />
-            {(['uploading', 'analyzing', 'verifying'] as const).map((step, index) => {
-              const current = ['uploading', 'analyzing', 'verifying'].indexOf(stage);
+            {T.steps.map((step, index) => {
+              const current = STAGE_STEP[stage];
               const doneStep = index < current;
               return (
-                <View key={step} style={styles.stageRow}>
-                  <Ionicons
-                    color={doneStep ? colors.success : index === current ? colors.primary : colors.textSecondary}
-                    name={doneStep ? 'checkmark-circle' : index === current ? 'ellipse' : 'ellipse-outline'}
-                    size={18}
-                  />
-                  <Text style={[styles.stageText, index === current && styles.stageCurrent]}>{T.stages[step]}</Text>
+                <View key={step.done} style={styles.stageRow}>
+                  {index === current ? (
+                    <ActivityIndicator color={colors.primary} size="small" />
+                  ) : (
+                    <Ionicons color={doneStep ? colors.success : colors.textSecondary} name={doneStep ? 'checkmark-circle' : 'ellipse-outline'} size={20} />
+                  )}
+                  <Text style={[styles.stageText, index === current && styles.stageCurrent, doneStep && styles.stageDone]}>
+                    {doneStep ? step.done : step.active}
+                  </Text>
                 </View>
               );
             })}
@@ -296,6 +300,7 @@ const styles = StyleSheet.create({
   stageRow: { alignItems: 'center', flexDirection: 'row', gap: spacing[8] },
   stageText: { ...typography.bodyMedium, color: colors.textSecondary },
   stageCurrent: { color: colors.text, fontWeight: '600' },
+  stageDone: { color: colors.text },
   verdict: { alignItems: 'center', borderRadius: radius.radiusLarge, borderWidth: 2, gap: spacing[8], padding: spacing[20] },
   verdictOk: { backgroundColor: colors.surface, borderColor: colors.success },
   verdictDanger: { backgroundColor: colors.surface, borderColor: colors.error },

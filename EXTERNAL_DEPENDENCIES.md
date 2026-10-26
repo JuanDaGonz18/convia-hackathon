@@ -31,6 +31,7 @@ These modules existed before the building period (which began after the kickoff 
 | --- | --- |
 | `@expo/vector-icons` | `app/pickup-verify.tsx` |
 | `@supabase/supabase-js` | `src/services/pickupVerificationService.ts`, `supabase/tests/verify_pickup_e2e.mjs` |
+| `expo` | `src/services/pickupVerificationService.ts` |
 | `expo-camera` | `app/pickup-verify.tsx` |
 | `expo-crypto` | `src/services/pickupVerificationService.ts` |
 | `expo-router` | `app/pickup-verify.tsx` |

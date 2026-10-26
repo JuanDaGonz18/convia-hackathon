@@ -4,7 +4,7 @@ import { isCarPlate, normalizePlate } from '../verify-vehicle/decision.ts';
 import { pickupRetry } from './decision.ts';
 import { createMockClient, mockOutcome } from './mock.ts';
 import { createModelClient } from './model.ts';
-import { analyzeClip, DEFAULT_PIPELINE_CONFIG, type FrameSource, type PipelineResult } from './pipeline.ts';
+import { analyzeClip, DEFAULT_PIPELINE_CONFIG, type FrameSource, type PipelineResult, type ProgressStep } from './pipeline.ts';
 
 /**
  * verify-pickup: the passenger films the arriving car for up to 5 s and we
@@ -21,7 +21,7 @@ const MODEL_API_KEY = Deno.env.get('MODEL_API_KEY') ?? '';
 const MOCK = !MODEL_API_KEY.trim();
 const BUCKET = 'pickup-clips';
 const MIN_CONFIDENCE = Number(Deno.env.get('PICKUP_MIN_CONFIDENCE')) || DEFAULT_PIPELINE_CONFIG.minConfidence;
-const REASONING_EFFORT = (['minimal', 'low', 'medium', 'high'] as const).find((effort) => effort === Deno.env.get('PICKUP_REASONING_EFFORT')) ?? 'low';
+const REASONING_EFFORT = (['minimal', 'low', 'medium', 'high'] as const).find((effort) => effort === Deno.env.get('PICKUP_REASONING_EFFORT')) ?? 'minimal';
 /** Each real attempt costs 2 SAM calls (≥ 50 frames each) + 1 Muse call. */
 const MAX_ATTEMPTS_PER_REQUEST = Number(Deno.env.get('PICKUP_MAX_ATTEMPTS')) || 6;
 const MAX_FRAMES = 12;
@@ -91,6 +91,54 @@ Deno.serve(async (request) => {
     return response({ error: 'INVALID_BODY' }, 400);
   }
   const uploaded = [clipPath, ...frames.map((frame) => frame.path)];
+  const args = { userId, requestId, clipPath, frames, uploaded, mockOutcome: body.mock_outcome, started };
+
+  // The app asks for NDJSON to show real progress; anything else gets one JSON answer.
+  if (!request.headers.get('accept')?.includes('application/x-ndjson')) {
+    const outcome = await verify(args, () => undefined);
+    await outcome.after();
+    return response(outcome.body, outcome.status);
+  }
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      const send = (event: unknown) => controller.enqueue(encoder.encode(JSON.stringify(event) + '\n'));
+      const outcome = await verify(args, (step) => send({ type: 'progress', step }));
+      // The passenger gets the answer first; saving the row and deleting the files happen after.
+      send({ type: 'result', status: outcome.status, body: outcome.body });
+      await outcome.after();
+      controller.close();
+    },
+  });
+  return new Response(stream, { headers: { ...headers, 'Content-Type': 'application/x-ndjson', 'Cache-Control': 'no-store' } });
+});
+
+type VerifyArgs = {
+  userId: string;
+  requestId: string;
+  clipPath: string;
+  frames: FrameInput[];
+  uploaded: string[];
+  mockOutcome: unknown;
+  started: number;
+};
+
+type Outcome = { status: number; body: Record<string, unknown>; after: () => Promise<void> };
+
+async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analyzing') => void): Promise<Outcome> {
+  const { userId, requestId, clipPath, frames, uploaded, started } = args;
+  // No video or frame is ever kept: they may show the plate, the street and people.
+  const cleanup = async () => {
+    const { error } = await admin.storage.from(BUCKET).remove(uploaded);
+    if (error) log('cleanup_error', { detail: error.message });
+  };
+  const finish = (status: number, body: Record<string, unknown>, save?: () => Promise<void>): Outcome => ({
+    status,
+    body,
+    after: async () => {
+      await Promise.all([save?.(), cleanup()]);
+    },
+  });
 
   try {
     const { data: tripRequest, error: requestError } = await admin
@@ -101,25 +149,31 @@ Deno.serve(async (request) => {
     if (requestError) throw requestError;
     const trip = tripRequest?.trips as unknown as { id: string; estado: string; driver_id: string; vehicle_id: string } | undefined;
     // Someone else's request looks the same as a missing one.
-    if (!tripRequest || !trip || tripRequest.passenger_id !== userId) return response({ error: 'REQUEST_NOT_FOUND' }, 404);
+    if (!tripRequest || !trip || tripRequest.passenger_id !== userId) return finish(404, { error: 'REQUEST_NOT_FOUND' });
     // The plate is only revealed after the request is accepted, and only while the trip is active.
     if (tripRequest.estado !== 'aceptado' || !['por_empezar', 'en_curso'].includes(trip.estado)) {
-      return response({ error: 'REQUEST_NOT_ACCEPTED' }, 409);
+      return finish(409, { error: 'REQUEST_NOT_ACCEPTED' });
     }
 
-    const [{ data: vehicle, error: vehicleError }, { data: driver, error: driverError }] = await Promise.all([
+    // Everything the check needs, at once.
+    const downloadStarted = performance.now();
+    const videoDownload = download(clipPath).then((bytes) => ({ bytes, ms: Math.round(performance.now() - downloadStarted) }));
+    videoDownload.catch(() => undefined);
+    const [{ data: vehicle, error: vehicleError }, { data: driver, error: driverError }, { count, error: countError }] = await Promise.all([
       admin.from('vehicles').select('placa, marca, color').eq('id', trip.vehicle_id).single(),
       admin.from('profiles').select('nombre, telefono').eq('id', trip.driver_id).single(),
+      admin.from('pickup_verifications').select('id', { count: 'exact', head: true }).eq('request_id', requestId),
     ]);
     if (vehicleError) throw vehicleError;
     if (driverError) throw driverError;
+    if (countError) throw countError;
     const registered = { plate: normalizePlate(vehicle.placa), brand: vehicle.marca, color: vehicle.color };
     // Motorcycle plates (ABC12D) can't be checked with this flow.
-    if (!isCarPlate(registered.plate)) return response({ error: 'UNSUPPORTED_VEHICLE' }, 422);
+    if (!isCarPlate(registered.plate)) return finish(422, { error: 'UNSUPPORTED_VEHICLE' });
 
-    const respond = (result: PipelineResult, verificationId: string | null) => {
+    const answer = (result: PipelineResult, verificationId: string | null) => {
       const { decision, report } = result;
-      return response({
+      return {
         verification_id: verificationId,
         status: decision.status,
         reason: decision.reason,
@@ -133,21 +187,14 @@ Deno.serve(async (request) => {
         vehicle: { plate: registered.plate, brand: registered.brand, color: registered.color },
         driver: { name: driver.nombre, phone: driver.telefono ?? null },
         mock: MOCK,
-      });
+      };
     };
-
-    const { count, error: countError } = await admin
-      .from('pickup_verifications')
-      .select('id', { count: 'exact', head: true })
-      .eq('request_id', requestId);
-    if (countError) throw countError;
     if ((count ?? 0) >= MAX_ATTEMPTS_PER_REQUEST) {
-      return respond({ decision: pickupRetry('too_many_attempts'), report: null, framesProcessed: null, timings: {}, debug: {} }, null);
+      return finish(200, answer({ decision: pickupRetry('too_many_attempts'), report: null, framesProcessed: null, timings: {}, debug: {} }, null));
     }
 
-    const downloadStarted = performance.now();
-    const video = await download(clipPath);
-    const downloadMs = Math.round(performance.now() - downloadStarted);
+    onProgress('analyzing');
+    const { bytes: video, ms: downloadMs } = await videoDownload;
     const sources: FrameSource[] = frames.map((frame) => ({
       timeMs: frame.time_ms,
       width: frame.width,
@@ -155,16 +202,19 @@ Deno.serve(async (request) => {
       load: () => download(frame.path),
     }));
     const client = MOCK
-      ? createMockClient(registered, mockOutcome(registered.plate, body.mock_outcome))
+      ? createMockClient(registered, mockOutcome(registered.plate, args.mockOutcome))
       : createModelClient({ apiKey: MODEL_API_KEY, baseUrl: Deno.env.get('MODEL_API_BASE_URL') || undefined, reasoningEffort: REASONING_EFFORT, log });
-    const result = await analyzeClip({ video, frames: sources }, registered, client, { ...DEFAULT_PIPELINE_CONFIG, minConfidence: MIN_CONFIDENCE });
+    const result = await analyzeClip({ video, frames: sources }, registered, client, { ...DEFAULT_PIPELINE_CONFIG, minConfidence: MIN_CONFIDENCE }, onProgress);
     result.timings.download = downloadMs;
     const latencyMs = Math.round(performance.now() - started);
-
     const { decision, report } = result;
-    const { data: saved, error: saveError } = await admin
-      .from('pickup_verifications')
-      .insert({
+    // Chosen here so the answer can carry it before the row is saved.
+    const verificationId = crypto.randomUUID();
+    log('done', { status: decision.status, reason: decision.reason, mock: MOCK, ms: latencyMs, timings: result.timings, frames: result.framesProcessed, debug: result.debug });
+
+    return finish(200, answer(result, verificationId), async () => {
+      const { error: saveError } = await admin.from('pickup_verifications').insert({
+        id: verificationId,
         trip_id: trip.id,
         request_id: requestId,
         passenger_id: userId,
@@ -181,23 +231,24 @@ Deno.serve(async (request) => {
         latency_ms: latencyMs,
         timings: result.timings,
         mock: MOCK,
-      })
-      .select('id')
-      .single();
-    if (saveError) log('save_error', { detail: saveError.message });
-
-    log('done', { status: decision.status, reason: decision.reason, mock: MOCK, ms: latencyMs, timings: result.timings, frames: result.framesProcessed, debug: result.debug });
-    return respond(result, saved?.id ?? null);
+      });
+      if (saveError) log('save_error', { detail: saveError.message });
+    });
   } catch (error) {
     log('error', { detail: error instanceof Error ? error.message : String(error) });
-    return response({ verification_id: null, ...retryBody('server_error'), mock: MOCK });
-  } finally {
-    // No video or frame is ever kept: they may show the plate, the street and people.
-    const { error } = await admin.storage.from(BUCKET).remove(uploaded);
-    if (error) log('cleanup_error', { detail: error.message });
+    return finish(200, {
+      verification_id: null,
+      status: 'retry',
+      reason: 'server_error',
+      plate_read: null,
+      confidence: null,
+      brand_match: null,
+      color_match: null,
+      brand_read: null,
+      color_read: null,
+      vehicle: null,
+      driver: null,
+      mock: MOCK,
+    });
   }
-});
-
-function retryBody(reason: 'server_error') {
-  return { status: 'retry', reason, plate_read: null, confidence: null, brand_match: null, color_match: null, brand_read: null, color_read: null, vehicle: null, driver: null };
 }

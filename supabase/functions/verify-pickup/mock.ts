@@ -40,10 +40,16 @@ function plateLines() {
 export function createMockClient(registered: { plate: string; brand: string; color: string }, outcome: PickupStatus): ModelClient {
   const latency = () => sleep(Math.round(300 + Math.random() * 400));
   return {
-    async segmentVideo(_videoUrl, prompt) {
+    /** Streams one line per frame, like SAM; stops if aborted. */
+    async segmentVideo(_videoUrl, prompt, { onLine, signal } = {}) {
       await latency();
-      if (prompt === 'license plate') return { text: outcome === 'retry' ? '' : plateLines(), framesProcessed: 50 };
-      return { text: carLines(), framesProcessed: 50 };
+      const text = prompt === 'license plate' ? (outcome === 'retry' ? '' : plateLines()) : carLines();
+      for (const line of text.split('\n').filter(Boolean)) {
+        if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+        onLine?.(line);
+        await sleep(5);
+      }
+      return { text, framesProcessed: 50 };
     },
     async readPlate(): Promise<PickupReport> {
       await latency();

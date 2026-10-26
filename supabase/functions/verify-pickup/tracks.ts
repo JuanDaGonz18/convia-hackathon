@@ -114,3 +114,16 @@ export function scaleBox(box: SamBox, width: number, height: number): SamBox {
     confidence: box.confidence,
   };
 }
+
+/** Plate detections whose center is inside `car`'s box on the same frame. */
+export function platesOnCar(plates: Detection[], car: Track): Detection[] {
+  return plates.filter(({ frame, box }) => {
+    const carBox = car.boxes.get(frame);
+    return !!carBox && centerInside(box, carBox);
+  });
+}
+
+/** SAM saw `car`'s plate within `tolerance` frames of `frameIndex`. */
+export function plateOnCar(plates: Detection[], car: Track, frameIndex: number, tolerance: number) {
+  return platesOnCar(plates, car).some(({ frame }) => Math.abs(frame - frameIndex) <= tolerance);
+}

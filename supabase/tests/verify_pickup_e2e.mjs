@@ -132,7 +132,7 @@ for (const outcome of ['verified', 'mismatch', 'retry']) {
 {
   const { data: rows } = await passenger.client.from('pickup_verifications').select('status, reason, latency_ms, timings, frames_processed').eq('request_id', requestId);
   check('passenger reads the results (4 saved)', rows?.length === 4, JSON.stringify(rows?.map((row) => row.status)));
-  check('latency and per-step timings stored', rows?.every((row) => row.latency_ms > 0 && typeof row.timings?.sam === 'number'));
+  check('latency and per-step timings stored', rows?.every((row) => row.latency_ms > 0 && typeof row.timings?.total === 'number'));
   const { data: driverRows } = await driver.client.from('pickup_verifications').select('id').eq('request_id', requestId);
   check('driver of the trip reads them too', driverRows?.length === 4);
   const { data: foreign } = await stranger.client.from('pickup_verifications').select('id').eq('request_id', requestId);
@@ -150,10 +150,26 @@ for (const outcome of ['verified', 'mismatch', 'retry']) {
   check('only once', !!againError);
 }
 
-// Attempt limit: 6 per request (4 already + 2 more allowed)
+// Progress as NDJSON (what the app uses): real steps in order, then the result
+{
+  const { data: session } = await passenger.client.auth.getSession();
+  const res = await fetch(`${URL}/functions/v1/verify-pickup`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${session.session.access_token}`, apikey: ANON, 'Content-Type': 'application/json', Accept: 'application/x-ndjson' },
+    body: JSON.stringify({ ...(await upload(passenger, requestId)), mock_outcome: 'verified' }),
+  });
+  const events = (await res.text()).trim().split('\n').map((line) => JSON.parse(line));
+  const steps = events.filter((event) => event.type === 'progress').map((event) => event.step);
+  const last = events.at(-1);
+  check('NDJSON: progress steps in order', JSON.stringify(steps) === JSON.stringify(['analyzing', 'car_found', 'plate_found', 'reading_plate']), JSON.stringify(steps));
+  check('NDJSON: ends with the result', last?.type === 'result' && last.status === 200 && last.body?.status === 'verified' && !!last.body?.verification_id);
+  check('NDJSON: files deleted after the stream ends', (await leftFiles(passenger, requestId)) === 0);
+}
+
+// Attempt limit: 6 per request (5 already + 1 more allowed)
 {
   let last;
-  for (let i = 0; i < 3; i++) last = await invoke(passenger, await upload(passenger, requestId));
+  for (let i = 0; i < 2; i++) last = await invoke(passenger, await upload(passenger, requestId));
   check('7th attempt → retry too_many_attempts', last.data?.status === 'retry' && last.data?.reason === 'too_many_attempts', last.data?.reason);
   check('files deleted when the limit is hit', (await leftFiles(passenger, requestId)) === 0);
 }

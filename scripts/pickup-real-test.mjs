@@ -17,7 +17,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { decidePickup } from '../supabase/functions/verify-pickup/decision.ts';
-import { analyzeClip } from '../supabase/functions/verify-pickup/pipeline.ts';
+import { analyzeClip, DEFAULT_PIPELINE_CONFIG } from '../supabase/functions/verify-pickup/pipeline.ts';
 import { createModelClient } from '../supabase/functions/verify-pickup/model.ts';
 import { filterConfident, parseSamVideo, pickMainCar, pickPlate } from '../supabase/functions/verify-pickup/tracks.ts';
 
@@ -31,7 +31,7 @@ const MUSE_OUT_PER_TOKEN = 4.25 / 1e6;
 const args = process.argv.slice(2);
 const arg = (name, fallback) => (args.includes(name) ? args[args.indexOf(name) + 1] : fallback);
 const minConfidence = Number(arg('--min-confidence', '0.5'));
-const effort = arg('--effort', 'low');
+const effort = arg('--effort', 'minimal');
 const only = arg('--only', null);
 const seconds = Number(arg('--seconds', '3'));
 const replay = arg('--replay', null);
@@ -117,11 +117,25 @@ for (const clip of manifest) {
       log: (event, data) => { if (event === 'model_usage') usage.push(data); },
     });
     // Keep SAM's raw answers to replay the selection at other thresholds without paying again.
-    const client = { ...base, async segmentVideo(fileId, prompt) { const result = await base.segmentVideo(fileId, prompt); sam[prompt] = result.text; return result; } };
+    // Collected line by line, so an early exit still leaves what SAM had streamed.
+    const client = {
+      ...base,
+      async segmentVideo(videoUrl, prompt, options = {}) {
+        sam[prompt] = '';
+        return base.segmentVideo(videoUrl, prompt, { ...options, onLine: (line) => { sam[prompt] += `${line}\n`; options.onLine?.(line); } });
+      },
+    };
     const registered = { plate: clip.plate, brand: clip.brand, color: clip.color };
-    const result = await analyzeClip({ video: new Uint8Array(readFileSync(clipPath)), frames }, registered, client, { minConfidence, maxDurationS: 5 });
+    const progress = [];
+    const t0 = performance.now();
+    const result = await analyzeClip({ video: new Uint8Array(readFileSync(clipPath)), frames }, registered, client,
+      { ...DEFAULT_PIPELINE_CONFIG, minConfidence }, (step) => progress.push(`${step}@${Math.round(performance.now() - t0)}`));
 
-    const museUsage = usage.find((entry) => entry.call === 'muse:read_plate')?.usage;
+    // Muse may run twice (middle frame, then SAM's frame): count every call.
+    const museCalls = usage.filter((entry) => entry.call === 'muse:read_plate').map((entry) => entry.usage);
+    const museUsage = museCalls.length
+      ? { prompt_tokens: museCalls.reduce((t, u) => t + u.prompt_tokens, 0), completion_tokens: museCalls.reduce((t, u) => t + u.completion_tokens, 0) }
+      : null;
     const cost = (result.framesProcessed ?? 0) * SAM_PER_FRAME
       + (museUsage ? museUsage.prompt_tokens * MUSE_IN_PER_TOKEN + museUsage.completion_tokens * MUSE_OUT_PER_TOKEN : 0);
     const calibration = calibrate(sam.car, sam['license plate']);
@@ -133,7 +147,9 @@ for (const clip of manifest) {
       ok: clip.expected ? clip.expected === result.decision.status : null,
       plateRead: result.decision.plateRead,
       confidence: result.decision.confidence,
-      totalMs: Object.values(result.timings).reduce((total, ms) => total + ms, 0),
+      totalMs: result.timings.total,
+      progress,
+      museCalls: museCalls.length,
       timings: result.timings,
       framesProcessed: result.framesProcessed,
       museTokens: museUsage ? { in: museUsage.prompt_tokens, out: museUsage.completion_tokens } : null,
@@ -146,7 +162,8 @@ for (const clip of manifest) {
     };
     rows.push(row);
     console.log(`${row.ok === false ? 'MISS' : row.ok ? 'OK  ' : '    '} ${clip.file}: ${row.status}/${row.reason} read=${row.plateRead ?? '-'} ${row.totalMs}ms $${row.costUsd}`);
-    console.log(`     timings ${JSON.stringify(row.timings)}  thresholds ${JSON.stringify(calibration)}`);
+    console.log(`     timings ${JSON.stringify(row.timings)} muse×${row.museCalls} ${result.debug.earlyExit ? 'EARLY' : ''}`);
+    console.log(`     progress ${progress.join(' → ')}`);
   } catch (error) {
     rows.push({ file: clip.file, error: String(error) });
     console.log(`ERR  ${clip.file}: ${error}`);

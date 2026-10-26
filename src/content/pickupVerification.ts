@@ -39,11 +39,13 @@ export const PICKUP_TEXTS = {
     back: 'Volver',
     mock: 'Modo de prueba: resultado simulado, sin IA real.',
   },
-  stages: {
-    uploading: 'Subiendo el video…',
-    analyzing: 'Buscando el carro y la placa…',
-    verifying: 'Comparando placa, marca y color…',
-  },
+  /** Progress rows: the text while the step runs, and once it is done. */
+  steps: [
+    { active: 'Subiendo el video…', done: 'Video enviado' },
+    { active: 'Buscando el carro…', done: 'Carro detectado' },
+    { active: 'Buscando la placa…', done: 'Placa encontrada' },
+    { active: 'Leyendo la placa…', done: 'Placa leída' },
+  ],
   verified: {
     title: 'Es tu viaje',
     text: (driver: string) => `La placa, la marca y el color coinciden con el carro de ${driver}.`,

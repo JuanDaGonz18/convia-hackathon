@@ -11,7 +11,7 @@ import { decidePickup, neighborColors, PICKUP_REASONS, type PickupReport } from 
 import { createMockClient } from './mock.ts';
 import { ModelError, type ModelClient } from './model.ts';
 import { readVideoInfo } from './mp4.ts';
-import { analyzeClip, type FrameSource } from './pipeline.ts';
+import { analyzeClip, DEFAULT_PIPELINE_CONFIG, type FrameSource } from './pipeline.ts';
 import { filterConfident, nearestFrame, parseSamVideo, pickMainCar, pickPlate, scaleBox } from './tracks.ts';
 
 const fixture = (name: string) => new Uint8Array(readFileSync(new URL(`./fixtures/${name}`, import.meta.url)));
@@ -186,12 +186,35 @@ describe('analyzeClip', () => {
 
   test('mock client runs the real parsing and decision: verified, mismatch, retry', async () => {
     for (const outcome of ['verified', 'mismatch', 'retry'] as const) {
-      const result = await analyzeClip(clip, REGISTERED, createMockClient(REGISTERED, outcome));
+      const steps: string[] = [];
+      const result = await analyzeClip(clip, REGISTERED, createMockClient(REGISTERED, outcome), DEFAULT_PIPELINE_CONFIG, (step) => steps.push(step));
       assert.equal(result.decision.status, outcome);
-      assert.equal(result.framesProcessed, 100);
-      assert.equal(typeof result.timings.sam, 'number');
-      if (outcome !== 'retry') assert.equal(typeof result.timings.muse, 'number');
+      assert.equal(steps[0], 'car_found', outcome);
+      if (outcome !== 'retry') assert.deepEqual(steps, ['car_found', 'plate_found', 'reading_plate'], outcome);
+      assert.equal(typeof result.timings.total, 'number');
     }
+  });
+
+  test("\"it's your ride\" ends early, once SAM shows the plate on the main car; a mismatch waits for the whole clip", async () => {
+    const verified = await analyzeClip(clip, REGISTERED, createMockClient(REGISTERED, 'verified'));
+    assert.ok(verified.debug.earlyExit, 'verified should exit early');
+    assert.equal(verified.timings.sam_done, undefined);
+    assert.equal(verified.framesProcessed, 2 * 60); // estimated from the clip: SAM bills it all anyway
+    const mismatch = await analyzeClip(clip, REGISTERED, createMockClient(REGISTERED, 'mismatch'));
+    assert.equal(mismatch.debug.earlyExit, undefined);
+    assert.equal(typeof mismatch.timings.sam_done, 'number');
+    assert.equal(mismatch.framesProcessed, 100);
+  });
+
+  test("Muse reads the middle frame while SAM runs, and reads SAM's frame instead when the middle one does not show the plate", async () => {
+    const loaded: number[] = [];
+    const tracked = [0, 500, 1500, 1900].map((timeMs) => ({ timeMs, width: 640, height: 360, load: async () => { loaded.push(timeMs); return new Uint8Array([0xff]); } }));
+    // Mock plate lines cover frames 10-29 (0.33-0.97 s at 30 fps), best at frame 24 (0.8 s).
+    // The middle frame (1500 ms = frame 45) doesn't show it, so Muse reads the frame nearest to 0.8 s (500 ms).
+    const result = await analyzeClip({ ...clip, frames: tracked }, REGISTERED, createMockClient(REGISTERED, 'mismatch'));
+    assert.equal(result.decision.status, 'mismatch');
+    assert.equal(result.debug.museFrame, 'sam_pick');
+    assert.deepEqual(loaded, [1500, 500]);
   });
 
   test('the clip goes inline with its real MIME type, and a model failure is a retry', async () => {
@@ -205,7 +228,7 @@ describe('analyzeClip', () => {
     assert.ok(urls.length === 2 && urls.every((url) => url.startsWith('data:video/quicktime;base64,')));
   });
 
-  test('zero confident frames → retry no_car, without calling Muse', async () => {
+  test('zero confident frames → retry no_car (Muse already started on the middle frame, its answer is ignored)', async () => {
     let museCalls = 0;
     const lost: ModelClient = {
       ...createMockClient(REGISTERED, 'verified'),
@@ -213,11 +236,11 @@ describe('analyzeClip', () => {
       async readPlate() { museCalls++; return report(); },
     };
     const result = await analyzeClip(clip, REGISTERED, lost);
-    assert.deepEqual([result.decision.reason, museCalls], ['no_car', 0]);
+    assert.deepEqual([result.decision.reason, museCalls], ['no_car', 1]);
   });
 
   test('a threshold above every detection turns a good clip into a retry', async () => {
-    const result = await analyzeClip(clip, REGISTERED, createMockClient(REGISTERED, 'verified'), { minConfidence: 0.99, maxDurationS: 5 });
+    const result = await analyzeClip(clip, REGISTERED, createMockClient(REGISTERED, 'verified'), { ...DEFAULT_PIPELINE_CONFIG, minConfidence: 0.99 });
     assert.equal(result.decision.reason, 'no_car');
   });
 
@@ -225,7 +248,7 @@ describe('analyzeClip', () => {
     let calls = 0;
     const counting: ModelClient = { ...createMockClient(REGISTERED, 'verified'), async segmentVideo() { calls++; return { text: '', framesProcessed: 50 }; } };
     assert.equal((await analyzeClip({ video: new Uint8Array(10), frames }, REGISTERED, counting)).decision.reason, 'clip_unreadable');
-    assert.equal((await analyzeClip(clip, REGISTERED, counting, { minConfidence: 0.5, maxDurationS: 1 })).decision.reason, 'clip_too_long');
+    assert.equal((await analyzeClip(clip, REGISTERED, counting, { ...DEFAULT_PIPELINE_CONFIG, maxDurationS: 1 })).decision.reason, 'clip_too_long');
     assert.equal(calls, 0);
   });
 });
