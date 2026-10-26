@@ -18,6 +18,9 @@ export type PickupVerification = {
   confidence: number | null;
   brandMatch: boolean | null;
   colorMatch: boolean | null;
+  /** What Muse Spark saw, to explain a mismatch. */
+  brandRead: string | null;
+  colorRead: string | null;
   /** The trip's car, to compare with the one in front of the passenger. */
   vehicle: { plate: string; brand: string; color: string } | null;
   driver: { name: string; phone: string | null } | null;
@@ -33,12 +36,15 @@ type FunctionResponse = {
   confidence: number | null;
   brand_match: boolean | null;
   color_match: boolean | null;
+  brand_read: string | null;
+  color_read: string | null;
   vehicle: PickupVerification['vehicle'];
   driver: PickupVerification['driver'];
   mock: boolean;
 };
 
-export const PICKUP_CLIP_SECONDS = 5;
+/** 3 s is enough for a car that has stopped, and keeps SAM's cost per check low (it bills per frame). */
+export const PICKUP_CLIP_SECONDS = 3;
 /** The server picks the extracted frame closest to where SAM saw the plate best. */
 const FRAME_STEP_MS = 500;
 const MAX_FRAMES = 11;
@@ -55,6 +61,8 @@ const clientRetry = (reason: PickupClientReason): PickupVerification => ({
   confidence: null,
   brandMatch: null,
   colorMatch: null,
+  brandRead: null,
+  colorRead: null,
   vehicle: null,
   driver: null,
   mock: false,
@@ -148,6 +156,8 @@ export const pickupVerificationService = {
       confidence: data.confidence,
       brandMatch: data.brand_match,
       colorMatch: data.color_match,
+      brandRead: data.brand_read,
+      colorRead: data.color_read,
       vehicle: data.vehicle,
       driver: data.driver,
       mock: data.mock,

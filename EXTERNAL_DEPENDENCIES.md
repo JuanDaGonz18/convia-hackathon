@@ -22,7 +22,7 @@ These modules existed before the building period (which began after the kickoff 
 | `src/lib/supabase.ts` | `src/services/pickupVerificationService.ts` |
 | `src/services/tripService.ts` | `app/pickup-verify.tsx` |
 | `src/utils/format.ts` | `app/pickup-verify.tsx` |
-| `supabase/functions/verify-vehicle/decision.ts` | `supabase/functions/verify-pickup/decision.ts`, `supabase/functions/verify-pickup/index.ts`, `supabase/functions/verify-pickup/mock.ts`, `supabase/functions/verify-pickup/model.ts`, `supabase/functions/verify-pickup/pickup.test.ts`, `supabase/functions/verify-pickup/pipeline.ts` |
+| `supabase/functions/verify-vehicle/decision.ts` | `supabase/functions/verify-pickup/decision.ts`, `supabase/functions/verify-pickup/index.ts` |
 | `supabase/functions/verify-vehicle/sam.ts` | `supabase/functions/verify-pickup/model.ts`, `supabase/functions/verify-pickup/tracks.ts` |
 
 ## Third-party packages

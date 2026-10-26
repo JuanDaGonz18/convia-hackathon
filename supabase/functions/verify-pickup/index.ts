@@ -118,7 +118,7 @@ Deno.serve(async (request) => {
     if (!isCarPlate(registered.plate)) return response({ error: 'UNSUPPORTED_VEHICLE' }, 422);
 
     const respond = (result: PipelineResult, verificationId: string | null) => {
-      const { decision } = result;
+      const { decision, report } = result;
       return response({
         verification_id: verificationId,
         status: decision.status,
@@ -127,6 +127,8 @@ Deno.serve(async (request) => {
         confidence: decision.confidence,
         brand_match: decision.brandMatch,
         color_match: decision.colorMatch,
+        brand_read: report?.brand ?? null,
+        color_read: report?.color ?? null,
         // What the passenger compares with the car in front of them, and how to reach the driver.
         vehicle: { plate: registered.plate, brand: registered.brand, color: registered.color },
         driver: { name: driver.nombre, phone: driver.telefono ?? null },
@@ -197,5 +199,5 @@ Deno.serve(async (request) => {
 });
 
 function retryBody(reason: 'server_error') {
-  return { status: 'retry', reason, plate_read: null, confidence: null, brand_match: null, color_match: null, vehicle: null, driver: null };
+  return { status: 'retry', reason, plate_read: null, confidence: null, brand_match: null, color_match: null, brand_read: null, color_read: null, vehicle: null, driver: null };
 }

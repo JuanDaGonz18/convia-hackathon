@@ -7,8 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 
-import type { VisionReport } from '../verify-vehicle/decision.ts';
-import { decidePickup, PICKUP_REASONS } from './decision.ts';
+import { decidePickup, neighborColors, PICKUP_REASONS, type PickupReport } from './decision.ts';
 import { createMockClient } from './mock.ts';
 import { ModelError, type ModelClient } from './model.ts';
 import { readVideoInfo } from './mp4.ts';
@@ -21,13 +20,15 @@ const REGISTERED = { plate: 'ABC123', brand: 'Renault Logan', color: 'Gris' };
 const box = (x1: number, y1: number, x2: number, y2: number, c: number | null, w = 1000, h = 800) =>
   `<|box;x1=${x1};y1=${y1};x2=${x2};y2=${y2};w=${w};h=${h}${c === null ? '' : `;c=${c}`}|><|mask;x=0;y=0;data=3,4,!a,b<c|>`;
 
-function report(overrides: Partial<VisionReport> = {}): VisionReport {
+function report(overrides: Partial<PickupReport> = {}): PickupReport {
   return {
     plate_text: 'ABC 123',
     plate_readable: true,
     brand: 'renault',
+    brand_confidence: 0.95,
     line: 'logan',
     color: 'plata',
+    color_confidence: 0.9,
     image_quality: 'good',
     looks_like_screen_or_printout: false,
     confidence: 0.93,
@@ -124,31 +125,58 @@ describe('readVideoInfo', () => {
 });
 
 describe('decidePickup', () => {
+  const verdict = (overrides: Partial<PickupReport>) => {
+    const decision = decidePickup(report(overrides), REGISTERED);
+    return `${decision.status}/${decision.reason}`;
+  };
+
   test('plate, brand and color match → verified', () => {
-    assert.deepEqual([decidePickup(report(), REGISTERED).status, decidePickup(report(), REGISTERED).reason], ['verified', 'plate_match']);
+    assert.equal(verdict({}), 'verified/plate_match');
   });
 
-  test('another plate → mismatch', () => {
-    const decision = decidePickup(report({ plate_text: 'XYZ 987' }), REGISTERED);
-    assert.deepEqual([decision.status, decision.reason, decision.plateRead], ['mismatch', 'plate_mismatch', 'XYZ987']);
+  test('another plate read with confidence → mismatch; read with doubt → retry', () => {
+    assert.equal(verdict({ plate_text: 'XYZ 987', confidence: 0.92 }), 'mismatch/plate_mismatch');
+    assert.equal(verdict({ plate_text: 'XYZ 987', confidence: 0.7 }), 'retry/plate_uncertain');
+    assert.equal(verdict({ plate_text: 'ABC 128', confidence: 0.7 }), 'retry/plate_uncertain');
   });
 
-  test('right plate on a car of another color (copied plate) → mismatch for the passenger', () => {
-    const decision = decidePickup(report({ color: 'rojo' }), REGISTERED);
-    assert.deepEqual([decision.status, decision.reason], ['mismatch', 'vehicle_mismatch']);
+  test('right plate, clearly another brand → mismatch (copied plate); unsure brand → retry, never an accusation', () => {
+    assert.equal(verdict({ brand: 'chevrolet', brand_confidence: 0.95 }), 'mismatch/brand_mismatch');
+    assert.equal(verdict({ brand: 'chevrolet', brand_confidence: 0.6 }), 'retry/vehicle_uncertain');
+    assert.equal(verdict({ brand: 'desconocida', brand_confidence: 0.1 }), 'verified/plate_match');
   });
 
-  test('unreadable or doubtful plate → retry, never mismatch', () => {
-    assert.equal(decidePickup(report({ plate_readable: false }), REGISTERED).reason, 'plate_unreadable');
-    assert.equal(decidePickup(report({ confidence: 0.3 }), REGISTERED).reason, 'low_confidence');
-    assert.equal(decidePickup(report({ plate_text: 'ABC 128', confidence: 0.7 }), REGISTERED).reason, 'plate_uncertain');
-    assert.equal(decidePickup(report({ image_quality: 'poor' }), REGISTERED).status, 'retry');
+  test('right plate, clearly another color that light cannot explain → mismatch; unsure → retry', () => {
+    assert.equal(verdict({ color: 'rojo', color_confidence: 0.95 }), 'mismatch/color_mismatch');
+    assert.equal(verdict({ color: 'rojo', color_confidence: 0.6 }), 'retry/vehicle_uncertain');
+  });
+
+  test('neighbor colors (light, shade, reflections) are not evidence of another car', () => {
+    // Registered Gris, read as plata (same family), azul oscuro, negro or blanco, even with high confidence.
+    for (const color of ['plata', 'grafito', 'azul', 'negro', 'blanco']) {
+      assert.equal(verdict({ color, color_confidence: 0.99 }), 'verified/plate_match', color);
+    }
+    assert.ok(neighborColors('Azul oscuro', 'gris'));
+    assert.ok(neighborColors('Rojo', 'vinotinto') === false); // same family, not neighbors: colorMatches already accepts it
+    assert.ok(!neighborColors('Blanco', 'rojo'));
+    assert.equal(decidePickup(report({ color: 'rojo', color_confidence: 0.99 }), { ...REGISTERED, color: 'Vinotinto' }).status, 'verified');
+  });
+
+  test('a strong brand signal wins over a weak color doubt, and a missing confidence never accuses', () => {
+    assert.equal(verdict({ brand: 'chevrolet', brand_confidence: 0.9, color: 'rojo', color_confidence: 0.3 }), 'mismatch/brand_mismatch');
+    assert.equal(verdict({ brand: 'chevrolet', brand_confidence: undefined as unknown as number }), 'retry/vehicle_uncertain');
+  });
+
+  test('unreadable or doubtful readings → retry, never mismatch', () => {
+    assert.equal(verdict({ plate_readable: false }), 'retry/plate_unreadable');
+    assert.equal(verdict({ confidence: 0.3 }), 'retry/low_confidence');
+    assert.equal(verdict({ image_quality: 'poor' }), 'retry/poor_quality');
   });
 
   test('every reason it returns is a declared reason', () => {
     const all: readonly string[] = Object.values(PICKUP_REASONS).flat();
-    const samples = [report(), report({ plate_text: 'XYZ 987' }), report({ color: 'rojo' }), report({ plate_readable: false }), report({ looks_like_screen_or_printout: true })];
-    for (const sample of samples) assert.ok(all.includes(decidePickup(sample, REGISTERED).reason));
+    const samples = [{}, { plate_text: 'XYZ 987' }, { color: 'rojo' }, { brand: 'kia' }, { plate_readable: false }, { looks_like_screen_or_printout: true }];
+    for (const sample of samples) assert.ok(all.includes(decidePickup(report(sample), REGISTERED).reason));
   });
 });
 

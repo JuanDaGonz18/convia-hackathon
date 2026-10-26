@@ -9,8 +9,7 @@
  * Model failures end in retry, never in an error. Each step's duration is recorded.
  * The model client is injected, so tests and the real-clip script run the same code.
  */
-import type { VisionReport } from '../verify-vehicle/decision.ts';
-import { decidePickup, type PickupDecision, pickupRetry } from './decision.ts';
+import { decidePickup, type PickupDecision, type PickupReport, pickupRetry } from './decision.ts';
 import { ModelError, type ModelClient, type ModelErrorKind } from './model.ts';
 import { readVideoInfo } from './mp4.ts';
 import { type ClipFrame, filterConfident, nearestFrame, parseSamVideo, pickMainCar, pickPlate, scaleBox } from './tracks.ts';
@@ -23,11 +22,12 @@ export type PipelineConfig = {
   maxDurationS: number;
 };
 
-export const DEFAULT_PIPELINE_CONFIG: PipelineConfig = { minConfidence: 0.5, maxDurationS: 5 };
+/** 3 s keeps SAM at ~180 billed frames per check (30 fps × 2 prompts) and is enough for a car that has stopped. */
+export const DEFAULT_PIPELINE_CONFIG: PipelineConfig = { minConfidence: 0.5, maxDurationS: 3 };
 
 export type PipelineResult = {
   decision: PickupDecision;
-  report: VisionReport | null;
+  report: PickupReport | null;
   /** Frames SAM billed (both prompts), or null if it didn't run. */
   framesProcessed: number | null;
   timings: Record<string, number>;
@@ -62,7 +62,7 @@ export async function analyzeClip(
   const timings: Record<string, number> = {};
   const debug: Record<string, unknown> = {};
   let framesProcessed: number | null = null;
-  let report: VisionReport | null = null;
+  let report: PickupReport | null = null;
   const timed = async <T>(step: string, run: () => Promise<T>) => {
     const started = performance.now();
     try {

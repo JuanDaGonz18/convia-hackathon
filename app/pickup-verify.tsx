@@ -24,6 +24,15 @@ import { errorMessage } from '@/utils/format';
 const T = PICKUP_TEXTS;
 type Phase = 'camera' | 'recording' | 'processing' | 'result';
 
+/** What differs between the car filmed and the trip's car, in one sentence. */
+function mismatchDetail({ reason, plateRead, brandRead, colorRead, vehicle }: PickupVerification) {
+  if (!vehicle) return null;
+  if (reason === 'plate_mismatch' && plateRead) return T.mismatch.plate_mismatch(plateRead, vehicle.plate);
+  if (reason === 'brand_mismatch' && brandRead) return T.mismatch.brand_mismatch(brandRead, vehicle.brand);
+  if (reason === 'color_mismatch' && colorRead) return T.mismatch.color_mismatch(colorRead, vehicle.color.toLowerCase());
+  return null;
+}
+
 /**
  * "Verificar mi carro" (`?requestId=&tripId=`): the passenger films the arriving
  * car for up to 5 s and verify-pickup says whether it is the trip's car.
@@ -63,7 +72,7 @@ export default function PickupVerifyScreen() {
       clipUri = undefined;
     }
     if (!clipUri) {
-      setResult({ verificationId: null, status: 'retry', reason: 'recording_failed', plateRead: null, confidence: null, brandMatch: null, colorMatch: null, vehicle: null, driver: null, mock: false });
+      setResult({ verificationId: null, status: 'retry', reason: 'recording_failed', plateRead: null, confidence: null, brandMatch: null, colorMatch: null, brandRead: null, colorRead: null, vehicle: null, driver: null, mock: false });
       setPhase('result');
       return;
     }
@@ -223,11 +232,7 @@ export default function PickupVerifyScreen() {
                 <Ionicons color={colors.error} name="alert-circle" size={56} />
                 <Text style={styles.verdictTitle}>{T.mismatch.title}</Text>
                 <Text style={styles.verdictText}>{T.mismatch.text}</Text>
-                <Text style={styles.verdictText}>
-                  {result.reason === 'vehicle_mismatch' || !result.plateRead || !result.vehicle
-                    ? T.mismatch.vehicle_mismatch
-                    : T.mismatch.plate_mismatch(result.plateRead, result.vehicle.plate)}
-                </Text>
+                {mismatchDetail(result) ? <Text style={styles.verdictText}>{mismatchDetail(result)}</Text> : null}
               </View>
             ) : (
               <Notice title={retryText(result.reason).title} tone="warning">

@@ -5,8 +5,7 @@
  * Outcome: `mock_outcome` in the request, else by the plate's last digit
  * (7–8 → mismatch, 9 → retry, others → verified).
  */
-import type { VisionReport } from '../verify-vehicle/decision.ts';
-import type { PickupStatus } from './decision.ts';
+import type { PickupReport, PickupStatus } from './decision.ts';
 import type { ModelClient } from './model.ts';
 
 const W = 1280;
@@ -46,7 +45,7 @@ export function createMockClient(registered: { plate: string; brand: string; col
       if (prompt === 'license plate') return { text: outcome === 'retry' ? '' : plateLines(), framesProcessed: 50 };
       return { text: carLines(), framesProcessed: 50 };
     },
-    async readPlate(): Promise<VisionReport> {
+    async readPlate(): Promise<PickupReport> {
       await latency();
       const { plate } = registered;
       const shown = outcome === 'mismatch'
@@ -56,8 +55,10 @@ export function createMockClient(registered: { plate: string; brand: string; col
         plate_text: shown,
         plate_readable: true,
         brand: registered.brand.split(' ')[0]?.toLowerCase() || 'desconocida',
+        brand_confidence: 0.9,
         line: registered.brand.split(' ').slice(1).join(' ').toLowerCase() || 'desconocida',
         color: registered.color.toLowerCase(),
+        color_confidence: 0.9,
         image_quality: 'good',
         looks_like_screen_or_printout: false,
         confidence: 0.94,

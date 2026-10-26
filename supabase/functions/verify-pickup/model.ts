@@ -6,8 +6,8 @@
  * so the same client runs in the Edge Function and in the real-clip test
  * script (Node).
  */
-import type { VisionReport } from '../verify-vehicle/decision.ts';
 import type { SamBox } from '../verify-vehicle/sam.ts';
+import type { PickupReport } from './decision.ts';
 
 export type ModelErrorKind = 'timeout' | 'rate_limited' | 'http' | 'malformed';
 
@@ -33,7 +33,7 @@ export type SegmentResult = { text: string; framesProcessed: number | null };
 
 export type ModelClient = {
   segmentVideo(videoDataUrl: string, prompt: string): Promise<SegmentResult>;
-  readPlate(imageDataUrl: string, plateBox: SamBox | null): Promise<VisionReport>;
+  readPlate(imageDataUrl: string, plateBox: SamBox | null): Promise<PickupReport>;
 };
 
 const SAM_TIMEOUT_MS = 30_000;
@@ -44,14 +44,16 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const VISION_SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['plate_text', 'plate_readable', 'brand', 'line', 'color', 'image_quality', 'looks_like_screen_or_printout', 'confidence'],
+  required: ['plate_text', 'plate_readable', 'brand', 'brand_confidence', 'line', 'color', 'color_confidence', 'image_quality', 'looks_like_screen_or_printout', 'confidence'],
   properties: {
     plate_text: { type: 'string', description: 'Plate of the main car exactly as printed, e.g. "ABC 123". Empty if not visible.' },
     plate_readable: { type: 'boolean', description: 'true only if every plate character is clearly legible.' },
     brand: { type: 'string', description: 'Car brand in lowercase, e.g. "renault". "desconocida" if unsure.' },
+    brand_confidence: { type: 'number', description: 'Confidence in brand, 0 to 1. High only if the logo or a distinctive design is clearly visible.' },
     line: { type: 'string', description: 'Model line, e.g. "logan". "desconocida" if unsure.' },
     color: { type: 'string', description: 'Main body color, one Spanish word: blanco, negro, gris, plata, rojo, azul, verde, amarillo, naranja, cafe, beige, dorado.' },
-    image_quality: { type: 'string', enum: ['good', 'fair', 'poor'], description: 'How well the plate can be seen.' },
+    color_confidence: { type: 'number', description: 'Confidence that this is the real paint color, 0 to 1. Lower it for shade, night, glare, reflections or tinted light.' },
+    image_quality: { type: 'string', enum: ['good', 'fair', 'poor'], description: 'Sharpness and lighting of the image itself (blur, darkness, glare). A plate that is covered or out of view is not poor quality: set plate_readable to false instead.' },
     looks_like_screen_or_printout: { type: 'boolean', description: 'true if this is a screen, printout or photo of a photo instead of a real street scene.' },
     confidence: { type: 'number', description: 'Confidence in plate_text, 0 to 1.' },
   },
@@ -134,7 +136,7 @@ export function createModelClient({ apiKey, baseUrl = 'https://api.meta.ai/v1', 
     },
 
     /** Muse Spark on one frame, strict JSON (https://dev.meta.ai/docs/structured-output). */
-    async readPlate(imageDataUrl, plateBox) {
+    async readPlate(imageDataUrl, plateBox): Promise<PickupReport> {
       const hint = plateBox
         ? ` The main car's plate is around x=${plateBox.x1}-${plateBox.x2}, y=${plateBox.y1}-${plateBox.y2} in this ${plateBox.w}x${plateBox.h} image.`
         : '';
@@ -152,7 +154,7 @@ export function createModelClient({ apiKey, baseUrl = 'https://api.meta.ai/v1', 
       }, MUSE_TIMEOUT_MS) as { choices?: { message?: { content?: unknown } }[] };
       const content = data?.choices?.[0]?.message?.content;
       if (typeof content !== 'string') throw new ModelError('malformed', 'Muse response without content');
-      let report: VisionReport;
+      let report: PickupReport;
       try {
         report = JSON.parse(content);
       } catch {
@@ -162,8 +164,10 @@ export function createModelClient({ apiKey, baseUrl = 'https://api.meta.ai/v1', 
         && typeof report.plate_text === 'string'
         && typeof report.plate_readable === 'boolean'
         && typeof report.brand === 'string'
+        && typeof report.brand_confidence === 'number'
         && typeof report.line === 'string'
         && typeof report.color === 'string'
+        && typeof report.color_confidence === 'number'
         && ['good', 'fair', 'poor'].includes(report.image_quality)
         && typeof report.looks_like_screen_or_printout === 'boolean'
         && typeof report.confidence === 'number';

@@ -19,16 +19,16 @@ type RetryText = { title: string; text: string; tips?: string[] };
 const FILMING_TIPS = [
   'Apunta a la parte de adelante o de atrás del carro, donde está la placa.',
   'Graba cuando el carro esté a pocos metros y casi detenido.',
-  'Mantén el celular quieto durante los 5 segundos.',
+  'Mantén el celular quieto durante los 3 segundos.',
 ];
 
 export const PICKUP_TEXTS = {
   screen: {
     kicker: 'VERIFICAR MI CARRO',
     title: '¿Es este tu carro?',
-    intro: 'Graba 5 segundos del carro que llega. Revisamos con IA que la placa, la marca y el color sean los del viaje. El video se borra apenas termina la verificación.',
+    intro: 'Graba 3 segundos del carro que llega. Revisamos con IA que la placa, la marca y el color sean los del viaje. El video se borra apenas termina la verificación.',
     expected: 'Debe ser',
-    record: 'Grabar 5 segundos',
+    record: 'Grabar 3 segundos',
     recording: (seconds: number) => `Grabando… ${seconds}`,
     stop: 'Detener',
     cameraNeeded: 'Necesitamos la cámara para grabar el carro.',
@@ -53,7 +53,8 @@ export const PICKUP_TEXTS = {
     title: 'No te subas',
     text: 'Este carro no coincide con el de tu viaje.',
     plate_mismatch: (read: string, expected: string) => `Leímos la placa ${read}, pero tu viaje es en ${expected}.`,
-    vehicle_mismatch: 'La placa coincide, pero la marca o el color no. Podría ser una placa copiada.',
+    brand_mismatch: (read: string, expected: string) => `La placa coincide, pero el carro es un ${read} y tu viaje es en un ${expected}. Podría ser una placa copiada.`,
+    color_mismatch: (read: string, expected: string) => `La placa coincide, pero el carro es ${read} y el de tu viaje es ${expected}. Podría ser una placa copiada.`,
     call: 'Llamar al conductor',
     chat: 'Escribirle al conductor',
     report: 'Reportar',
@@ -72,7 +73,7 @@ export const PICKUP_TEXTS = {
   retry: {
     // Server: the clip
     clip_unreadable: { title: 'No pudimos abrir el video', text: 'Graba de nuevo con la cámara de ConVía.' },
-    clip_too_long: { title: 'El video es muy largo', text: 'Graba máximo 5 segundos.' },
+    clip_too_long: { title: 'El video es muy largo', text: 'Graba máximo 3 segundos.' },
     frame_missing: { title: 'No pudimos revisar el video', text: 'Graba de nuevo, por favor.' },
     // Server: what SAM saw
     no_car: { title: 'No vimos un carro', text: 'Apunta al carro que llega y grábalo completo.', tips: FILMING_TIPS },
@@ -82,7 +83,8 @@ export const PICKUP_TEXTS = {
     poor_quality: { title: 'El video quedó borroso u oscuro', text: 'Graba de nuevo con el celular quieto.', tips: FILMING_TIPS },
     plate_unreadable: { title: 'No pudimos leer la placa', text: 'Acércate un poco y que la placa se vea entera, sin reflejos.', tips: FILMING_TIPS },
     low_confidence: { title: 'No estamos seguros de la placa', text: 'Graba de nuevo con la placa más cerca y bien iluminada.', tips: FILMING_TIPS },
-    plate_uncertain: { title: 'La placa casi coincide', text: 'No la leímos con claridad. Graba de nuevo más cerca de la placa.', tips: FILMING_TIPS },
+    plate_uncertain: { title: 'No leímos la placa con claridad', text: 'Graba de nuevo más cerca de la placa antes de decidir.', tips: FILMING_TIPS },
+    vehicle_uncertain: { title: 'No pudimos confirmar el carro', text: 'La placa coincide, pero no estamos seguros de la marca o el color. Compáralos tú mismo o graba de nuevo con buena luz.', tips: FILMING_TIPS },
     // Server: models and limits
     timeout: { title: 'La verificación tardó demasiado', text: 'Inténtalo de nuevo en un momento.' },
     rate_limited: { title: 'Hay muchas verificaciones en curso', text: 'Espera unos segundos y vuelve a intentarlo.' },
