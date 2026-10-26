@@ -17,7 +17,7 @@ The new code is part of **ConVía**, a carpooling app for university students an
 
 | Feature | Meta model | PR | Demo timestamp |
 | --- | --- | --- | --- |
-| | | | |
+| **Pickup check** ("Verificar mi carro"): the passenger films the arriving car for 5 s; SAM tracks the car and its plate across frames and Muse Spark reads the plate from the best frame, then code decides: it's your ride / don't get in / film again | SAM 3.1 + Muse Spark 1.3 | feat/verify-pickup | |
 
 ## What existed before the event (not in this repository)
 
@@ -41,7 +41,8 @@ Models used by the code in this repository:
 
 | Model | ID | Used for | Where |
 | --- | --- | --- | --- |
-| | | | |
+| SAM 3.1 | `sam-3.1` | Tracking the arriving car ("car") and its plate ("license plate") across the frames of a 5 s clip, with confidence per frame | `supabase/functions/verify-pickup/model.ts` (`segmentVideo`) |
+| Muse Spark 1.3 | `muse-spark-1.3` | Reading plate, brand and color from the frame SAM picked, as strict JSON | `supabase/functions/verify-pickup/model.ts` (`readPlate`) |
 
 ## Pre-existing code it depends on
 

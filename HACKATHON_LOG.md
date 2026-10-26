@@ -39,6 +39,18 @@ Template for each entry:
 - **Meta model:** none.
 - **PRs:** none.
 
+### October 26, 2026 (afternoon) — verify-pickup
+
+- **Built:** "Verificar mi carro": when their request is accepted, the passenger films the arriving car for up to 5 seconds and learns whether it is the trip's car (✅ it's your ride / 🚨 don't get in / 🔄 film again). New Edge Function `verify-pickup`, a `pickup_verifications` table with RLS, a private bucket for clips, a report RPC, and the app screen with visible progress.
+- **Meta model:** SAM 3.1 on video (prompts "car" and "license plate", tracked across frames and filtered by confidence) picks the arriving car and the frame where its plate is clearest; Muse Spark 1.3 reads that frame with strict JSON output.
+- **PRs:** feat/verify-pickup
+- **Notes:**
+  - Measured with the real API before writing code: Muse Spark on the whole video took 42 s and misplaced objects, so the app extracts a frame every 0.5 s and Muse reads only the one SAM points to (~5 s).
+  - Uploading the clip to the Files API added ~9 s (upload + delete) for a 3 KB file; sending it inline as base64 cut SAM's step from ~14 s to ~6 s, and nothing is ever stored at the provider.
+  - A SAM line is not tracking: a lost object kept a box with confidence 0.0003, so every detection is filtered by a configurable threshold (0.5 for now).
+  - The clip and frames are deleted from Storage after every check; only the result is stored.
+  - Next: calibrate the threshold with real clips.
+
 ### October 27, 2026
 
 ### October 28, 2026
