@@ -141,7 +141,7 @@
         "passwordEmpty": "Create a password.",
         "terms": "Accept the terms and conditions.",
         "domain": "That email isn't from a registered institution. Use your institutional email (e.g. @unisabana.edu.co).",
-        "confirmationSent": "We sent you a confirmation email. Open it on this phone, then log in.",
+        "confirmationSent": "We sent you a confirmation e-mail. Open it on this device and tap \"Confirm\". If it doesn't show up within a few minutes, check your Junk folder; institutional (Outlook) accounts may also hold it in quarantine.",
         "alreadyRegistered": "An account already exists with this email. Log in with it.",
         "weakPassword": "Your password doesn't meet the security requirements.",
         "generic": "We couldn't create your account. Check your connection and try again."
@@ -155,7 +155,7 @@
       "submitting": "Sending…",
       "sentTitle": "Check your email",
       "sentText": "If {{email}} has a ConVía account, you'll get a link to create a new password. It expires in 1 hour.",
-      "sentHint": "Open it on this device. If you don't see it in a few minutes, check your spam folder.",
+      "sentHint": "Open it on this device. If you don't see it within a few minutes, check your Junk folder; institutional (Outlook) accounts may also hold it in quarantine.",
       "backToLogin": "Back to log in",
       "sendAgain": "Send again",
       "errors": {
@@ -189,7 +189,24 @@
       "retryMicrosoft": "Try again with your institutional account.",
       "retryLogin": "Log in to continue; if your account was already confirmed, you'll get right in.",
       "goToLogin": "Go to log in",
-      "askAgain": "Request another link"
+      "askAgain": "Request another link",
+      "link": {
+        "email": {
+          "title": "Confirm your account",
+          "text": "Tap the button to activate your ConVía account.",
+          "button": "Confirm"
+        },
+        "recovery": {
+          "title": "Create a new password",
+          "text": "Tap the button to continue and choose your new password.",
+          "button": "Create new password"
+        },
+        "email_change": {
+          "title": "Confirm your new e-mail",
+          "text": "Tap the button to use this e-mail for your ConVía account.",
+          "button": "Confirm"
+        }
+      }
     }
   },
   "pickup": {

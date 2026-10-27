@@ -141,7 +141,7 @@
         "passwordEmpty": "Crea una contraseña.",
         "terms": "Acepta los términos y condiciones.",
         "domain": "Ese correo no pertenece a una institución registrada. Usa tu correo institucional (por ejemplo @unisabana.edu.co).",
-        "confirmationSent": "Te enviamos un correo de confirmación. Ábrelo desde este teléfono y luego inicia sesión.",
+        "confirmationSent": "Te enviamos un correo de confirmación. Ábrelo desde este dispositivo y toca «Confirmar». Si no aparece en unos minutos, revisa Correo no deseado; en correos institucionales (Outlook) también puede quedar en cuarentena.",
         "alreadyRegistered": "Ya existe una cuenta con este correo. Inicia sesión con ella.",
         "weakPassword": "La contraseña no cumple los requisitos de seguridad.",
         "generic": "No pudimos crear tu cuenta. Revisa tu conexión e inténtalo de nuevo."
@@ -155,7 +155,7 @@
       "submitting": "Enviando…",
       "sentTitle": "Revisa tu correo",
       "sentText": "Si {{email}} tiene una cuenta en ConVía, te llegará un enlace para crear una contraseña nueva. Vence en 1 hora.",
-      "sentHint": "Ábrelo en este dispositivo. Si no lo ves en unos minutos, revisa la carpeta de correo no deseado.",
+      "sentHint": "Ábrelo en este dispositivo. Si no lo ves en unos minutos, revisa Correo no deseado; en correos institucionales (Outlook) también puede quedar en cuarentena.",
       "backToLogin": "Volver a iniciar sesión",
       "sendAgain": "Enviar de nuevo",
       "errors": {
@@ -189,7 +189,24 @@
       "retryMicrosoft": "Vuelve a intentarlo con tu cuenta institucional.",
       "retryLogin": "Inicia sesión para continuar; si tu cuenta ya estaba confirmada, entrarás sin problema.",
       "goToLogin": "Ir a iniciar sesión",
-      "askAgain": "Pedir otro enlace"
+      "askAgain": "Pedir otro enlace",
+      "link": {
+        "email": {
+          "title": "Confirma tu cuenta",
+          "text": "Toca el botón para activar tu cuenta de ConVía.",
+          "button": "Confirmar"
+        },
+        "recovery": {
+          "title": "Crea una contraseña nueva",
+          "text": "Toca el botón para continuar y elegir tu contraseña nueva.",
+          "button": "Crear contraseña nueva"
+        },
+        "email_change": {
+          "title": "Confirma tu nuevo correo",
+          "text": "Toca el botón para usar este correo en tu cuenta de ConVía.",
+          "button": "Confirmar"
+        }
+      }
     }
   },
   "pickup": {

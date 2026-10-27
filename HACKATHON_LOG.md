@@ -92,6 +92,8 @@ Template for each entry:
 - **PRs:** feat/i18n-auth (phase 2a), feat/block3-ux, feat/vehicle-autofill
 - **Notes:**
   - Autofill on frames of the team's real clips: brand, line and color right on every frame of the registered car; plate right when visible and left empty when covered. On another car it read that car's plate correctly. Fields below a confidence threshold are never suggested.
+  - suggest-vehicle deployed to the hackathon project.
+  - Auth e-mails: Outlook Safe Links opens every link to scan it, which used up the one-time confirmation and reset links before the person clicked. The e-mails now open a page with a "Confirmar" / "Crear contraseña nueva" button, and the token is only used on that tap (changes to pre-existing files, not published here).
   - The model sometimes repeats the brand in the line ("Mazda Mazda 3"); the code strips it.
   - Pending: translating the remaining screens; notifications in the user's language (needs the locale on the profile); translating messages raised by the database and by the on-device face check; the legal documents in English; the 404 of the production web login page.
 
