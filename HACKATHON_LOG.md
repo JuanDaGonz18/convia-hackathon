@@ -81,7 +81,19 @@ Template for each entry:
   - Supabase rejects custom e-mail templates on the free tier until custom SMTP is configured.
   - Next: translate the remaining screens (~70 files).
 
+
 ### October 27, 2026
+
+- **Built:**
+  - Spanish/English, phase 2a: every screen of the demo flow (add/verify vehicle, post trip, search, requests, trip details, profile, map) and the components they use. Plurals, weekday names, distances and the app's own error messages follow the language.
+  - Web review fixes: one consistent text about who sees the plate (partial plate before requesting, full plate only for accepted passengers during the trip); Passenger/Driver cards fill the row on sign-up; sign-up checks the e-mail domain while typing and lists the enabled institutions; maps open on Chía / La Sabana; ConVía+ (plans, "+" badges, upgrade prompts) hidden behind a flag, off by default, since this is an academic, non-commercial project.
+  - Vehicle autofill: Muse Spark proposes brand, line, color and plate from the vehicle photo; nothing is filled until the driver accepts, and every field stays editable.
+- **Meta model:** Muse Spark 1.3 translated 673 new texts (~$0.16, reviewed for "trip"/"post" terminology) and powers the vehicle autofill (~$0.004 and 3–5 s per photo).
+- **PRs:** feat/i18n-auth (phase 2a), feat/block3-ux, feat/vehicle-autofill
+- **Notes:**
+  - Autofill on frames of the team's real clips: brand, line and color right on every frame of the registered car; plate right when visible and left empty when covered. On another car it read that car's plate correctly. Fields below a confidence threshold are never suggested.
+  - The model sometimes repeats the brand in the line ("Mazda Mazda 3"); the code strips it.
+  - Pending: translating the remaining screens; notifications in the user's language (needs the locale on the profile); translating messages raised by the database and by the on-device face check; the legal documents in English; the 404 of the production web login page.
 
 ### October 28, 2026
 
