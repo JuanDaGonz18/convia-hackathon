@@ -18,6 +18,8 @@ The new code is part of **ConVía**, a carpooling app for university students an
 | Feature | Meta model | PR | Demo timestamp |
 | --- | --- | --- | --- |
 | **Pickup check** ("Verificar mi carro"): the passenger films the arriving car for 5 s; SAM tracks the car and its plate across frames and Muse Spark reads the plate from the best frame, then code decides: it's your ride / don't get in / film again | SAM 3.1 + Muse Spark 1.3 | [#1](https://github.com/JuanDaGonz18/convia-hackathon/pull/1) | |
+| **Spanish / English**: i18next with a language picker (Sistema / Español / English); the English texts are generated from the Spanish ones by a script that sends them to Muse Spark in batches, checks every key and {{placeholder}}, and never overwrites reviewed text | Muse Spark 1.3 | feat/i18n-auth | |
+| **"Remember me" and password recovery**: keep the session or end it with the tab/app; reset link by e-mail and a new-password screen | — | feat/i18n-auth | |
 
 ## What existed before the event (not in this repository)
 
@@ -43,6 +45,7 @@ Models used by the code in this repository:
 | --- | --- | --- | --- |
 | SAM 3.1 | `sam-3.1` | Tracking the arriving car ("car") and its plate ("license plate") across the frames of a 5 s clip, with confidence per frame | `supabase/functions/verify-pickup/model.ts` (`segmentVideo`) |
 | Muse Spark 1.3 | `muse-spark-1.3` | Reading plate, brand and color from the frame SAM picked, as strict JSON | `supabase/functions/verify-pickup/model.ts` (`readPlate`) |
+| Muse Spark 1.3 | `muse-spark-1.3` | Translating the app's Spanish texts into English (batches, strict JSON, placeholders checked) | `scripts/translate-locale.mjs` |
 
 ## Privacy decisions
 

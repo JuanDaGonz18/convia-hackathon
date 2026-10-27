@@ -4,6 +4,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { type TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 import { ButtonPrimary } from '@/components/ui/ButtonPrimary';
 import { ButtonSecondary } from '@/components/ui/ButtonSecondary';
@@ -16,24 +18,38 @@ import { dimensions } from '@/constants/dimensions';
 import { radius } from '@/constants/radius';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
-import { PICKUP_TEXTS, retryText } from '@/content/pickupVerification';
+import { FILMING_TIPS, KNOWN_COLORS, REASONS_WITH_TIPS } from '@/content/pickupVerification';
+import i18n from '@/i18n';
 import { PICKUP_CLIP_SECONDS, type PickupStage, type PickupVerification, pickupVerificationService } from '@/services/pickupVerificationService';
 import { tripService } from '@/services/tripService';
 import { errorMessage } from '@/utils/format';
 
-const T = PICKUP_TEXTS;
 type Phase = 'camera' | 'recording' | 'processing' | 'result';
 
 /** Which progress row is running for each stage the server reports (rows before it are done). */
 const STAGE_STEP: Record<PickupStage, number> = { uploading: 0, analyzing: 1, car_found: 2, plate_found: 3, reading_plate: 3 };
 
+/** Progress rows, in order (pickup.steps.*). */
+const STEPS = ['upload', 'car', 'plate', 'read'] as const;
+
+/** A color as Muse Spark or the driver wrote it (Spanish), in the user's language when it is a known one. */
+function colorName(t: TFunction, color: string) {
+  const word = color.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return (KNOWN_COLORS as readonly string[]).includes(word) ? t(`colors.${word}`) : color.toLowerCase();
+}
+
 /** What differs between the car filmed and the trip's car, in one sentence. */
-function mismatchDetail({ reason, plateRead, brandRead, colorRead, vehicle }: PickupVerification) {
+function mismatchDetail(t: TFunction, { reason, plateRead, brandRead, colorRead, vehicle }: PickupVerification) {
   if (!vehicle) return null;
-  if (reason === 'plate_mismatch' && plateRead) return T.mismatch.plate_mismatch(plateRead, vehicle.plate);
-  if (reason === 'brand_mismatch' && brandRead) return T.mismatch.brand_mismatch(brandRead, vehicle.brand);
-  if (reason === 'color_mismatch' && colorRead) return T.mismatch.color_mismatch(colorRead, vehicle.color.toLowerCase());
+  if (reason === 'plate_mismatch' && plateRead) return t('pickup.mismatch.plate_mismatch', { read: plateRead, expected: vehicle.plate });
+  if (reason === 'brand_mismatch' && brandRead) return t('pickup.mismatch.brand_mismatch', { read: brandRead, expected: vehicle.brand });
+  if (reason === 'color_mismatch' && colorRead) return t('pickup.mismatch.color_mismatch', { read: colorName(t, colorRead), expected: colorName(t, vehicle.color) });
   return null;
+}
+
+/** Retry texts; an unknown code gets the generic one instead of failing. */
+function retryKey(reason: string) {
+  return i18n.exists(`pickup.retry.${reason}.title`) ? reason : 'server_error';
 }
 
 /**
@@ -42,6 +58,7 @@ function mismatchDetail({ reason, plateRead, brandRead, colorRead, vehicle }: Pi
  * Nothing is kept: the clip and its frames are deleted after the check.
  */
 export default function PickupVerifyScreen() {
+  const { t } = useTranslation();
   const { requestId, tripId } = useLocalSearchParams<{ requestId: string; tripId?: string }>();
   const [permission, requestPermission] = useCameraPermissions();
   const camera = useRef<CameraView>(null);
@@ -90,9 +107,9 @@ export default function PickupVerifyScreen() {
     try {
       await pickupVerificationService.reportMismatch(result.verificationId);
       setReported(true);
-      toast.info(T.mismatch.reported);
+      toast.info(t('pickup.mismatch.reported'));
     } catch (reportError) {
-      toast.error(errorMessage(reportError, T.mismatch.reportFailed));
+      toast.error(errorMessage(reportError, t('pickup.mismatch.reportFailed')));
     } finally {
       setBusy(false);
     }
@@ -104,10 +121,10 @@ export default function PickupVerifyScreen() {
     setBusy(true);
     try {
       await tripService.cancelRequest(requestId);
-      toast.info(T.mismatch.cancelled);
+      toast.info(t('pickup.mismatch.cancelled'));
       router.replace('/requests');
     } catch (cancelError) {
-      toast.error(errorMessage(cancelError, T.mismatch.cancelFailed));
+      toast.error(errorMessage(cancelError, t('pickup.mismatch.cancelFailed')));
     } finally {
       setBusy(false);
     }
@@ -119,15 +136,15 @@ export default function PickupVerifyScreen() {
     else if (tripId) router.push({ pathname: '/chat/[tripId]', params: { tripId } });
   };
 
-  const header = <ScreenHeader kicker={T.screen.kicker} title={T.screen.title} />;
+  const header = <ScreenHeader kicker={t('pickup.screen.kicker')} title={t('pickup.screen.title')} />;
 
   if (Platform.OS === 'web') {
     return (
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content}>
           {header}
-          <Notice tone="info">{T.screen.webUnavailable}</Notice>
-          <ButtonSecondary onPress={() => router.back()} title={T.screen.back} />
+          <Notice tone="info">{t('pickup.screen.webUnavailable')}</Notice>
+          <ButtonSecondary onPress={() => router.back()} title={t('common.back')} />
         </ScrollView>
       </SafeAreaView>
     );
@@ -138,19 +155,19 @@ export default function PickupVerifyScreen() {
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content}>
           {header}
-          <Text style={styles.subtitle}>{T.screen.intro}</Text>
+          <Text style={styles.subtitle}>{t('pickup.screen.intro')}</Text>
           {permission && !permission.canAskAgain ? (
             <>
-              <Notice tone="warning">{T.screen.cameraBlocked}</Notice>
-              <ButtonPrimary onPress={() => void Linking.openSettings()} title={T.screen.openSettings} />
+              <Notice tone="warning">{t('pickup.screen.cameraBlocked')}</Notice>
+              <ButtonPrimary onPress={() => void Linking.openSettings()} title={t('pickup.screen.openSettings')} />
             </>
           ) : (
             <>
-              <Notice tone="info">{T.screen.cameraNeeded}</Notice>
-              <ButtonPrimary icon="camera" onPress={() => void requestPermission()} title={T.screen.allowCamera} />
+              <Notice tone="info">{t('pickup.screen.cameraNeeded')}</Notice>
+              <ButtonPrimary icon="camera" onPress={() => void requestPermission()} title={t('pickup.screen.allowCamera')} />
             </>
           )}
-          <ButtonSecondary onPress={() => router.back()} title={T.screen.back} />
+          <ButtonSecondary onPress={() => router.back()} title={t('common.back')} />
         </ScrollView>
       </SafeAreaView>
     );
@@ -159,12 +176,12 @@ export default function PickupVerifyScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ConfirmDialog
-        cancelLabel={T.mismatch.cancelBack}
-        confirmLabel={T.mismatch.cancelConfirm}
-        message={T.mismatch.cancelMessage}
+        cancelLabel={t('common.back')}
+        confirmLabel={t('pickup.mismatch.cancelConfirm')}
+        message={t('pickup.mismatch.cancelMessage')}
         onCancel={() => setConfirmCancel(false)}
         onConfirm={() => void cancelTrip()}
-        title={T.mismatch.cancelTitle}
+        title={t('pickup.mismatch.cancelTitle')}
         tone="danger"
         visible={confirmCancel}
       />
@@ -173,7 +190,7 @@ export default function PickupVerifyScreen() {
 
         {phase === 'camera' || phase === 'recording' ? (
           <>
-            <Text style={styles.subtitle}>{T.screen.intro}</Text>
+            <Text style={styles.subtitle}>{t('pickup.screen.intro')}</Text>
             <View style={styles.cameraFrame}>
               <CameraView
                 facing="back"
@@ -188,32 +205,32 @@ export default function PickupVerifyScreen() {
               {phase === 'recording' ? (
                 <View accessibilityLiveRegion="polite" style={styles.recordingBadge}>
                   <View style={styles.recordingDot} />
-                  <Text style={styles.recordingText}>{T.screen.recording(secondsLeft)}</Text>
+                  <Text style={styles.recordingText}>{t('pickup.screen.recording', { seconds: secondsLeft })}</Text>
                 </View>
               ) : null}
             </View>
             {phase === 'recording' ? (
-              <ButtonSecondary icon="stop" onPress={() => camera.current?.stopRecording()} title={T.screen.stop} />
+              <ButtonSecondary icon="stop" onPress={() => camera.current?.stopRecording()} title={t('pickup.screen.stop')} />
             ) : (
-              <ButtonPrimary disabled={!cameraReady} icon="videocam" onPress={() => void record()} title={T.screen.record} />
+              <ButtonPrimary disabled={!cameraReady} icon="videocam" onPress={() => void record()} title={t('pickup.screen.record')} />
             )}
           </>
         ) : null}
 
         {phase === 'processing' ? (
           <View accessibilityLiveRegion="polite" style={styles.processing}>
-            {T.steps.map((step, index) => {
+            {STEPS.map((step, index) => {
               const current = STAGE_STEP[stage];
               const doneStep = index < current;
               return (
-                <View key={step.done} style={styles.stageRow}>
+                <View key={step} style={styles.stageRow}>
                   {index === current ? (
                     <ActivityIndicator color={colors.primary} size="small" />
                   ) : (
                     <Ionicons color={doneStep ? colors.success : colors.textSecondary} name={doneStep ? 'checkmark-circle' : 'ellipse-outline'} size={20} />
                   )}
                   <Text style={[styles.stageText, index === current && styles.stageCurrent, doneStep && styles.stageDone]}>
-                    {doneStep ? step.done : step.active}
+                    {t(`pickup.steps.${step}.${doneStep ? 'done' : 'active'}`)}
                   </Text>
                 </View>
               );
@@ -226,49 +243,49 @@ export default function PickupVerifyScreen() {
             {result.status === 'verified' ? (
               <View style={[styles.verdict, styles.verdictOk]}>
                 <Ionicons color={colors.success} name="checkmark-circle" size={56} />
-                <Text style={styles.verdictTitle}>{T.verified.title}</Text>
+                <Text style={styles.verdictTitle}>{t('pickup.verified.title')}</Text>
                 {result.vehicle ? <Text style={styles.plate}>{result.vehicle.plate}</Text> : null}
-                {result.vehicle ? <Text style={styles.verdictText}>{result.vehicle.brand} · {result.vehicle.color}</Text> : null}
-                {result.driver ? <Text style={styles.verdictText}>{T.verified.text(result.driver.name)}</Text> : null}
+                {result.vehicle ? <Text style={styles.verdictText}>{result.vehicle.brand} · {colorName(t, result.vehicle.color)}</Text> : null}
+                {result.driver ? <Text style={styles.verdictText}>{t('pickup.verified.text', { driver: result.driver.name })}</Text> : null}
               </View>
             ) : result.status === 'mismatch' ? (
               <View style={[styles.verdict, styles.verdictDanger]}>
                 <Ionicons color={colors.error} name="alert-circle" size={56} />
-                <Text style={styles.verdictTitle}>{T.mismatch.title}</Text>
-                <Text style={styles.verdictText}>{T.mismatch.text}</Text>
-                {mismatchDetail(result) ? <Text style={styles.verdictText}>{mismatchDetail(result)}</Text> : null}
+                <Text style={styles.verdictTitle}>{t('pickup.mismatch.title')}</Text>
+                <Text style={styles.verdictText}>{t('pickup.mismatch.text')}</Text>
+                {mismatchDetail(t, result) ? <Text style={styles.verdictText}>{mismatchDetail(t, result)}</Text> : null}
               </View>
             ) : (
-              <Notice title={retryText(result.reason).title} tone="warning">
-                <Text style={styles.resultText}>{retryText(result.reason).text}</Text>
-                {retryText(result.reason).tips?.map((tip) => (
+              <Notice title={t(`pickup.retry.${retryKey(result.reason)}.title`)} tone="warning">
+                <Text style={styles.resultText}>{t(`pickup.retry.${retryKey(result.reason)}.text`)}</Text>
+                {REASONS_WITH_TIPS.has(result.reason) ? FILMING_TIPS.map((tip) => (
                   <View key={tip} style={styles.tip}>
                     <Ionicons color={colors.textSecondary} name="checkmark-circle-outline" size={16} />
-                    <Text style={styles.tipText}>{tip}</Text>
+                    <Text style={styles.tipText}>{t(`pickup.tips.${tip}`)}</Text>
                   </View>
-                ))}
+                )) : null}
               </Notice>
             )}
-            {result.mock ? <Text style={styles.mock}>{T.screen.mock}</Text> : null}
+            {result.mock ? <Text style={styles.mock}>{t('pickup.screen.mock')}</Text> : null}
 
             {result.status === 'verified' ? (
-              <ButtonPrimary icon="checkmark" onPress={() => router.back()} title={T.verified.done} />
+              <ButtonPrimary icon="checkmark" onPress={() => router.back()} title={t('pickup.verified.done')} />
             ) : result.status === 'mismatch' ? (
               <>
-                <ButtonPrimary disabled={busy} icon="close-circle" onPress={() => setConfirmCancel(true)} title={T.mismatch.cancel} tone="danger" />
+                <ButtonPrimary disabled={busy} icon="close-circle" onPress={() => setConfirmCancel(true)} title={t('pickup.mismatch.cancel')} tone="danger" />
                 <ButtonSecondary
                   disabled={busy || (!result.driver?.phone && !tripId)}
                   icon={result.driver?.phone ? 'call' : 'chatbubbles-outline'}
                   onPress={contactDriver}
-                  title={result.driver?.phone ? T.mismatch.call : T.mismatch.chat}
+                  title={result.driver?.phone ? t('pickup.mismatch.call') : t('pickup.mismatch.chat')}
                 />
-                <ButtonSecondary disabled={busy || reported || !result.verificationId} icon="flag" onPress={() => void report()} title={T.mismatch.report} />
-                <ButtonSecondary disabled={busy} onPress={() => setPhase('camera')} title={T.mismatch.retry} />
+                <ButtonSecondary disabled={busy || reported || !result.verificationId} icon="flag" onPress={() => void report()} title={t('pickup.mismatch.report')} />
+                <ButtonSecondary disabled={busy} onPress={() => setPhase('camera')} title={t('pickup.retryAction')} />
               </>
             ) : (
               <>
-                <ButtonPrimary icon="videocam" onPress={() => setPhase('camera')} title={T.retryAction} />
-                <ButtonSecondary onPress={() => router.back()} title={T.screen.back} />
+                <ButtonPrimary icon="videocam" onPress={() => setPhase('camera')} title={t('pickup.retryAction')} />
+                <ButtonSecondary onPress={() => router.back()} title={t('common.back')} />
               </>
             )}
           </>

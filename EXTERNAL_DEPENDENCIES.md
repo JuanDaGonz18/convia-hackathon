@@ -8,20 +8,25 @@ These modules existed before the building period (which began after the kickoff 
 
 | Module | Used by |
 | --- | --- |
-| `src/components/ui/ButtonPrimary.tsx` | `app/pickup-verify.tsx` |
-| `src/components/ui/ButtonSecondary.tsx` | `app/pickup-verify.tsx` |
+| `src/components/forms/PasswordField.tsx` | `app/(auth)/reset-password.tsx` |
+| `src/components/forms/TextField.tsx` | `app/(auth)/forgot-password.tsx` |
+| `src/components/ui/ButtonPrimary.tsx` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx` |
+| `src/components/ui/ButtonSecondary.tsx` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx` |
 | `src/components/ui/ConfirmDialog.tsx` | `app/pickup-verify.tsx` |
-| `src/components/ui/Notice.tsx` | `app/pickup-verify.tsx` |
-| `src/components/ui/ScreenHeader.tsx` | `app/pickup-verify.tsx` |
-| `src/components/ui/Toast.tsx` | `app/pickup-verify.tsx` |
-| `src/constants/colors.ts` | `app/pickup-verify.tsx` |
-| `src/constants/dimensions.ts` | `app/pickup-verify.tsx` |
-| `src/constants/radius.ts` | `app/pickup-verify.tsx` |
-| `src/constants/spacing.ts` | `app/pickup-verify.tsx` |
-| `src/constants/typography.ts` | `app/pickup-verify.tsx` |
-| `src/lib/supabase.ts` | `src/services/pickupVerificationService.ts` |
+| `src/components/ui/Notice.tsx` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx` |
+| `src/components/ui/ScreenHeader.tsx` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx` |
+| `src/components/ui/Toast.tsx` | `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx` |
+| `src/constants/colors.ts` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/settings/LanguageSwitcher.tsx` |
+| `src/constants/dimensions.ts` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx` |
+| `src/constants/radius.ts` | `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/settings/LanguageSwitcher.tsx` |
+| `src/constants/spacing.ts` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/settings/LanguageSwitcher.tsx` |
+| `src/constants/typography.ts` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/settings/LanguageSwitcher.tsx` |
+| `src/lib/supabase.ts` | `app/(auth)/reset-password.tsx`, `src/i18n/useLanguagePreference.ts`, `src/services/pickupVerificationService.ts` |
+| `src/services/authService.ts` | `app/(auth)/forgot-password.tsx` |
+| `src/services/profileService.ts` | `app/(auth)/reset-password.tsx` |
 | `src/services/tripService.ts` | `app/pickup-verify.tsx` |
-| `src/utils/format.ts` | `app/pickup-verify.tsx` |
+| `src/utils/format.ts` | `app/(auth)/forgot-password.tsx`, `app/pickup-verify.tsx` |
+| `src/utils/password.ts` | `app/(auth)/reset-password.tsx` |
 | `supabase/functions/verify-vehicle/decision.ts` | `supabase/functions/verify-pickup/decision.ts`, `supabase/functions/verify-pickup/index.ts` |
 | `supabase/functions/verify-vehicle/sam.ts` | `supabase/functions/verify-pickup/model.ts`, `supabase/functions/verify-pickup/tracks.ts` |
 
@@ -29,20 +34,24 @@ These modules existed before the building period (which began after the kickoff 
 
 | Package | Used by |
 | --- | --- |
-| `@expo/vector-icons` | `app/pickup-verify.tsx` |
+| `@expo/vector-icons` | `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/settings/LanguageSwitcher.tsx` |
 | `@supabase/supabase-js` | `src/services/pickupVerificationService.ts`, `supabase/tests/verify_pickup_e2e.mjs` |
 | `expo` | `src/services/pickupVerificationService.ts` |
 | `expo-camera` | `app/pickup-verify.tsx` |
 | `expo-crypto` | `src/services/pickupVerificationService.ts` |
-| `expo-router` | `app/pickup-verify.tsx` |
+| `expo-localization` | `src/i18n/index.ts` |
+| `expo-router` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx` |
+| `expo-secure-store` | `src/i18n/index.ts` |
 | `expo-video-thumbnails` | `src/services/pickupVerificationService.ts` |
 | `https://esm.sh/@supabase/supabase-js@2` | `supabase/functions/verify-pickup/index.ts` |
-| `node:assert/strict` | `src/content/pickupVerification.test.ts`, `supabase/functions/verify-pickup/pickup.test.ts` |
+| `i18next` | `app/pickup-verify.tsx`, `src/i18n/index.ts` |
+| `node:assert/strict` | `src/content/pickupVerification.test.ts`, `src/i18n/locales.test.ts`, `src/lib/sessionPersistence.test.ts`, `supabase/functions/verify-pickup/pickup.test.ts` |
 | `node:child_process` | `scripts/pickup-real-test.mjs`, `scripts/test-verify-pickup.mjs` |
-| `node:fs` | `scripts/pickup-real-test.mjs`, `supabase/functions/verify-pickup/pickup.test.ts`, `supabase/tests/verify_pickup_e2e.mjs` |
+| `node:fs` | `scripts/pickup-real-test.mjs`, `scripts/translate-locale.mjs`, `src/content/pickupVerification.test.ts`, `src/i18n/locales.test.ts`, `supabase/functions/verify-pickup/pickup.test.ts`, `supabase/tests/verify_pickup_e2e.mjs` |
 | `node:os` | `scripts/pickup-real-test.mjs` |
 | `node:path` | `scripts/pickup-real-test.mjs` |
-| `node:test` | `src/content/pickupVerification.test.ts`, `supabase/functions/verify-pickup/pickup.test.ts` |
-| `react` | `app/pickup-verify.tsx` |
-| `react-native` | `app/pickup-verify.tsx` |
-| `react-native-safe-area-context` | `app/pickup-verify.tsx` |
+| `node:test` | `src/content/pickupVerification.test.ts`, `src/i18n/locales.test.ts`, `src/lib/sessionPersistence.test.ts`, `supabase/functions/verify-pickup/pickup.test.ts` |
+| `react` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx`, `src/i18n/useLanguagePreference.ts` |
+| `react-i18next` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/i18n/index.ts` |
+| `react-native` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/settings/LanguageSwitcher.tsx` |
+| `react-native-safe-area-context` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx` |

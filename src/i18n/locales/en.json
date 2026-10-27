@@ -1,0 +1,370 @@
+{
+  "common": {
+    "back": "Back",
+    "or": "or",
+    "yesterday": "yesterday"
+  },
+  "nav": {
+    "home": "Home",
+    "trips": "Trips",
+    "chats": "Chats",
+    "profile": "Profile"
+  },
+  "language": {
+    "label": "Language",
+    "system": "System",
+    "systemHint": "Use your phone or browser language.",
+    "es": "Español",
+    "en": "English",
+    "selectorLabel": "Change language"
+  },
+  "appearance": {
+    "menuTitle": "Appearance & language",
+    "menuSubtitle": "App language and theme",
+    "kicker": "SETTINGS",
+    "title": "Appearance & language",
+    "languageSection": "Language",
+    "languageHint": "Change app text. Legal documents stay in Spanish.",
+    "themeSection": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "themeSoon": "Coming soon: dark mode is under construction."
+  },
+  "password": {
+    "rules": {
+      "length": "At least 8 characters",
+      "letter": "At least one letter",
+      "number": "At least one number"
+    },
+    "match": "Both passwords match",
+    "checklistLabel": "Password requirements",
+    "errors": {
+      "empty": "Enter a password.",
+      "missing": "Missing: {{rules}}.",
+      "confirmEmpty": "Re-enter your password to confirm it.",
+      "mismatch": "Passwords don't match.",
+      "sameAsOld": "Your new password must be different from your current one.",
+      "reauthenticate": "For your security, sign out, sign back in, then change your password right away.",
+      "weak": "That password is too weak. Check the requirements.",
+      "changeFailed": "We couldn't change your password. Try again."
+    }
+  },
+  "auth": {
+    "emailLabel": "University email",
+    "emailPlaceholder": "Your university email",
+    "emailRequired": "Enter your university email.",
+    "emailInvalid": "That email doesn't look valid.",
+    "login": {
+      "tagline": "Share the ride with your campus community.",
+      "title": "Log in",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Your password",
+      "passwordRequired": "Enter your password.",
+      "remember": "Remember me",
+      "rememberOn": "You'll stay logged in even if you close the app.",
+      "rememberOffWeb": "You'll be logged out when you close this tab.",
+      "rememberOffApp": "You'll be logged out when you close the app.",
+      "forgot": "Forgot your password?",
+      "submit": "Log in",
+      "submitting": "Logging in…",
+      "microsoft": "Continue with Microsoft",
+      "firstTime": "New to ConVía?",
+      "createAccount": "Create an account",
+      "demoTitle": "Demo mode",
+      "demoPassenger": "Continue as passenger",
+      "demoDriver": "Continue as driver",
+      "devSavedNoPassword": "Enter the password for this account (it wasn't saved).",
+      "errors": {
+        "invalidCredentials": "That email and password don't match. Check them and try again.",
+        "emailNotConfirmed": "You haven't confirmed your email yet. Open the link we sent when you signed up.",
+        "profileMissing": "Your account exists but has no ConVía profile. Contact your institution's administrator.",
+        "generic": "We couldn't log you in. Check your connection and try again."
+      }
+    },
+    "register": {
+      "step1": "STEP 1 OF 2",
+      "step2": "STEP 2 OF 2",
+      "title": "Create your account",
+      "subtitle": "It'll only take a minute.",
+      "verifyTitle": "Verify your identity",
+      "verifySubtitle": "One last step to ride with peace of mind.",
+      "readyTitle": "Your account is ready!",
+      "readyText": "Take a selfie to register your face. We use it to confirm it's you before each ride, so everyone rides safer. It's analyzed on your phone and never stored.",
+      "microsoftTitle": "The fastest, safest way",
+      "microsoftDivider": "With your university account",
+      "microsoftButton": "Create account with Microsoft",
+      "orEmail": "or with email and password",
+      "missingOne": "One field left to fill",
+      "missingMany": "{{count}} fields left to fill",
+      "nameLabel": "Full name",
+      "namePlaceholder": "Your first and last name",
+      "emailHint": "Only emails from partner institutions.",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Create a password",
+      "confirmLabel": "Confirm password",
+      "confirmPlaceholder": "Type your password again",
+      "roleTitle": "How will you use ConVía?",
+      "roleHint": "With the same account you can be a passenger and a driver; switch modes anytime.",
+      "passenger": "Passenger",
+      "passengerDesc": "Find rides",
+      "driver": "Driver",
+      "driverDesc": "Offer your seats",
+      "driverNext": "After signup we'll verify your driver's license.",
+      "terms": "I accept the Terms and Conditions and authorize the processing of my personal data, including biometric data, under ConVía's Privacy Policy.",
+      "termsHint": "Open the Terms and Conditions and Privacy Policy",
+      "readMore": "Read more: terms and privacy policy",
+      "submit": "Create account",
+      "submitting": "Creating your account…",
+      "verifyButton": "Verify my identity",
+      "later": "Do it later",
+      "haveAccount": "I already have an account",
+      "faceRequired": "You need to register your face to request or post rides. You can do it now or later from your profile.",
+      "fields": {
+        "name": "Full name",
+        "email": "University email",
+        "password": "Password",
+        "confirm": "Password confirmation",
+        "terms": "Terms and conditions"
+      },
+      "errors": {
+        "name": "Enter your first and last name.",
+        "passwordEmpty": "Create a password.",
+        "terms": "Accept the terms and conditions.",
+        "domain": "That email isn't from a registered institution. Use your institutional email (e.g. @unisabana.edu.co).",
+        "confirmationSent": "We sent you a confirmation email. Open it on this phone, then log in.",
+        "alreadyRegistered": "An account already exists with this email. Log in with it.",
+        "weakPassword": "Your password doesn't meet the security requirements.",
+        "generic": "We couldn't create your account. Check your connection and try again."
+      }
+    },
+    "forgot": {
+      "kicker": "RECOVER ACCESS",
+      "title": "Forgot your password?",
+      "subtitle": "Enter your account email and we'll send you a link to create a new password.",
+      "submit": "Send link",
+      "submitting": "Sending…",
+      "sentTitle": "Check your email",
+      "sentText": "If {{email}} has a ConVía account, you'll get a link to create a new password. It expires in 1 hour.",
+      "sentHint": "Open it on this device. If you don't see it in a few minutes, check your spam folder.",
+      "backToLogin": "Back to log in",
+      "sendAgain": "Send again",
+      "errors": {
+        "rateLimited": "We just sent you an email. Wait a minute before asking for another one.",
+        "offline": "Password recovery needs a server connection.",
+        "generic": "We couldn't send the email. Try again."
+      }
+    },
+    "reset": {
+      "title": "Create a new password",
+      "subtitle": "Use it next time you log in to ConVía.",
+      "expiredTitle": "This link is no longer valid",
+      "expiredText": "Password links expire in 1 hour and work only once. Request a new one.",
+      "askAgain": "Request another link",
+      "newLabel": "New password",
+      "newPlaceholder": "Create a password",
+      "confirmLabel": "Confirm new password",
+      "confirmPlaceholder": "Enter your password again",
+      "submit": "Save password",
+      "submitting": "Saving…",
+      "done": "Password updated"
+    },
+    "callback": {
+      "working": "Finishing logging in…",
+      "failedTitle": "We couldn't finish logging you in",
+      "invalidLink": "The confirmation link isn't valid or was already used.",
+      "invalidOrUsed": "The link isn't valid or was already used.",
+      "noProfile": "We couldn't find your profile after confirming your email.",
+      "noProfileMicrosoft": "We couldn't find your profile after logging in with Microsoft.",
+      "microsoftFailed": "We couldn't log you in with Microsoft. Try again.",
+      "retryMicrosoft": "Try again with your institutional account.",
+      "retryLogin": "Log in to continue; if your account was already confirmed, you'll get right in.",
+      "goToLogin": "Go to log in",
+      "askAgain": "Request another link"
+    }
+  },
+  "pickup": {
+    "button": "Verify my car",
+    "screen": {
+      "kicker": "VERIFY MY CAR",
+      "title": "Is this your car?",
+      "intro": "Record 3 seconds of the car arriving. We check with AI that the plate, make, and color match your ride. The video is deleted as soon as verification ends.",
+      "record": "Record 3 seconds",
+      "recording": "Recording… {{seconds}}",
+      "stop": "Stop",
+      "cameraNeeded": "We need the camera to record the car.",
+      "cameraBlocked": "Camera is blocked for ConVía. Turn it on in your phone settings.",
+      "openSettings": "Open phone settings",
+      "allowCamera": "Allow camera",
+      "webUnavailable": "Video verification is available in the app for Android and iPhone.",
+      "mock": "Test mode: simulated result, no real AI."
+    },
+    "steps": {
+      "upload": {
+        "active": "Uploading the video…",
+        "done": "Video sent"
+      },
+      "car": {
+        "active": "Finding the car…",
+        "done": "Car found"
+      },
+      "plate": {
+        "active": "Finding the plate…",
+        "done": "Plate found"
+      },
+      "read": {
+        "active": "Reading the plate…",
+        "done": "Plate read"
+      }
+    },
+    "verified": {
+      "title": "This is your ride",
+      "text": "The plate, make, and color match {{driver}}'s car.",
+      "done": "Done"
+    },
+    "mismatch": {
+      "title": "Don't get in",
+      "text": "This car doesn't match your ride.",
+      "plate_mismatch": "We read plate {{read}}, but your ride is {{expected}}.",
+      "brand_mismatch": "The plate matches, but this car is a {{read}} and your ride is a {{expected}}. It could be a copied plate.",
+      "color_mismatch": "The plate matches, but this car is {{read}} and your ride is {{expected}}. It could be a copied plate.",
+      "call": "Call the driver",
+      "chat": "Message the driver",
+      "report": "Report",
+      "reported": "Thanks. We reported this car for review.",
+      "reportFailed": "Couldn't send the report. Try again.",
+      "cancel": "Cancel the ride",
+      "cancelTitle": "Cancel your ride?",
+      "cancelMessage": "You'll free up your seat and the driver will be notified.",
+      "cancelConfirm": "Yes, cancel",
+      "cancelled": "You canceled your ride.",
+      "cancelFailed": "Couldn't cancel your ride."
+    },
+    "retryAction": "Record again",
+    "tips": {
+      "front": "Aim at the front or back of the car, where the plate is.",
+      "near": "Record when the car is a few meters away and almost stopped.",
+      "still": "Keep your phone steady for the 3 seconds."
+    },
+    "retry": {
+      "clip_unreadable": {
+        "title": "We couldn't open the video",
+        "text": "Record again with the ConVía camera."
+      },
+      "clip_too_long": {
+        "title": "The video is too long",
+        "text": "Record 3 seconds max."
+      },
+      "frame_missing": {
+        "title": "We couldn't check the video",
+        "text": "Please record again."
+      },
+      "no_car": {
+        "title": "We didn't see a car",
+        "text": "Point at the arriving car and record all of it."
+      },
+      "no_plate": {
+        "title": "We didn't see the plate",
+        "text": "Record the front or back of the car."
+      },
+      "not_live_photo": {
+        "title": "Record the car directly",
+        "text": "It looks like a screen or a printed photo."
+      },
+      "poor_quality": {
+        "title": "The video looks blurry or dark",
+        "text": "Record again holding your phone steady."
+      },
+      "plate_unreadable": {
+        "title": "We couldn't read the plate",
+        "text": "Get a little closer and show the whole plate, with no glare."
+      },
+      "low_confidence": {
+        "title": "We're not sure about the plate",
+        "text": "Record again with the plate closer and well lit."
+      },
+      "plate_uncertain": {
+        "title": "We didn't read the plate clearly",
+        "text": "Record again closer to the plate before you decide."
+      },
+      "vehicle_uncertain": {
+        "title": "We couldn't confirm the car",
+        "text": "The plate matches, but we're not sure about the make or color. Compare them yourself or record again in good light."
+      },
+      "timeout": {
+        "title": "Verification took too long",
+        "text": "Try again in a moment."
+      },
+      "rate_limited": {
+        "title": "Too many verifications right now",
+        "text": "Wait a few seconds and try again."
+      },
+      "service_unavailable": {
+        "title": "Service unavailable",
+        "text": "Try again in a few minutes. Meanwhile, compare the plate yourself."
+      },
+      "bad_model_response": {
+        "title": "We couldn't analyze the video",
+        "text": "Please record again."
+      },
+      "too_many_attempts": {
+        "title": "Too many attempts",
+        "text": "Compare the plate yourself or message the driver."
+      },
+      "server_error": {
+        "title": "Something went wrong on our end",
+        "text": "Try again in a moment."
+      },
+      "offline": {
+        "title": "No server connection",
+        "text": "Car verification needs a connection."
+      },
+      "auth_required": {
+        "title": "Your session expired",
+        "text": "Log in again."
+      },
+      "recording_failed": {
+        "title": "Couldn't record",
+        "text": "Try again."
+      },
+      "frames_failed": {
+        "title": "We couldn't read the video",
+        "text": "Please record again."
+      },
+      "upload_failed": {
+        "title": "Couldn't upload the video",
+        "text": "Check your connection and try again."
+      },
+      "network_error": {
+        "title": "Couldn't connect to verification",
+        "text": "Check your connection and try again."
+      },
+      "not_found": {
+        "title": "We couldn't find your trip",
+        "text": "Go back to your requests and try again."
+      },
+      "not_accepted": {
+        "title": "Your trip isn't active",
+        "text": "Verification is available when your request is accepted and the trip hasn't ended."
+      },
+      "unsupported_vehicle": {
+        "title": "Not available for this vehicle",
+        "text": "AI verification works only with car plates (3 letters and 3 numbers)."
+      }
+    }
+  },
+  "colors": {
+    "blanco": "white",
+    "negro": "black",
+    "gris": "gray",
+    "plata": "silver",
+    "rojo": "red",
+    "azul": "blue",
+    "verde": "green",
+    "amarillo": "yellow",
+    "naranja": "orange",
+    "cafe": "brown",
+    "beige": "beige",
+    "dorado": "gold"
+  }
+}
