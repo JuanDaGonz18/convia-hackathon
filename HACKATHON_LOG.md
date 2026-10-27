@@ -75,7 +75,7 @@ Template for each entry:
   - Spanish/English with a language picker on login, sign-up and Profile → Appearance & language. Translated so far: login, sign-up, password recovery, "Verificar mi carro", tab bar, dates and prices.
   - Branded auth e-mails (confirmation, recovery, e-mail change) for the hackathon project, after setting up SMTP.
 - **Meta model:** Muse Spark 1.3 translated the Spanish texts into English (246 keys, about $0.06), with every key and {{placeholder}} checked; then reviewed by hand (terminology, apostrophes).
-- **PRs:** feat/i18n-auth
+- **PRs:** [#2](https://github.com/JuanDaGonz18/convia-hackathon/pull/2)
 - **Notes:**
   - The icon font timeout only showed with the font delayed past 12 s; reproduced by delaying it 15 s (6 errors before, 0 after).
   - Supabase rejects custom e-mail templates on the free tier until custom SMTP is configured.

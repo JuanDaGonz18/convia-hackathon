@@ -18,8 +18,8 @@ The new code is part of **ConVía**, a carpooling app for university students an
 | Feature | Meta model | PR | Demo timestamp |
 | --- | --- | --- | --- |
 | **Pickup check** ("Verificar mi carro"): the passenger films the arriving car for 5 s; SAM tracks the car and its plate across frames and Muse Spark reads the plate from the best frame, then code decides: it's your ride / don't get in / film again | SAM 3.1 + Muse Spark 1.3 | [#1](https://github.com/JuanDaGonz18/convia-hackathon/pull/1) | |
-| **Spanish / English**: i18next with a language picker (Sistema / Español / English); the English texts are generated from the Spanish ones by a script that sends them to Muse Spark in batches, checks every key and {{placeholder}}, and never overwrites reviewed text | Muse Spark 1.3 | feat/i18n-auth | |
-| **"Remember me" and password recovery**: keep the session or end it with the tab/app; reset link by e-mail and a new-password screen | — | feat/i18n-auth | |
+| **Spanish / English**: i18next with a language picker (Sistema / Español / English); the English texts are generated from the Spanish ones by a script that sends them to Muse Spark in batches, checks every key and {{placeholder}}, and never overwrites reviewed text | Muse Spark 1.3 | [#2](https://github.com/JuanDaGonz18/convia-hackathon/pull/2) | |
+| **"Remember me" and password recovery**: keep the session or end it with the tab/app; reset link by e-mail and a new-password screen | — | [#2](https://github.com/JuanDaGonz18/convia-hackathon/pull/2) | |
 
 ## What existed before the event (not in this repository)
 
