@@ -107,6 +107,8 @@ export default function PickupVerifyScreen() {
 
   /** Demo accounts: the same check on a sample clip instead of a filmed one. */
   const trySample = async (sample: PickupSample) => {
+    setResult(null);
+    setReported(false);
     setStage('analyzing');
     setPhase('processing');
     setResult(await pickupVerificationService.verifySample(requestId, sample, setStage));
@@ -149,8 +151,11 @@ export default function PickupVerifyScreen() {
   };
 
   const header = <ScreenHeader kicker={t('pickup.screen.kicker')} title={t('pickup.screen.title')} />;
+  // Without a camera (web, or permission not granted) only the choice screen changes: a sample's
+  // progress and result still use the screens below.
+  const choosing = phase === 'camera';
 
-  if (Platform.OS === 'web') {
+  if (Platform.OS === 'web' && choosing) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content}>
@@ -163,7 +168,7 @@ export default function PickupVerifyScreen() {
     );
   }
 
-  if (!permission?.granted) {
+  if (!permission?.granted && choosing) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content}>
