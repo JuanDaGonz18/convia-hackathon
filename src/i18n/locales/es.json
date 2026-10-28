@@ -943,7 +943,12 @@
     "rateLimit": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
     "notConnected": "La app no está conectada al servidor. Contacta al administrador.",
     "noProfile": "Tu cuenta no tiene perfil en ConVía. Contacta al administrador.",
-    "domain": "Usa el correo de tu institución (por ejemplo @unisabana.edu.co)."
+    "domain": "Usa el correo de tu institución (por ejemplo @unisabana.edu.co).",
+    "institutionNotVerified": "Primero verifica tu institución para ver, publicar o pedir viajes.",
+    "institutionRequestPending": "Ya tienes una solicitud pendiente.",
+    "institutionAlreadyVerified": "Tu institución ya está verificada.",
+    "tooManyAttempts": "Demasiados intentos por hoy. Inténtalo mañana.",
+    "noInstitutionChosen": "Primero elige tu institución."
   },
   "distance": {
     "meters": "{{value}} m",
@@ -1184,8 +1189,7 @@
   "institutions": {
     "checking": "Revisando el dominio…",
     "allowed": "{{name}}: tu institución está habilitada.",
-    "blocked": "@{{domain}} no es de una institución habilitada en ConVía.",
-    "enabled": "Instituciones habilitadas: {{list}}."
+    "openSignup": "Puedes registrarte con cualquier correo; después eliges y verificas tu institución."
   },
   "plans": {
     "unavailable": "Esta función no está disponible por ahora."
@@ -1239,5 +1243,119 @@
     "vehicleCheck": "SAM 3.1 encuentra el carro y la placa; Muse Spark 1.3 los lee para confirmar que es tu vehículo.",
     "studentCard": "Muse Spark 1.3 lee el carné (la cara se difumina en tu teléfono antes de enviarlo).",
     "agent": "Muse Spark Open (pesos abiertos) busca y compara los viajes por ti."
+  },
+  "institution": {
+    "kicker": "TU INSTITUCIÓN",
+    "title": "Tu institución",
+    "subtitle": "ConVía comparte viajes solo dentro de una misma institución verificada.",
+    "status": {
+      "none": "Sin institución",
+      "pending": "Pendiente de verificar",
+      "review": "En revisión manual",
+      "verified": "Verificada"
+    },
+    "method": {
+      "institutional_email": "Verificada con tu correo institucional",
+      "microsoft": "Verificada con Microsoft",
+      "student_id": "Verificada con tu carné"
+    },
+    "searchLabel": "Busca tu institución",
+    "searchPlaceholder": "Nombre, sigla o ciudad",
+    "searchHint": "Escribe al menos 3 letras.",
+    "noResults": "No encontramos esa institución.",
+    "searchFailed": "No se pudo buscar. Revisa tu conexión.",
+    "chooseFailed": "No se pudo elegir la institución.",
+    "verifyTitle": "Verifica que perteneces",
+    "verifyText": "Toma una foto de tu carné estudiantil. Tu cara se compara en tu dispositivo y nunca se envía.",
+    "verifyWithCard": "Verificar con mi carné",
+    "change": "Elegir otra institución",
+    "notListed": "Mi institución no aparece",
+    "requestPending": "Pediste agregar «{{name}}». Te avisaremos cuando la revisemos.",
+    "reviewHint": "Tu carné está en revisión manual. Mientras tanto puedes intentarlo de nuevo con otra foto.",
+    "retryHint": "No pudimos leer tu carné. Intenta con una foto más nítida.",
+    "verifiedHint": "Ya puedes ver y pedir viajes de tu institución."
+  },
+  "institutionRequest": {
+    "title": "Agregar mi institución",
+    "subtitle": "Cuéntanos cuál es; la revisamos y te avisamos.",
+    "name": "Nombre de la institución",
+    "namePlaceholder": "Ej.: Universidad de Cundinamarca",
+    "city": "Ciudad",
+    "cityPlaceholder": "Ej.: Zipaquirá",
+    "website": "Sitio web (opcional)",
+    "role": "Tu rol",
+    "roles": {
+      "estudiante": "Estudiante",
+      "profesor": "Profesor",
+      "administrativo": "Administrativo",
+      "otro": "Otro"
+    },
+    "submit": "Enviar solicitud",
+    "after": "Mientras la revisamos, puedes usar la app pero no ver ni pedir viajes.",
+    "nameRequired": "Escribe el nombre de la institución.",
+    "cityRequired": "Escribe la ciudad.",
+    "failed": "No se pudo enviar la solicitud."
+  },
+  "studentCard": {
+    "title": "Verificar con mi carné",
+    "subtitle": "Una foto del carné vigente de tu institución.",
+    "tips": {
+      "flat": "Pon el carné sobre una mesa, sin reflejos.",
+      "light": "Con buena luz y enfocado.",
+      "whole": "Que se vea el carné completo.",
+      "privacy": "Tu cara se compara con tu selfie en este dispositivo y se excluye: solo se envía el resto del carné."
+    },
+    "takePhoto": "Tomar foto del carné",
+    "fromGallery": "Elegir de la galería",
+    "stepFace": "Comparando tu cara en este dispositivo…",
+    "stepReading": "Leyendo el carné con IA…",
+    "result": {
+      "verified": {
+        "title": "¡Institución verificada!",
+        "text": "Ya puedes ver y pedir viajes de tu institución."
+      },
+      "review": {
+        "title": "En revisión manual",
+        "text": "No pudimos confirmarlo automáticamente. Lo revisará una persona; nunca se rechaza sin revisión."
+      },
+      "retry": {
+        "title": "No pudimos leer el carné",
+        "text": "Intenta con una foto más nítida y con buena luz."
+      }
+    },
+    "reasons": {
+      "unreadable": "No se leía el texto.",
+      "not_a_card": "No parece un carné estudiantil.",
+      "screen_or_print": "Parece una pantalla o una copia, no el carné físico.",
+      "institution_mismatch": "La institución del carné no coincide con la que elegiste.",
+      "no_expiry": "No encontramos la fecha de vigencia.",
+      "expired": "El carné está vencido.",
+      "name_partial": "El nombre coincide solo en parte con el de tu perfil.",
+      "name_mismatch": "El nombre no coincide con el de tu perfil.",
+      "face_mismatch": "La foto del carné no coincide con tu selfie.",
+      "face_not_checked": "No se pudo comparar tu cara.",
+      "face_not_found": "No encontramos la foto de tu cara en el carné.",
+      "low_confidence": "La lectura no fue suficientemente clara."
+    },
+    "tryAgain": "Intentar de nuevo",
+    "done": "Listo",
+    "failed": "No se pudo verificar el carné."
+  },
+  "verifyCard": {
+    "none": {
+      "title": "Elige tu institución",
+      "text": "Para ver y pedir viajes, elige y verifica tu institución.",
+      "action": "Elegir institución"
+    },
+    "pending": {
+      "title": "Verifica {{name}}",
+      "text": "Verifica que perteneces a {{name}} para ver y pedir viajes.",
+      "action": "Verificar ahora"
+    },
+    "review": {
+      "title": "Tu verificación está en revisión",
+      "text": "Te avisaremos cuando quede lista. Puedes intentarlo de nuevo con otra foto.",
+      "action": "Ver estado"
+    }
   }
 }

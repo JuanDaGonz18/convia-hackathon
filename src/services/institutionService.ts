@@ -1,22 +1,13 @@
-import { isSupabaseEnabled, supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 export type Institution = { name: string; domain: string };
 
 /**
- * Institutions whose e-mail domain can sign up. Both reads work before
- * logging in: active institutions are public (institutions_read policy) and
- * check_email_domain is granted to anon.
+ * The sign-up hint: which institution, if any, owns an e-mail's domain
+ * (check_email_domain is granted to anon). The full list of institutions is
+ * not readable; signed-in users search it (membershipService.search).
  */
 export const institutionService = {
-  /** Active institutions, by name. Empty without a server (demo mode). */
-  async listEnabled(): Promise<Institution[]> {
-    if (!isSupabaseEnabled) return [];
-    const { data, error } = await supabase.from('institutions').select('nombre, dominio').eq('activo', true).order('nombre');
-    if (error) throw error;
-    // Test domains (the judges' demo organization) are not offered to new users.
-    return (data ?? []).filter((row) => !row.dominio.endsWith('.test')).map((row) => ({ name: row.nombre, domain: row.dominio }));
-  },
-
   /** The institution that owns this address's domain, or null if none is enabled. */
   async findByEmail(email: string): Promise<Institution | null> {
     const { data, error } = await supabase.rpc('check_email_domain', { p_email: email });

@@ -128,6 +128,22 @@ Template for each entry:
 - **PRs:** feat/ux-batch
 - **Notes:** next: open sign-up with institution verification by student card (Muse Spark), then the matching agent.
 
+### October 28, 2026 (night) — open sign-up, verified institutions, student ID with Muse Spark
+
+- **Built:**
+  - Any e-mail can sign up. Institutional e-mail domains (now several per institution) are still verified at once; everyone else chooses an institution after logging in (the search shows matches only after 3 letters; the full list is never readable) and verifies it, or asks for it to be added ("My institution isn't listed").
+  - The rule that protects everything: `profiles.institution_id` is set only once the membership is verified. Every "same institution" policy already reads it, so pending users see no trips, people or chats without touching those policies; publishing and requesting seats also require a verified institution (before, an empty institution compared equal to another empty one).
+  - Student ID verification. On the phone or in the browser, the card's face is found with the same on-device models as the selfie check, compared with the user's selfie, and **left out**: only crops of the card around it are sent, so no face pixels reach the server or Meta. The new `verify-student-id` function has Muse Spark 1.3 read the crops as strict JSON (name, institution, ID number, expiry, physical card or screen/copy) and code decides: institution, expiry, name (accent- and order-insensitive) and face must all match to verify; any doubt goes to manual review, never an automatic rejection; an unreadable photo asks to try again. Only the result is stored: reason codes, last 4 ID digits, expiry; no image and no name.
+  - Seed: major Colombian universities (QS 2026 press coverage): Los Andes, Nacional, Javeriana, Antioquia, Rosario, EAFIT, Externado, UPB and Universidad del Norte, with their mail domains (each checked against the university's own mail servers); La Sabana unchanged. Existing users stay verified.
+  - Screens: choose your institution, add my institution, verify with my student ID, and a "verify your institution" card on Home, Trips and Chats. Spanish and English.
+- **Meta model:** Muse Spark 1.3 reads the student ID crops (strict JSON).
+- **PRs:** feat/institution-verification
+- **Notes:**
+  - Tested: the decision rules (9 cases), that no crop ever overlaps the face box in an exhaustive sweep of positions, the database migration on the hackathon project (existing users verified, search rules, anonymous access to the institution list blocked), and the deployed function (401 without a session). Not yet tested end to end with a real card: that needs a new, unverified account.
+  - The pending request and manual reviews are handled in the database dashboard for now.
+
+### October 29, 2026
+
 ### October 30, 2026
 
 ### October 31, 2026
