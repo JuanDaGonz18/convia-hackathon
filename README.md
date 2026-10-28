@@ -22,7 +22,7 @@ The new code is part of **ConVía**, a carpooling app for university students an
 | **"Remember me" and password recovery**: keep the session or end it with the tab/app; reset link by e-mail and a new-password screen | — | [#2](https://github.com/JuanDaGonz18/convia-hackathon/pull/2) | |
 | **Sign-up domain check**: while typing the e-mail, says whether its institution is enabled and lists the enabled ones | — | [#3](https://github.com/JuanDaGonz18/convia-hackathon/pull/3) | |
 | **Vehicle autofill**: from the vehicle photo, Muse Spark proposes brand, line, color and (only if fully legible) plate; the driver confirms or corrects every field. The photo is not stored | Muse Spark 1.3 | [#3](https://github.com/JuanDaGonz18/convia-hackathon/pull/3) | |
-| **Demo for the judges**: bilingual landing page with the web app at `/app/`; demo accounts can run the real pickup check on three sample clips of fictional cars (the trip's car, another car, the plate covered) instead of filming | SAM 3.1 + Muse Spark 1.3 (check); Muse Image 1.0 (sample cars) | feat/demo-site | |
+| **Demo for the judges**: bilingual landing page with the web app at `/app/`; demo accounts can run the real pickup check on three sample clips of fictional cars (the trip's car, another car, the plate covered) instead of filming | SAM 3.1 + Muse Spark 1.3 (check); Muse Image 1.0 (sample cars) | [#4](https://github.com/JuanDaGonz18/convia-hackathon/pull/4) | |
 
 ## What existed before the event (not in this repository)
 

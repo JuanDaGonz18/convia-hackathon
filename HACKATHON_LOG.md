@@ -106,7 +106,7 @@ Template for each entry:
   - Demo organization with a confirmed demo driver and passenger, a vehicle and an accepted trip in the hackathon project (passwords are kept out of the repository).
   - verify-pickup redeployed to the hackathon project with sample mode; it still answers 401 without a session.
 - **Meta model:** Muse Image 1.0 (`muse-image-1.0`) generated the three fictional sample cars and the landing's hero image; the landing labels it "Sample vehicle generated with Meta's Muse Image — fictional car and plate". The check itself is SAM 3.1 + Muse Spark 1.3.
-- **PRs:** feat/demo-site
+- **PRs:** [#4](https://github.com/JuanDaGonz18/convia-hackathon/pull/4)
 - **Notes:**
   - Test domains (`.test`) are not listed as enabled institutions at sign-up, so the demo organization stays invisible to real users (change to a pre-existing file, not published here).
 
