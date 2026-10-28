@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { type TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
+import { SampleClips } from '@/components/pickup/SampleClips';
 import { ButtonPrimary } from '@/components/ui/ButtonPrimary';
 import { ButtonSecondary } from '@/components/ui/ButtonSecondary';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -20,7 +21,9 @@ import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { FILMING_TIPS, KNOWN_COLORS, REASONS_WITH_TIPS } from '@/content/pickupVerification';
 import i18n from '@/i18n';
-import { PICKUP_CLIP_SECONDS, type PickupStage, type PickupVerification, pickupVerificationService } from '@/services/pickupVerificationService';
+import { PICKUP_CLIP_SECONDS, type PickupSample, type PickupStage, type PickupVerification, pickupVerificationService } from '@/services/pickupVerificationService';
+import { useAppStore } from '@/store/appStore';
+import { isDemoAccount } from '@/utils/demoAccount';
 import { tripService } from '@/services/tripService';
 import { errorMessage } from '@/utils/format';
 
@@ -70,6 +73,7 @@ export default function PickupVerifyScreen() {
   const [reported, setReported] = useState(false);
   const [busy, setBusy] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const demo = useAppStore((state) => isDemoAccount(state.currentUser?.email));
 
   useEffect(() => {
     if (phase !== 'recording') return;
@@ -98,6 +102,14 @@ export default function PickupVerifyScreen() {
     }
     setPhase('processing');
     setResult(await pickupVerificationService.verify(requestId, clipUri, setStage));
+    setPhase('result');
+  };
+
+  /** Demo accounts: the same check on a sample clip instead of a filmed one. */
+  const trySample = async (sample: PickupSample) => {
+    setStage('analyzing');
+    setPhase('processing');
+    setResult(await pickupVerificationService.verifySample(requestId, sample, setStage));
     setPhase('result');
   };
 
@@ -144,6 +156,7 @@ export default function PickupVerifyScreen() {
         <ScrollView contentContainerStyle={styles.content}>
           {header}
           <Notice tone="info">{t('pickup.screen.webUnavailable')}</Notice>
+          {demo ? <SampleClips onPick={(sample) => void trySample(sample)} /> : null}
           <ButtonSecondary onPress={() => router.back()} title={t('common.back')} />
         </ScrollView>
       </SafeAreaView>
@@ -167,6 +180,7 @@ export default function PickupVerifyScreen() {
               <ButtonPrimary icon="camera" onPress={() => void requestPermission()} title={t('pickup.screen.allowCamera')} />
             </>
           )}
+          {demo ? <SampleClips onPick={(sample) => void trySample(sample)} /> : null}
           <ButtonSecondary onPress={() => router.back()} title={t('common.back')} />
         </ScrollView>
       </SafeAreaView>
@@ -214,6 +228,7 @@ export default function PickupVerifyScreen() {
             ) : (
               <ButtonPrimary disabled={!cameraReady} icon="videocam" onPress={() => void record()} title={t('pickup.screen.record')} />
             )}
+            {demo && phase === 'camera' ? <SampleClips onPick={(sample) => void trySample(sample)} /> : null}
           </>
         ) : null}
 

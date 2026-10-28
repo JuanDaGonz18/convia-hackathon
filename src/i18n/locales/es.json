@@ -377,6 +377,13 @@
         "title": "No disponible para este vehículo",
         "text": "La verificación con IA funciona solo con placas de carro (3 letras y 3 números)."
       }
+    },
+    "samples": {
+      "title": "¿Sin carro para filmar? Prueba con un video de ejemplo",
+      "text": "Carros ficticios generados con Muse Image. El análisis es el real: SAM 3.1 y Muse Spark, como con un video tuyo.",
+      "match": "Llega el carro del viaje",
+      "other": "Llega otro carro",
+      "covered": "Llega con la placa tapada"
     }
   },
   "colors": {

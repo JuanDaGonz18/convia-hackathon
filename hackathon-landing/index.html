@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ConVía · Meta AI hackathon</title>
+<meta name="description" content="ConVía: verified carpooling for the university community of Chía, Colombia. Built for the Meta Global AI Developer Hackathon with SAM 3.1 and Muse Spark.">
+<meta property="og:title" content="ConVía · Verified carpooling">
+<meta property="og:description" content="Know it's your ride before you get in: SAM 3.1 and Muse Spark check the arriving car's plate, brand and color.">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="app/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#F6F8FC; --surface:#FFFFFF; --ink:#1F2024; --muted:#5B5F6E; --line:#D9DCE6;
+  --accent:#006FFD; --accent-ink:#FFFFFF; --accent-soft:#EAF2FF; --sign:#FFC531; --sign-ink:#1F2024;
+  --f-display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
+  --f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#171B24; --ink:#EEF0F6; --muted:#A3A8B8; --line:#2A3040;
+  --accent:#3D8DFF; --accent-soft:#16233A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#171B24; --ink:#EEF0F6; --muted:#A3A8B8; --line:#2A3040;
+  --accent:#3D8DFF; --accent-soft:#16233A; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;padding:0 16px}
+.wrap{max-width:1040px;margin:0 auto}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--f-display);line-height:1.1;margin:0;text-wrap:balance}
+p{margin:0}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 0}
+.brand{font-family:var(--f-display);font-weight:800;font-size:26px;text-decoration:none;color:var(--ink)}
+.brand span{color:var(--accent)}
+.lang{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+.lang button{border:0;background:transparent;color:var(--muted);font:600 14px var(--f-body);padding:6px 12px;border-radius:999px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:32px 0 48px}
+.kicker{font:500 13px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font-size:clamp(34px,5vw,56px);font-weight:800;margin:12px 0 16px}
+.hero p.lead{font-size:18px;color:var(--muted);max-width:52ch}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:12px;font-weight:600;text-decoration:none;border:1.5px solid var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.secondary{background:var(--surface);color:var(--accent)}
+.note{font-size:14px;color:var(--muted);margin-top:12px}
+.shot{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 16px 40px rgba(16,24,40,.08)}
+.shot img{width:100%;display:block;border-radius:14px}
+.shot figcaption{font-size:13px;color:var(--muted);margin-top:10px}
+.verdict{display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px 14px;border-radius:12px;background:#ECFDF3;color:#067647;font-weight:600}
+.plate{font:500 14px var(--f-mono);background:var(--sign);color:var(--sign-ink);border:2px solid #1F2024;border-radius:6px;padding:1px 8px}
+section{padding:40px 0;border-top:1px solid var(--line)}
+section h2{font-size:clamp(26px,3.4vw,36px);font-weight:800;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.card h3{font-size:20px;margin-bottom:8px}
+.card p{color:var(--muted);font-size:15px}
+.tag{display:inline-block;font:500 12px var(--f-mono);background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:3px 10px;margin-bottom:12px}
+.problem{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.video{aspect-ratio:16/9;background:var(--surface);border:1.5px dashed var(--line);border-radius:var(--r);display:grid;place-items:center;color:var(--muted);text-align:center;padding:16px;overflow:hidden}
+.video iframe{width:100%;height:100%;border:0;border-radius:var(--r)}
+ol.steps{margin:0;padding-left:20px;color:var(--muted)}
+ol.steps li{margin:6px 0}
+footer{padding:32px 0 48px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+@media (max-width:800px){.hero,.problem{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="./">Con<span>Vía</span></a>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">English</button>
+      <button type="button" data-lang="es">Español</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div>
+        <p class="kicker" data-i18n="kicker">Meta Global AI Developer Hackathon · 2026</p>
+        <h1 data-i18n="title">Know it's your ride before you get in.</h1>
+        <p class="lead" data-i18n="lead">ConVía is verified carpooling for the university community of Chía, Colombia. Drivers and passengers are students and staff with an institutional e-mail, and the app checks the arriving car with Meta's SAM 3.1 and Muse Spark.</p>
+        <div class="ctas">
+          <a class="btn primary" id="open-app" href="app/" data-i18n="openApp">Open web app</a>
+          <a class="btn secondary" id="apk" href="#" data-i18n="apk">Download Android APK</a>
+        </div>
+        <p class="note" data-i18n="demoNote">Judges: use the demo accounts from the submission form. The passenger already has an accepted trip; open "Verificar mi carro" and try a sample video.</p>
+      </div>
+      <figure class="shot" style="margin:0">
+        <img src="hero-car.jpg" width="1280" height="853" alt="" data-i18n-alt="heroAlt">
+        <div class="verdict">✓ <span data-i18n="verdict">This is your ride</span> · <span class="plate">CNV 026</span></div>
+        <figcaption data-i18n="heroCaption">Sample vehicle generated with Meta's Muse Image — fictional car and plate</figcaption>
+      </figure>
+    </div>
+
+    <section>
+      <h2 data-i18n="problemTitle">The problem</h2>
+      <div class="problem">
+        <div class="card">
+          <h3 data-i18n="p1Title">Congestion in Chía</h3>
+          <p data-i18n="p1">Every day thousands of students drive alone to the campuses around Chía, on roads that were not built for it. Many cars carry one person while others wait for a bus.</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="p2Title">Distrust of strangers</h3>
+          <p data-i18n="p2">People don't share rides with strangers. ConVía only lets in verified members of the same institution, checks faces on the phone, and lets the passenger confirm the car before getting in.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 data-i18n="builtTitle">Built during the hackathon</h2>
+      <div class="grid">
+        <div class="card">
+          <span class="tag">SAM 3.1 + Muse Spark</span>
+          <h3 data-i18n="b1Title">Pickup check</h3>
+          <p data-i18n="b1">The passenger films the arriving car for 3 seconds. SAM 3.1 tracks the car and its plate across the frames, Muse Spark reads plate, brand and color from the best frame, and code decides: it's your ride, don't get in, or film again. About 6–8 s.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Muse Spark</span>
+          <h3 data-i18n="b2Title">Vehicle autofill</h3>
+          <p data-i18n="b2">From the vehicle photo, Muse Spark proposes brand, line, color and, only if fully legible, the plate. The driver confirms or corrects every field; the photo is not stored.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Muse Spark</span>
+          <h3 data-i18n="b3Title">Spanish and English</h3>
+          <p data-i18n="b3">The English interface is generated from the Spanish texts by a script that sends them to Muse Spark in batches and checks every key and placeholder, then reviewed by hand.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 data-i18n="videoTitle">Demo video</h2>
+      <div class="video" id="video"><p data-i18n="videoSoon">The demo video will be here.</p></div>
+    </section>
+
+    <section>
+      <h2 data-i18n="tryTitle">Try it</h2>
+      <ol class="steps">
+        <li data-i18n="s1">Open the web app (or install the Android APK) and log in with the demo passenger.</li>
+        <li data-i18n="s2">Go to Trips → My requests: the trip with Daniela is accepted.</li>
+        <li data-i18n="s3">Tap "Verificar mi carro" and pick a sample video: the trip's car, another car, or the plate covered. The check runs on the real SAM 3.1 + Muse Spark pipeline.</li>
+        <li data-i18n="s4">Log in as the demo driver and add a vehicle with a photo to see the autofill.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <p data-i18n="footer">The sample cars and plates are fictional, generated with Muse Image. ConVía is an academic, non-commercial project.</p>
+  </footer>
+</div>
+
+<script>
+// Links set at deploy time: the latest Android build and the demo video (YouTube embed URL).
+const LINKS = {
+  apk: 'https://expo.dev/accounts/juanda1809/projects/convia-hackathon/builds/0de5a4ca-4d50-40f5-8ca4-4ca89f9e2546',
+  video: '',
+};
+
+const ES = {
+  kicker: 'Meta Global AI Developer Hackathon · 2026',
+  title: 'Sabes que es tu carro antes de subirte.',
+  lead: 'ConVía es carpooling verificado para la comunidad universitaria de Chía, Colombia. Conductores y pasajeros son estudiantes y funcionarios con correo institucional, y la app verifica el carro que llega con SAM 3.1 y Muse Spark de Meta.',
+  openApp: 'Abrir la app web',
+  apk: 'Descargar el APK de Android',
+  demoNote: 'Jurado: usen las cuentas demo del formulario de entrega. El pasajero ya tiene un viaje aceptado; abran "Verificar mi carro" y prueben un video de ejemplo.',
+  heroAlt: 'Un Renault Logan blanco ficticio con placa CNV 026 llegando por una calle de Chía',
+  verdict: 'Es tu carro',
+  heroCaption: 'Vehículo de ejemplo generado con Muse Image de Meta — carro y placa ficticios',
+  problemTitle: 'El problema',
+  p1Title: 'Congestión en Chía',
+  p1: 'Cada día miles de estudiantes manejan solos hacia los campus de Chía, por vías que no dan abasto. Muchos carros llevan a una sola persona mientras otros esperan un bus.',
+  p2Title: 'Desconfianza entre desconocidos',
+  p2: 'La gente no comparte el carro con desconocidos. ConVía solo admite miembros verificados de la misma institución, verifica el rostro en el teléfono y deja que el pasajero confirme el carro antes de subirse.',
+  builtTitle: 'Lo que construimos en el hackathon',
+  b1Title: 'Verificar mi carro',
+  b1: 'El pasajero graba 3 segundos del carro que llega. SAM 3.1 sigue el carro y su placa en los fotogramas, Muse Spark lee placa, marca y color en el mejor, y el código decide: es tu carro, no te subas o graba de nuevo. Unos 6–8 s.',
+  b2Title: 'Autocompletar el vehículo',
+  b2: 'Con la foto del vehículo, Muse Spark propone marca, línea, color y, solo si se lee completa, la placa. El conductor confirma o corrige cada campo; la foto no se guarda.',
+  b3Title: 'Español e inglés',
+  b3: 'La interfaz en inglés se genera desde los textos en español con un script que los envía a Muse Spark por lotes y revisa cada clave y variable; después se revisa a mano.',
+  videoTitle: 'Video del demo',
+  videoSoon: 'Aquí estará el video del demo.',
+  tryTitle: 'Pruébalo',
+  s1: 'Abre la app web (o instala el APK de Android) e inicia sesión con el pasajero demo.',
+  s2: 'Ve a Viajes → Mis solicitudes: el viaje con Daniela está aceptado.',
+  s3: 'Toca "Verificar mi carro" y elige un video de ejemplo: el carro del viaje, otro carro o la placa tapada. La verificación corre en el pipeline real de SAM 3.1 + Muse Spark.',
+  s4: 'Inicia sesión como el conductor demo y agrega un vehículo con foto para ver el autocompletado.',
+  footer: 'Los carros y placas de los ejemplos son ficticios, generados con Muse Image. ConVía es un proyecto académico, sin fines comerciales.',
+};
+const EN = {};
+document.querySelectorAll('[data-i18n]').forEach((el) => { EN[el.dataset.i18n] = el.textContent; });
+document.querySelectorAll('[data-i18n-alt]').forEach((el) => { EN[el.dataset.i18nAlt] = 'A fictional white Renault Logan with plate CNV 026 arriving on a street in Chía'; });
+
+function setLanguage(lang) {
+  const texts = lang === 'es' ? ES : EN;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = texts[el.dataset.i18n]; });
+  document.querySelectorAll('[data-i18n-alt]').forEach((el) => { el.alt = texts[el.dataset.i18nAlt]; });
+  document.querySelectorAll('.lang button').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.lang === lang)));
+  try { localStorage.setItem('convia.landing.lang', lang); } catch {}
+}
+
+document.querySelectorAll('.lang button').forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
+let saved = null;
+try { saved = localStorage.getItem('convia.landing.lang'); } catch {}
+setLanguage(saved === 'es' || saved === 'en' ? saved : (navigator.language || 'en').toLowerCase().startsWith('es') ? 'es' : 'en');
+
+document.getElementById('apk').href = LINKS.apk;
+if (LINKS.video) {
+  const frame = document.createElement('iframe');
+  frame.src = LINKS.video;
+  frame.title = 'ConVía demo';
+  frame.allow = 'accelerometer; encrypted-media; picture-in-picture; fullscreen';
+  document.getElementById('video').replaceChildren(frame);
+}
+</script>
+</body>
+</html>

@@ -377,6 +377,13 @@
         "title": "Not available for this vehicle",
         "text": "AI verification works only with car plates (3 letters and 3 numbers)."
       }
+    },
+    "samples": {
+      "title": "No car to film? Try with a sample video",
+      "text": "Fictional cars generated with Muse Image. The analysis is real: SAM 3.1 and Muse Spark, same as with your own video.",
+      "match": "The trip's car arrives",
+      "other": "A different car arrives",
+      "covered": "Arrives with the plate covered"
     }
   },
   "colors": {

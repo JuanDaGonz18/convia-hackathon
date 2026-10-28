@@ -11,21 +11,22 @@ These modules existed before the building period (which began after the kickoff 
 | `src/components/forms/PasswordField.tsx` | `app/(auth)/reset-password.tsx` |
 | `src/components/forms/TextField.tsx` | `app/(auth)/forgot-password.tsx` |
 | `src/components/ui/ButtonPrimary.tsx` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
-| `src/components/ui/ButtonSecondary.tsx` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
+| `src/components/ui/ButtonSecondary.tsx` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx`, `src/components/pickup/SampleClips.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
 | `src/components/ui/ConfirmDialog.tsx` | `app/pickup-verify.tsx` |
 | `src/components/ui/Notice.tsx` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx` |
 | `src/components/ui/ScreenHeader.tsx` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx` |
 | `src/components/ui/Toast.tsx` | `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx` |
-| `src/constants/colors.ts` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
+| `src/constants/colors.ts` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/pickup/SampleClips.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
 | `src/constants/dimensions.ts` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx` |
-| `src/constants/radius.ts` | `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
-| `src/constants/spacing.ts` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
-| `src/constants/typography.ts` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
+| `src/constants/radius.ts` | `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/pickup/SampleClips.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
+| `src/constants/spacing.ts` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/pickup/SampleClips.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
+| `src/constants/typography.ts` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/pickup/SampleClips.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
 | `src/lib/supabase.ts` | `app/(auth)/reset-password.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/i18n/useLanguagePreference.ts`, `src/services/institutionService.ts`, `src/services/pickupVerificationService.ts`, `src/services/vehicleSuggestionService.ts` |
 | `src/maps/index.tsx` | `src/constants/campusRegion.ts` |
 | `src/services/authService.ts` | `app/(auth)/forgot-password.tsx` |
 | `src/services/profileService.ts` | `app/(auth)/reset-password.tsx` |
 | `src/services/tripService.ts` | `app/pickup-verify.tsx` |
+| `src/store/appStore.ts` | `app/pickup-verify.tsx` |
 | `src/utils/format.ts` | `app/(auth)/forgot-password.tsx`, `app/pickup-verify.tsx` |
 | `src/utils/password.ts` | `app/(auth)/reset-password.tsx` |
 | `supabase/functions/verify-vehicle/decision.ts` | `supabase/functions/suggest-vehicle/suggest.ts`, `supabase/functions/verify-pickup/decision.ts`, `supabase/functions/verify-pickup/index.ts` |
@@ -35,7 +36,7 @@ These modules existed before the building period (which began after the kickoff 
 
 | Package | Used by |
 | --- | --- |
-| `@expo/vector-icons` | `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
+| `@expo/vector-icons` | `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/pickup/SampleClips.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
 | `@supabase/supabase-js` | `src/services/pickupVerificationService.ts`, `supabase/tests/verify_pickup_e2e.mjs` |
 | `expo` | `src/services/pickupVerificationService.ts` |
 | `expo-camera` | `app/pickup-verify.tsx` |
@@ -54,6 +55,6 @@ These modules existed before the building period (which began after the kickoff 
 | `node:path` | `scripts/pickup-real-test.mjs` |
 | `node:test` | `src/content/pickupVerification.test.ts`, `src/i18n/locales.test.ts`, `src/lib/sessionPersistence.test.ts`, `src/utils/emailDomain.test.ts`, `supabase/functions/suggest-vehicle/suggest.test.ts`, `supabase/functions/verify-pickup/pickup.test.ts` |
 | `react` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/i18n/useLanguagePreference.ts` |
-| `react-i18next` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx`, `src/i18n/index.ts` |
-| `react-native` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
+| `react-i18next` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/pickup/SampleClips.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx`, `src/i18n/index.ts` |
+| `react-native` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx`, `src/components/auth/InstitutionDomainHint.tsx`, `src/components/pickup/SampleClips.tsx`, `src/components/settings/LanguageSwitcher.tsx`, `src/components/vehicle/VehicleSuggestionCard.tsx` |
 | `react-native-safe-area-context` | `app/(auth)/forgot-password.tsx`, `app/(auth)/reset-password.tsx`, `app/appearance.tsx`, `app/pickup-verify.tsx` |
