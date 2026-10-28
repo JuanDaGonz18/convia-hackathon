@@ -1206,5 +1206,38 @@
   "demo": {
     "disabled": "Desactivado en modo demo",
     "disabledSample": "Desactivado en modo demo — video de ejemplo"
+  },
+  "camera": {
+    "take": "Tomar foto",
+    "close": "Cerrar cámara"
+  },
+  "nextRide": {
+    "title": "Tu próximo viaje",
+    "soon": "Tu viaje es pronto",
+    "showQr": "Mostrar mi QR de abordaje",
+    "verifyCar": "Verificar mi carro"
+  },
+  "reviews": {
+    "kicker": "TU PERFIL",
+    "title": "Mis reseñas",
+    "profileSubtitle": "Lo que opinan de ti, con tu promedio",
+    "asDriver": "Como conductor",
+    "asPassenger": "Como pasajero",
+    "count_one": "{{count}} reseña",
+    "count_other": "{{count}} reseñas",
+    "emptyDriver": "Aún no tienes reseñas como conductor.",
+    "emptyPassenger": "Aún no tienes reseñas como pasajero.",
+    "noComment": "Sin comentario",
+    "anonymous": "Usuario de ConVía",
+    "failed": "No se pudieron cargar tus reseñas."
+  },
+  "metaAi": {
+    "badge": "✨ IA de Meta",
+    "hint": "Muestra qué modelo de Meta se usa aquí",
+    "pickup": "SAM 3.1 sigue el carro y su placa en el video; Muse Spark 1.3 lee placa, marca y color.",
+    "autofill": "Muse Spark 1.3 lee marca, línea, color y placa de la foto del vehículo.",
+    "vehicleCheck": "SAM 3.1 encuentra el carro y la placa; Muse Spark 1.3 los lee para confirmar que es tu vehículo.",
+    "studentCard": "Muse Spark 1.3 lee el carné (la cara se difumina en tu teléfono antes de enviarlo).",
+    "agent": "Muse Spark Open (pesos abiertos) busca y compara los viajes por ti."
   }
 }

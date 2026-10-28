@@ -2,6 +2,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
+import { MetaAiBadge } from '@/components/ai/MetaAiBadge';
 import { ButtonPrimary } from '@/components/ui/ButtonPrimary';
 import { ButtonSecondary } from '@/components/ui/ButtonSecondary';
 import { colors } from '@/constants/colors';
@@ -58,6 +59,7 @@ export function VehicleSuggestionCard({ state, onApply, onDismiss }: Readonly<{
         <Ionicons color={colors.primary} name="sparkles" size={18} />
         <Text style={styles.title}>{t('vehicleSuggestion.title')}</Text>
       </View>
+      <MetaAiBadge feature="autofill" />
       {rows.map((row) => (
         <View key={row.label} style={styles.field}>
           <Text style={styles.fieldLabel}>{row.label}</Text>

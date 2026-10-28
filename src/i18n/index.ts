@@ -53,15 +53,24 @@ async function apply(next: LanguagePreference) {
   listeners.forEach((listener) => listener());
 }
 
+// Set once the user picks a language: a slow startup read must not overwrite that choice.
+let chosenThisSession = false;
+
 /** Restores the saved choice at startup (until then the phone's language is used). */
 export async function loadLanguagePreference() {
   const saved = await SecureStore.getItemAsync(PREFERENCE_KEY).catch(() => null);
+  if (chosenThisSession) return;
   await apply(isLanguagePreference(saved) ? saved : 'system');
 }
 
+/**
+ * The language changes at once; saving it on the device happens afterwards. Saving first
+ * meant a slow or stuck secure store (seen on Android) left the selector unresponsive.
+ */
 export async function setLanguagePreference(next: LanguagePreference) {
-  await SecureStore.setItemAsync(PREFERENCE_KEY, next).catch(() => undefined);
+  chosenThisSession = true;
   await apply(next);
+  void SecureStore.setItemAsync(PREFERENCE_KEY, next).catch(() => undefined);
 }
 
 export default i18n;

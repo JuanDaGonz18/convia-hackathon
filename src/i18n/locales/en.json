@@ -1206,5 +1206,38 @@
   "demo": {
     "disabled": "Disabled in demo mode",
     "disabledSample": "Disabled in demo mode — sample video"
+  },
+  "camera": {
+    "take": "Take photo",
+    "close": "Close camera"
+  },
+  "nextRide": {
+    "title": "Your next ride",
+    "soon": "Your ride is soon",
+    "showQr": "Show my boarding QR",
+    "verifyCar": "Verify my car"
+  },
+  "reviews": {
+    "kicker": "YOUR PROFILE",
+    "title": "My reviews",
+    "profileSubtitle": "What people say about you, with your average",
+    "asDriver": "As a driver",
+    "asPassenger": "As a passenger",
+    "count_one": "{{count}} review",
+    "count_other": "{{count}} reviews",
+    "emptyDriver": "No reviews as a driver yet.",
+    "emptyPassenger": "No reviews as a passenger yet.",
+    "noComment": "No comment",
+    "anonymous": "ConVía user",
+    "failed": "Your reviews could not be loaded."
+  },
+  "metaAi": {
+    "badge": "✨ AI by Meta",
+    "hint": "Shows which Meta model is used here",
+    "pickup": "SAM 3.1 tracks the car and its plate in the video; Muse Spark 1.3 reads plate, brand and color.",
+    "autofill": "Muse Spark 1.3 reads brand, line, color and plate from the vehicle photo.",
+    "vehicleCheck": "SAM 3.1 finds the car and the plate; Muse Spark 1.3 reads them to confirm it is your vehicle.",
+    "studentCard": "Muse Spark 1.3 reads the card (your face is blurred on your phone before it is sent).",
+    "agent": "Muse Spark Open (open weights) finds and compares trips for you."
   }
 }

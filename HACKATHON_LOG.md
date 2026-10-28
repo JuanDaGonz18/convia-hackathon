@@ -113,7 +113,20 @@ Template for each entry:
   - Tested in the browser on the live site as the demo passenger: 3/3 as expected. Trip's car → "it's your ride" (CNV026, 0.98, 5.6 s); other car → "don't get in" (read KTR418, 0.95, 8.2 s); plate covered → "film again" (6.8 s). Times from tap to answer; the server part is 4.3–6.4 s.
   - Ready for several judges at once: five demo passengers, each with their own accepted trip with the demo driver (plates are unique, so one driver owns the CNV026 car the samples show). Destructive actions on demo accounts (cancel a trip or request, report a sample result, delete a vehicle or the account, change the password, edit the demo car) are shown disabled with "Disabled in demo mode", so nobody can break the shared demo. Sample checks are capped at 60 per account and 300 across all demo accounts per 24 h (about $0.04 each).
 
-### October 29, 2026
+### October 28, 2026 (evening) — one main branch, a 64 MB APK, and a UX batch
+
+- **Built:**
+  - Every finished branch merged into `main` (a fast-forward: all of them were already in one line); the live site now deploys from `main`.
+  - Android APK from 200.6 MB to 64.1 MB: 64-bit ARM only (−63.7 MB), native libraries compressed in the APK (91 → 31 MB), R8 minification and resource shrinking (code 21.7 → 9.6 MB), with keep rules for the libraries that create Java objects from native code. Preview builds now increase the version code, so each one installs over the last.
+  - Language selector: one segmented control with 44 dp segments on login, sign-up and Appearance; the language changes before it is saved, because saving first left the selector unresponsive when the device's secure storage was slow.
+  - No shutter sound: the face check takes its photo with the sound off, and license, vehicle and vehicle-check photos use an in-app camera instead of the phone's camera app (whose sound an app can't turn off). Recording the pickup video makes no sound.
+  - Drop-off point: the map (drag or tap the pin, address shown, confirm) is offered from the start, like the pick-up.
+  - Boarding QR up front: the passenger's next trip shows on Home and on the trip, and from two hours before departure "Show my boarding QR" is the big button.
+  - Profile → My reviews: what others said, as a driver and as a passenger, with the average.
+  - "✨ AI by Meta" badge on Verify my car, the vehicle autofill and the vehicle AI check; tapping it says which model does what.
+- **Meta model:** none new (the badge names SAM 3.1, Muse Spark 1.3 and Muse Spark Open where they are used).
+- **PRs:** feat/ux-batch
+- **Notes:** next: open sign-up with institution verification by student card (Muse Spark), then the matching agent.
 
 ### October 30, 2026
 

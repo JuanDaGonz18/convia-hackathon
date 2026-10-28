@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { type TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
+import { MetaAiBadge } from '@/components/ai/MetaAiBadge';
 import { DemoDisabledNote, useDemoAccount } from '@/components/demo/DemoDisabledNote';
 import { SampleClips } from '@/components/pickup/SampleClips';
 import { ButtonPrimary } from '@/components/ui/ButtonPrimary';
@@ -152,7 +153,12 @@ export default function PickupVerifyScreen() {
     else if (tripId) router.push({ pathname: '/chat/[tripId]', params: { tripId } });
   };
 
-  const header = <ScreenHeader kicker={t('pickup.screen.kicker')} title={t('pickup.screen.title')} />;
+  const header = (
+    <>
+      <ScreenHeader kicker={t('pickup.screen.kicker')} title={t('pickup.screen.title')} />
+      <MetaAiBadge feature="pickup" />
+    </>
+  );
   // Without a camera (web, or permission not granted) only the choice screen changes: a sample's
   // progress and result still use the screens below.
   const choosing = phase === 'camera';
