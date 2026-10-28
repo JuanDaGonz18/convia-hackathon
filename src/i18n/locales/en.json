@@ -1202,5 +1202,9 @@
     "unclear": "We couldn't recognize the vehicle in the photo. Enter the details.",
     "unavailable": "AI suggestion isn't available right now. Enter the details.",
     "dismiss": "Close suggestion"
+  },
+  "demo": {
+    "disabled": "Disabled in demo mode",
+    "disabledSample": "Disabled in demo mode — sample video"
   }
 }

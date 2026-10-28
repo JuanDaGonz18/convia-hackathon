@@ -66,8 +66,32 @@ function parseFrames(value: unknown, folder: string): FrameInput[] | null {
 const SAMPLE_BUCKET = 'pickup-samples';
 const SAMPLES = ['match', 'other', 'covered'] as const;
 const DEMO_EMAIL_DOMAIN = '@demo.convia.test';
-/** Real checks per demo passenger per day (about $0.04 each). */
-const DEMO_MAX_PER_DAY = Number(Deno.env.get('PICKUP_DEMO_MAX_PER_DAY')) || 40;
+/** Real sample checks (about $0.04 each) in the last 24 h: per demo account, and for all demo accounts together. */
+const DEMO_MAX_PER_ACCOUNT = Number(Deno.env.get('PICKUP_DEMO_MAX_PER_ACCOUNT')) || 60;
+const DEMO_MAX_TOTAL = Number(Deno.env.get('PICKUP_DEMO_MAX_TOTAL')) || 300;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** A demo account may run another sample check while under its own limit and the shared one. */
+async function demoCheckAllowed(userId: string) {
+  const { data: demoUsers, error } = await admin.from('profiles').select('id').ilike('email', `%${DEMO_EMAIL_DOMAIN}`);
+  if (error) throw error;
+  const { data: checks, error: checksError } = await admin
+    .from('pickup_verifications')
+    .select('passenger_id')
+    .in('passenger_id', demoUsers.map((user) => user.id))
+    .gte('created_at', new Date(Date.now() - DAY_MS).toISOString());
+  if (checksError) throw checksError;
+  const own = checks.filter((check) => check.passenger_id === userId).length;
+  log('demo_quota', { own, total: checks.length });
+  return own < DEMO_MAX_PER_ACCOUNT && checks.length < DEMO_MAX_TOTAL;
+}
+
+/** Real checks of filmed clips, per request. */
+async function requestCheckAllowed(requestId: string) {
+  const { count, error } = await admin.from('pickup_verifications').select('id', { count: 'exact', head: true }).eq('request_id', requestId);
+  if (error) throw error;
+  return (count ?? 0) < MAX_ATTEMPTS_PER_REQUEST;
+}
 
 /** The sample's clip and frames (pickup-samples/<sample>/frames.json lists them). */
 async function loadSample(sample: (typeof SAMPLES)[number]): Promise<{ clipPath: string; frames: FrameInput[] }> {
@@ -204,16 +228,13 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
     const downloadStarted = performance.now();
     const videoDownload = download(clipPath, bucket).then((bytes) => ({ bytes, ms: Math.round(performance.now() - downloadStarted) }));
     videoDownload.catch(() => undefined);
-    const [{ data: vehicle, error: vehicleError }, { data: driver, error: driverError }, { count, error: countError }] = await Promise.all([
+    const [{ data: vehicle, error: vehicleError }, { data: driver, error: driverError }, allowed] = await Promise.all([
       admin.from('vehicles').select('placa, marca, color').eq('id', trip.vehicle_id).single(),
       admin.from('profiles').select('nombre, telefono').eq('id', trip.driver_id).single(),
-      demo
-        ? admin.from('pickup_verifications').select('id', { count: 'exact', head: true }).eq('passenger_id', userId).gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-        : admin.from('pickup_verifications').select('id', { count: 'exact', head: true }).eq('request_id', requestId),
+      demo ? demoCheckAllowed(userId) : requestCheckAllowed(requestId),
     ]);
     if (vehicleError) throw vehicleError;
     if (driverError) throw driverError;
-    if (countError) throw countError;
     const registered = { plate: normalizePlate(vehicle.placa), brand: vehicle.marca, color: vehicle.color };
     // Motorcycle plates (ABC12D) can't be checked with this flow.
     if (!isCarPlate(registered.plate)) return finish(422, { error: 'UNSUPPORTED_VEHICLE' });
@@ -236,7 +257,7 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
         mock: MOCK,
       };
     };
-    if ((count ?? 0) >= (demo ? DEMO_MAX_PER_DAY : MAX_ATTEMPTS_PER_REQUEST)) {
+    if (!allowed) {
       return finish(200, answer({ decision: pickupRetry('too_many_attempts'), report: null, framesProcessed: null, timings: {}, debug: {} }, null));
     }
 

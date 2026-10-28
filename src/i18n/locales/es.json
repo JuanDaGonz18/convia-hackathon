@@ -1202,5 +1202,9 @@
     "unclear": "No reconocimos el vehículo en la foto. Escribe los datos.",
     "unavailable": "La sugerencia con IA no está disponible ahora. Escribe los datos.",
     "dismiss": "Cerrar sugerencia"
+  },
+  "demo": {
+    "disabled": "Desactivado en modo demo",
+    "disabledSample": "Desactivado en modo demo — video de ejemplo"
   }
 }
