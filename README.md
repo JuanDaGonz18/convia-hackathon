@@ -11,7 +11,7 @@ The new code is part of **ConVía**, a carpooling app for university students an
 
 <!-- Replace with the final links. -->
 - Video: _coming soon_
-- Live app: _coming soon_
+- Live app: https://convia-hackathon.pages.dev (web app at `/app/`; judges log in with the demo accounts from the submission form)
 
 ## Built during the hackathon
 
