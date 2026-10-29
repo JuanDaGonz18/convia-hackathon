@@ -5,6 +5,7 @@ import { supabaseToolData } from './data.ts';
 import { fixtureData, FIXTURE_NOW } from './evalData.ts';
 import { createJudge } from './judge.ts';
 import { type AgentOutcome, describeSpec, type LoopDeps, newRunState, type RunState, runAgent, type TraceStep } from './loop.ts';
+import { isServiceKey } from './auth.ts';
 import { detectLanguage } from './language.ts';
 import { buildObjective } from './objective.ts';
 import { photonGeocoder } from './places.ts';
@@ -38,13 +39,6 @@ const headers = {
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers });
 const log = (event: string, data: Record<string, unknown>) => console.log(JSON.stringify({ fn: 'match-agent', event, ...data }));
 
-function isServiceRole(token: string) {
-  try {
-    return JSON.parse(atob(token.split('.')[1].replaceAll('-', '+').replaceAll('_', '/'))).role === 'service_role';
-  } catch {
-    return false;
-  }
-}
 
 /** The pieces every run shares: the open-weights models, the judge (a different model) and the loop deps. */
 function buildDeps(data: ToolData & VerifyData, record: LoopDeps['record'], now: () => number, viewerId: string, geocode = true, onlyProvider?: string): LoopDeps {
@@ -110,7 +104,7 @@ Deno.serve(async (request) => {
 
   // ── Evaluation: one case on the fixture, service role only; returns the full trace. ──
   if (body.eval) {
-    if (!isServiceRole(token)) return json({ error: 'FORBIDDEN' }, 403);
+    if (!isServiceKey(token, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))) return json({ error: 'FORBIDDEN' }, 403);
     const evalCase = body.eval as { passenger?: string; text?: string; language?: 'es' | 'en'; provider?: 'baseten' | 'modal' };
     if (typeof evalCase.passenger !== 'string' || typeof evalCase.text !== 'string') return json({ error: 'INVALID_BODY' }, 400);
     const trace: TraceStep[] = [];
@@ -122,7 +116,13 @@ Deno.serve(async (request) => {
     const started = Date.now();
     // `language` is the app's; the reply follows the message.
     const language = detectLanguage(evalCase.text, evalCase.language === 'en' ? 'en' : 'es');
-    const outcome = await runAgent(newRunState(buildObjective({ text: evalCase.text, language, now: new Date(now()) })), deps, language);
+    let outcome: AgentOutcome;
+    try {
+      outcome = await runAgent(newRunState(buildObjective({ text: evalCase.text, language, now: new Date(now()) })), deps, language);
+    } catch (error) {
+      log('eval_error', { detail: String((error as Error)?.message ?? error).slice(0, 200) });
+      return json({ status: 'failed', error: 'RUN_FAILED', trace: [] });
+    }
     const rows = trace.map((step, index) => toStepRow('eval', index + 1, step as TraceStep & { kindOverride?: 'judge' }));
     return json({ ...resultBody(null, outcome), turns: outcome.state.turns, spec_rejections: outcome.state.specRejections, propose_attempts: outcome.state.proposeAttempts, latency_ms: Date.now() - started, totals: totals(rows), trace: rows });
   }

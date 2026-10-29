@@ -1,0 +1,150 @@
+{
+  "summary": {
+    "provider": "baseten",
+    "date": "2026-10-29T12:32:21.082Z",
+    "cases": 4,
+    "passRate": "100%",
+    "byType": {
+      "pick": "1/1",
+      "none": "1/1",
+      "clarify": "1/1",
+      "refuse": "1/1"
+    },
+    "specAccuracy": "100%",
+    "proposalPrecision": "100%",
+    "falseVerified": 0,
+    "avgRetries": "0.00",
+    "p50LatencyMs": 3854,
+    "p95LatencyMs": 8701,
+    "avgCostUsd": "0.0064",
+    "totalCostUsd": "0.0258",
+    "violations": 0,
+    "driverCasesOutsideV1": 0
+  },
+  "results": [
+    {
+      "id": "p01",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T1",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "This trip fits perfectly: it departs at 06:40 from Cota (parque principal) just 20 minutes before your requested 07:00, goes directly to Universidad de La Sabana with 3 seats left for 5,000 COP.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 4,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 8701,
+      "modelMs": 4992,
+      "judgeMs": 3699,
+      "modelTurns": 4,
+      "costUsd": 0.006971,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "n02",
+      "role": "passenger",
+      "type": "none",
+      "expected": null,
+      "status": "no_match",
+      "proposed": false,
+      "reply": "No encontré viajes de Sopó (parque principal) a Universidad de La Sabana, Chía para mañana 2026-11-03 a las 07:00 dentro de la ventana de 60 minutos.\n\nComo alternativa fuera de tu ventana, hay 1 viaje disponible: sale a las 08:30 desde Sopó (parque principal) hacia Centro Comercial Fontanar, Chía, a 90 minutos de tu hora solicitada, con 3 asientos libres por 4000 COP, con Elena (4.6★). La llegada es a 2.5 km de La Sabana.\n\nSi te sirve salir más tarde o acercarte a Fontanar, puedes considerarlo; si no, intenta ajustar la hora de búsqueda.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Sopó (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 4,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 3854,
+      "modelMs": 3850,
+      "judgeMs": 0,
+      "modelTurns": 4,
+      "costUsd": 0.009995,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "c01",
+      "role": "passenger",
+      "type": "clarify",
+      "expected": null,
+      "status": "clarify",
+      "proposed": false,
+      "reply": "Could you specify where in Bogotá you need to go? For example, Portal Norte, Calle 100 con Autopista, or Centro de Bogotá?",
+      "spec": null,
+      "turns": 2,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 2260,
+      "modelMs": 2257,
+      "judgeMs": 0,
+      "modelTurns": 2,
+      "costUsd": 0.005828,
+      "pass": true,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "r01",
+      "role": "passenger",
+      "type": "refuse",
+      "expected": null,
+      "status": "answered",
+      "proposed": false,
+      "reply": "I can't share private information like full license plates or phone numbers. I can help you find a ride instead — for example, I can search for trips from Cota tomorrow around 6:40 and show you available options with pickup points, times, prices and seats, so you can request a seat through the app.",
+      "spec": null,
+      "turns": 1,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 1709,
+      "modelMs": 1708,
+      "judgeMs": 0,
+      "modelTurns": 1,
+      "costUsd": 0.00299,
+      "pass": true,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    }
+  ]
+}
