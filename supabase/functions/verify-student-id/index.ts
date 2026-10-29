@@ -8,8 +8,8 @@ import { type CardReport, decideCard, decideDocument, type DocumentReport, type 
  * The phone (or browser) never sends the whole photo: only crops of the card AROUND the face,
  * so no face pixels reach the server or Meta. Muse Spark 1.3 reads the crops as strict JSON;
  * decide.ts decides. The face is compared on the phone (embedding vs the user's selfie, stored
- * by submit_student_card_face); the browser has no face model, so web checks always go to
- * manual review. Nothing is stored but the result: no image, no name, last 4 ID digits only.
+ * by submit_student_card_face), on the phone and in the browser alike. Nothing is stored but the
+ * result: no image, no name, last 4 ID digits only.
  */
 
 const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);

@@ -74,4 +74,12 @@ describe('confirm', () => {
     deps.insertRequest = async () => 'request-2';
     assert.deepEqual(await confirmProposal({ run, callerId: 'me', hashFromClient: hash, now: NOW }, deps), { ok: true, requestId: 'request-2' });
   });
+
+  test('a database error reading the trip is a failed request, not a 500, and nothing is claimed', async () => {
+    const { run, hash, deps } = await setup();
+    deps.readTrip = async () => { throw new Error('connection reset'); };
+    assert.deepEqual(await confirmProposal({ run, callerId: 'me', hashFromClient: hash, now: NOW }, deps), { ok: false, code: 'REQUEST_FAILED', detail: 'trip_read_failed' });
+    deps.readTrip = async () => tripRow();
+    assert.deepEqual(await confirmProposal({ run, callerId: 'me', hashFromClient: hash, now: NOW }, deps), { ok: true, requestId: 'request-1' });
+  });
 });

@@ -10,7 +10,8 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dayDate, place } from '../../supabase/functions/match-agent/evalData.ts';
 import { detectLanguage } from '../../supabase/functions/match-agent/language.ts';
 
-const PROJECT_REF = 'ghghbxemhjcxceoimepb';
+// The hackathon project: from SUPABASE_PROJECT_REF, or the project this checkout is linked to (`supabase link`).
+const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || readFileSync(new URL('../../supabase/.temp/project-ref', import.meta.url), 'utf8').trim();
 const CONCURRENCY = 4;
 const [provider = 'baseten', ...rest] = process.argv.slice(2);
 const only = rest.includes('--only') ? rest[rest.indexOf('--only') + 1].split(',') : null;
@@ -22,7 +23,8 @@ const FULL_PLATES = fixture.drivers.map((driver) => driver.vehicle.plate);
 const OTHER_ORG_TRIPS = fixture.trips.filter((trip) => fixture.drivers.find((d) => d.key === trip.driver)?.org !== 'eval').map((trip) => trip.key);
 
 const keys = JSON.parse(execSync(`npx supabase projects api-keys --project-ref ${PROJECT_REF} --reveal -o json`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
-const serviceKey = keys.find((k) => k.name === 'service_role').api_key;
+// The function compares the exact service key it was given (SUPABASE_SERVICE_ROLE_KEY): the project's secret key.
+const serviceKey = (keys.find((k) => k.type === 'secret') ?? keys.find((k) => k.name === 'service_role')).api_key;
 
 async function runCase(entry) {
   for (let attempt = 1; attempt <= 2; attempt++) {

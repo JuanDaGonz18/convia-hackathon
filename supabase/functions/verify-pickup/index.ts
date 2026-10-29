@@ -2,9 +2,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 import { isCarPlate, normalizePlate } from '../verify-vehicle/decision.ts';
 import { pickupRetry } from './decision.ts';
+import { attemptAllowed, type AttemptCounts, DEFAULT_LIMITS } from './limits.ts';
 import { createMockClient, mockOutcome } from './mock.ts';
 import { createModelClient } from './model.ts';
 import { analyzeClip, DEFAULT_PIPELINE_CONFIG, type FrameSource, type PipelineResult, type ProgressStep } from './pipeline.ts';
+import { ndjsonStream } from './stream.ts';
 
 /**
  * verify-pickup: the passenger films the arriving car for up to 5 s and we
@@ -23,7 +25,6 @@ const BUCKET = 'pickup-clips';
 const MIN_CONFIDENCE = Number(Deno.env.get('PICKUP_MIN_CONFIDENCE')) || DEFAULT_PIPELINE_CONFIG.minConfidence;
 const REASONING_EFFORT = (['minimal', 'low', 'medium', 'high'] as const).find((effort) => effort === Deno.env.get('PICKUP_REASONING_EFFORT')) ?? 'minimal';
 /** Each real attempt costs 2 SAM calls (≥ 50 frames each) + 1 Muse call. */
-const MAX_ATTEMPTS_PER_REQUEST = Number(Deno.env.get('PICKUP_MAX_ATTEMPTS')) || 6;
 const MAX_FRAMES = 12;
 const CLIP_NAME = /^clip-[A-Za-z0-9-]{8,64}\.(mp4|mov)$/;
 const FRAME_NAME = /^frame-[A-Za-z0-9-]{8,64}-\d{1,5}\.jpg$/;
@@ -67,31 +68,42 @@ const SAMPLE_BUCKET = 'pickup-samples';
 const SAMPLES = ['match', 'other', 'covered'] as const;
 const DEMO_EMAIL_DOMAIN = '@demo.convia.test';
 /** Real sample checks (about $0.04 each) in the last 24 h: per demo account, and for all demo accounts together. */
-const DEMO_MAX_PER_ACCOUNT = Number(Deno.env.get('PICKUP_DEMO_MAX_PER_ACCOUNT')) || 60;
-const DEMO_MAX_TOTAL = Number(Deno.env.get('PICKUP_DEMO_MAX_TOTAL')) || 300;
 const DAY_MS = 24 * 60 * 60 * 1000;
+const LIMITS = {
+  perRequest: Number(Deno.env.get('PICKUP_MAX_ATTEMPTS')) || DEFAULT_LIMITS.perRequest,
+  perUserPerDay: Number(Deno.env.get('PICKUP_MAX_PER_USER_DAY')) || DEFAULT_LIMITS.perUserPerDay,
+  totalPerDay: Number(Deno.env.get('PICKUP_MAX_TOTAL_DAY')) || DEFAULT_LIMITS.totalPerDay,
+  demoPerAccount: Number(Deno.env.get('PICKUP_DEMO_MAX_PER_ACCOUNT')) || DEFAULT_LIMITS.demoPerAccount,
+  demoTotal: Number(Deno.env.get('PICKUP_DEMO_MAX_TOTAL')) || DEFAULT_LIMITS.demoTotal,
+};
 
-/** A demo account may run another sample check while under its own limit and the shared one. */
-async function demoCheckAllowed(userId: string) {
-  const { data: demoUsers, error } = await admin.from('profiles').select('id').ilike('email', `%${DEMO_EMAIL_DOMAIN}`);
-  if (error) throw error;
-  const { data: checks, error: checksError } = await admin
-    .from('pickup_verifications')
-    .select('passenger_id')
-    .in('passenger_id', demoUsers.map((user) => user.id))
-    .gte('created_at', new Date(Date.now() - DAY_MS).toISOString());
-  if (checksError) throw checksError;
-  const own = checks.filter((check) => check.passenger_id === userId).length;
-  log('demo_quota', { own, total: checks.length });
-  return own < DEMO_MAX_PER_ACCOUNT && checks.length < DEMO_MAX_TOTAL;
+/** Attempts so far, the caller's new (already recorded) one included. */
+async function attemptCounts(userId: string, requestId: string, demo: boolean): Promise<AttemptCounts> {
+  const since = new Date(Date.now() - DAY_MS).toISOString();
+  const count = async (filter: (query: ReturnType<typeof countQuery>) => ReturnType<typeof countQuery>) => {
+    const { count: total, error } = await filter(countQuery());
+    if (error) throw error;
+    return total ?? 0;
+  };
+  if (demo) {
+    const { data: demoUsers, error } = await admin.from('profiles').select('id').ilike('email', `%${DEMO_EMAIL_DOMAIN}`);
+    if (error) throw error;
+    const ids = demoUsers.map((user) => user.id);
+    const [own, total] = await Promise.all([
+      count((query) => query.eq('passenger_id', userId).gte('created_at', since)),
+      count((query) => query.in('passenger_id', ids).gte('created_at', since)),
+    ]);
+    log('demo_quota', { own, total });
+    return { demo: true, own, total };
+  }
+  const [request, own, total] = await Promise.all([
+    count((query) => query.eq('request_id', requestId)),
+    count((query) => query.eq('passenger_id', userId).gte('created_at', since)),
+    count((query) => query.gte('created_at', since)),
+  ]);
+  return { demo: false, request, own, total };
 }
-
-/** Real checks of filmed clips, per request. */
-async function requestCheckAllowed(requestId: string) {
-  const { count, error } = await admin.from('pickup_verifications').select('id', { count: 'exact', head: true }).eq('request_id', requestId);
-  if (error) throw error;
-  return (count ?? 0) < MAX_ATTEMPTS_PER_REQUEST;
-}
+const countQuery = () => admin.from('pickup_verifications').select('id', { count: 'exact', head: true });
 
 /** The sample's clip and frames (pickup-samples/<sample>/frames.json lists them). */
 async function loadSample(sample: (typeof SAMPLES)[number]): Promise<{ clipPath: string; frames: FrameInput[] }> {
@@ -163,17 +175,13 @@ async function answerRequest(request: Request, args: VerifyArgs) {
     await outcome.after();
     return response(outcome.body, outcome.status);
   }
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    async start(controller) {
-      const send = (event: unknown) => controller.enqueue(encoder.encode(JSON.stringify(event) + '\n'));
-      const outcome = await verify(args, (step) => send({ type: 'progress', step }));
-      // The passenger gets the answer first; saving the row and deleting the files happen after.
-      send({ type: 'result', status: outcome.status, body: outcome.body });
-      await outcome.after();
-      controller.close();
-    },
-  });
+  // Saving the row and deleting the clip must finish even if the app disconnects mid-answer.
+  const keepAlive = (pending: Promise<unknown>) => (globalThis as { EdgeRuntime?: { waitUntil(promise: Promise<unknown>): void } }).EdgeRuntime?.waitUntil(pending);
+  const stream = ndjsonStream(
+    (send) => verify(args, (step) => send({ type: 'progress', step })),
+    (outcome) => ({ type: 'result', status: outcome.status, body: outcome.body }),
+    keepAlive,
+  );
   return new Response(stream, { headers: { ...headers, 'Content-Type': 'application/x-ndjson', 'Cache-Control': 'no-store' } });
 }
 
@@ -209,6 +217,8 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
     },
   });
 
+  // The recorded attempt, so a server error after it still counts (and says what happened).
+  let reserved: string | null = null;
   try {
     const { data: tripRequest, error: requestError } = await admin
       .from('trip_requests')
@@ -228,10 +238,9 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
     const downloadStarted = performance.now();
     const videoDownload = download(clipPath, bucket).then((bytes) => ({ bytes, ms: Math.round(performance.now() - downloadStarted) }));
     videoDownload.catch(() => undefined);
-    const [{ data: vehicle, error: vehicleError }, { data: driver, error: driverError }, allowed] = await Promise.all([
+    const [{ data: vehicle, error: vehicleError }, { data: driver, error: driverError }] = await Promise.all([
       admin.from('vehicles').select('placa, marca, color').eq('id', trip.vehicle_id).single(),
       admin.from('profiles').select('nombre, telefono').eq('id', trip.driver_id).single(),
-      demo ? demoCheckAllowed(userId) : requestCheckAllowed(requestId),
     ]);
     if (vehicleError) throw vehicleError;
     if (driverError) throw driverError;
@@ -257,7 +266,18 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
         mock: MOCK,
       };
     };
-    if (!allowed) {
+    // The attempt is recorded BEFORE the paid call, then counted: errors and parallel calls count too.
+    const verificationId = crypto.randomUUID();
+    const { error: reserveError } = await admin.from('pickup_verifications').insert({
+      id: verificationId, trip_id: trip.id, request_id: requestId, passenger_id: userId, driver_id: trip.driver_id,
+      status: 'retry', reason: 'in_progress', latency_ms: 0, mock: MOCK,
+    });
+    if (reserveError) throw reserveError;
+    reserved = verificationId;
+    if (!attemptAllowed(await attemptCounts(userId, requestId, demo), LIMITS)) {
+      // Nothing was paid for: the refused attempt doesn't count against later ones.
+      await admin.from('pickup_verifications').delete().eq('id', verificationId);
+      reserved = null;
       return finish(200, answer({ decision: pickupRetry('too_many_attempts'), report: null, framesProcessed: null, timings: {}, debug: {} }, null));
     }
 
@@ -276,17 +296,10 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
     result.timings.download = downloadMs;
     const latencyMs = Math.round(performance.now() - started);
     const { decision, report } = result;
-    // Chosen here so the answer can carry it before the row is saved.
-    const verificationId = crypto.randomUUID();
     log('done', { status: decision.status, reason: decision.reason, mock: MOCK, demo, ms: latencyMs, timings: result.timings, frames: result.framesProcessed, debug: result.debug });
 
     return finish(200, answer(result, verificationId), async () => {
-      const { error: saveError } = await admin.from('pickup_verifications').insert({
-        id: verificationId,
-        trip_id: trip.id,
-        request_id: requestId,
-        passenger_id: userId,
-        driver_id: trip.driver_id,
+      const { error: saveError } = await admin.from('pickup_verifications').update({
         status: decision.status,
         reason: decision.reason,
         plate_read: decision.plateRead,
@@ -299,11 +312,18 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
         latency_ms: latencyMs,
         timings: result.timings,
         mock: MOCK,
-      });
+      }).eq('id', verificationId);
       if (saveError) log('save_error', { detail: saveError.message });
     });
   } catch (error) {
     log('error', { detail: error instanceof Error ? error.message : String(error) });
+    const attempt = reserved;
+    const markFailed = attempt
+      ? async () => {
+        const { error: markError } = await admin.from('pickup_verifications').update({ reason: 'server_error', latency_ms: Math.round(performance.now() - started) }).eq('id', attempt);
+        if (markError) log('save_error', { detail: markError.message });
+      }
+      : undefined;
     return finish(200, {
       verification_id: null,
       status: 'retry',
@@ -317,6 +337,6 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
       vehicle: null,
       driver: null,
       mock: MOCK,
-    });
+    }, markFailed);
   }
 }

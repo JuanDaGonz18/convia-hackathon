@@ -47,7 +47,13 @@ export async function confirmProposal(
 
   // The trip as it is now must still produce the same hash (price, departure) and have the seats.
   const stored = run.pending_action.fields;
-  const trip = await deps.readTrip(stored.trip_id);
+  // A database error here is a failed request (the app says try again), not an unhandled 500.
+  let trip: Awaited<ReturnType<typeof deps.readTrip>>;
+  try {
+    trip = await deps.readTrip(stored.trip_id);
+  } catch {
+    return { ok: false, code: 'REQUEST_FAILED', detail: 'trip_read_failed' };
+  }
   if (!trip || !trip.salida_at || trip.estado !== 'por_empezar') return { ok: false, code: 'PROPOSAL_STALE', detail: 'trip_unavailable' };
   if (Number(trip.cupos_disponibles ?? 0) < stored.seats) return { ok: false, code: 'PROPOSAL_STALE', detail: 'no_seats' };
   const current = await proposalHash({ ...stored, price: Number(trip.precio ?? 0), departure: trip.salida_at });
