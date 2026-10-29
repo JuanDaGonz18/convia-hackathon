@@ -3,16 +3,19 @@
 // and its batch retried once. By default only keys missing from en.json are translated, so
 // hand-reviewed English text is never overwritten (use --all to redo everything).
 //
-// Usage: node scripts/translate-locale.mjs [--all] [--dry-run]
+// Usage: node scripts/translate-locale.mjs [--all] [--dry-run] [--source es.json --target en.json]
+//   --source/--target: another pair of JSON files with the same layout (e.g. the legal texts).
 // Needs MODEL_API_KEY in supabase/functions/.env.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 import { flatten, placeholders } from '../src/i18n/languages.ts';
 
-const SOURCE = 'src/i18n/locales/es.json';
-const TARGET = 'src/i18n/locales/en.json';
+const argv = process.argv.slice(2);
+const option = (name, fallback) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : fallback);
+const SOURCE = option('--source', 'src/i18n/locales/es.json');
+const TARGET = option('--target', 'src/i18n/locales/en.json');
 const BATCH = 40;
-const args = new Set(process.argv.slice(2));
+const args = new Set(argv);
 
 const env = Object.fromEntries(readFileSync('supabase/functions/.env', 'utf8').split(/\r?\n/)
   .filter((line) => line.includes('=') && !line.startsWith('#'))

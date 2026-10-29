@@ -1,0 +1,301 @@
+{
+  "updatedAt": "September 30, 2026",
+  "terms": {
+    "title": "Terms and Conditions",
+    "summary": {
+      "0": "ConVía connects people in the same university community to share rides. We are not a transportation company and we do not provide the ride service.",
+      "1": "Any amount a passenger and driver agree on is only to share trip costs, not to make a profit.",
+      "2": "Each driver is responsible for having a license, SOAT, technical-mechanical inspection, and their vehicle in order.",
+      "3": "You must be of legal age, give real info, and treat others with respect. We may suspend accounts that break these rules."
+    },
+    "sections": {
+      "0": {
+        "id": "aceptacion",
+        "title": "1. Acceptance",
+        "body": {
+          "0": "These Terms and Conditions govern your use of the ConVía app, offered by [ConVía company name] (hereinafter, \"ConVía\"). By creating an account and checking the acceptance box, you state that you read, understood, and accept them. That electronic acceptance is as valid as a signature, under Law 527 of 1999.",
+          "1": "If you do not agree with any of these terms, do not create an account or use the app."
+        }
+      },
+      "1": {
+        "id": "servicio",
+        "title": "2. What ConVía Is",
+        "body": {
+          "0": "ConVía is a technology platform that lets members of a university community post trips they are already going to take in their private vehicle and lets other members request a seat in them (carpooling).",
+          "1": "ConVía is not a transportation company, does not provide transportation services, does not own the vehicles, does not hire drivers, and is not a party to the agreement between passenger and driver. Our role is limited to facilitating contact and coordination between users.",
+          "2": "The app must not be used to provide public transportation services or any transportation activity for commercial or for-profit purposes."
+        }
+      },
+      "2": {
+        "id": "requisitos",
+        "title": "3. Requirements to Use ConVía",
+        "body": {
+          "0": {
+            "bullets": {
+              "0": "Be over 18 years old.",
+              "1": "Belong to an institution enabled in ConVía and sign up with your university email.",
+              "2": "Provide true, complete, and up-to-date information, and keep it that way.",
+              "3": "Have only one account, personal and non-transferable.",
+              "4": "Complete identity verification when the app asks for it."
+            }
+          }
+        }
+      },
+      "3": {
+        "id": "cuenta",
+        "title": "4. Your Account and Password",
+        "body": {
+          "0": "You are responsible for keeping your password confidential and for all activity from your account. If you suspect unauthorized use, change your password right away and let us know.",
+          "1": "The \"Remember me\" option saves your credentials only in your phone's secure storage. Do not use it on shared devices."
+        }
+      },
+      "4": {
+        "id": "conductores",
+        "title": "5. Driver Obligations",
+        "body": {
+          "0": "If you post trips as a driver, you declare and guarantee that:",
+          "1": {
+            "bullets": {
+              "0": "You have a current license valid for the vehicle category.",
+              "1": "The vehicle has a current SOAT, an up-to-date technical-mechanical inspection (when applicable), and is in good mechanical and safety condition.",
+              "2": "You are authorized to use the vehicle you register and the vehicle details (plate, color, photos, seats) are real.",
+              "3": "You will not carry more passengers than allowed for the vehicle or than the posted seats.",
+              "4": "You will drive following traffic rules, without having consumed alcohol or psychoactive substances and without using your phone while driving.",
+              "5": "You will only post trips you will actually take, and you will cancel in advance if you cannot complete them."
+            }
+          },
+          "2": "ConVía driver verification compares your face with your license photo to confirm you are its holder. This verification does not confirm that the license is authentic, current, or registered with the authorities (for example, the RUNT); that responsibility is solely the driver's."
+        }
+      },
+      "5": {
+        "id": "pasajeros",
+        "title": "6. Passenger Obligations",
+        "body": {
+          "0": {
+            "bullets": {
+              "0": "Arrive on time at the agreed pickup point and let them know in the chat if you cannot travel.",
+              "1": "Show your boarding QR code when getting into the vehicle.",
+              "2": "Wear your seatbelt and respect the vehicle and the driver's reasonable instructions.",
+              "3": "No dangerous, illegal, or unsafe items for other riders."
+            }
+          }
+        }
+      },
+      "6": {
+        "id": "aportes",
+        "title": "7. Contributions and payments",
+        "body": {
+          "0": "The amount a driver lists for a trip is a voluntary contribution to share the costs of the ride (fuel, tolls, parking), not a fare or the price of a transport service. Drivers must not set amounts that make a profit.",
+          "1": "ConVía doesn't process payments or charge fees. The contribution is paid directly between users, and marking it as \"paid\" in the app is just to help the driver. ConVía isn't responsible for unpaid contributions or related claims between users."
+        }
+      },
+      "7": {
+        "id": "conducta",
+        "title": "8. Community rules",
+        "body": {
+          "0": "Not allowed:",
+          "1": {
+            "bullets": {
+              "0": "Harassing, threatening, discriminating against, or insulting other users, in chat or in person.",
+              "1": "Posting sexual, violent, misleading, or illegal content, or sharing someone else's personal data.",
+              "2": "Impersonating someone else or using photos that aren't you.",
+              "3": "Using ConVía for business, ads, or anything other than sharing rides.",
+              "4": "Trying to break the app's security, access other accounts, or manipulate ratings."
+            }
+          },
+          "2": "Ratings and comments must be honest and about the trip experience."
+        }
+      },
+      "8": {
+        "id": "seguridad",
+        "title": "9. Safety and emergencies",
+        "body": {
+          "0": "Before you get in, check that the driver, plate, and vehicle match what the app shows. If something doesn't match or you don't feel safe, don't start the trip.",
+          "1": "ConVía doesn't provide emergency services. In any emergency, call Línea 123."
+        }
+      },
+      "9": {
+        "id": "responsabilidad",
+        "title": "10. Limitation of liability",
+        "body": {
+          "0": "Trips happen under the sole responsibility of the users taking part in them. To the extent allowed by law, ConVía isn't liable for accidents, damage, losses, delays, cancellations, user behavior during or related to a trip, or the accuracy of the info they provide.",
+          "1": "The app is provided \"as is.\" We work hard to keep it running well, but we don't guarantee it will be free of errors or interruptions. Routes, distances, addresses, and times are approximate and come from third-party map services.",
+          "2": "Nothing here limits the rights Colombian law grants you that can't be waived."
+        }
+      },
+      "10": {
+        "id": "suspension",
+        "title": "11. Suspension and account closure",
+        "body": {
+          "0": "We can suspend or cancel accounts that break these terms, have serious reports from other users, or pose a risk to the community.",
+          "1": "You can delete your account anytime from Profile > Delete my account, as long as you don't have a trip in progress."
+        }
+      },
+      "11": {
+        "id": "propiedad",
+        "title": "12. Intellectual property",
+        "body": {
+          "0": "The ConVía brand, design, and app software belong to ConVía or its licensors. You keep the rights to the content you post (photos, messages, comments) and you allow us to use it only to run the app."
+        }
+      },
+      "12": {
+        "id": "cambios",
+        "title": "13. Changes to these terms",
+        "body": {
+          "0": "We may update these terms. If a change is important, we'll let you know in the app before it takes effect. If you keep using ConVía after that date, we'll take it as you accepting the new version."
+        }
+      },
+      "13": {
+        "id": "ley",
+        "title": "14. Applicable law",
+        "body": {
+          "0": "These terms are governed by the laws of the Republic of Colombia. Any disputes will first be addressed directly through our contact channel."
+        }
+      }
+    }
+  },
+  "privacy": {
+    "title": "Personal Data Processing Policy",
+    "summary": {
+      "0": "We use your data only so you can share trips safely within your community.",
+      "1": "Your location is used while you use the app (to find places and nearby trips); we don't track you in the background.",
+      "2": "To verify your identity we turn your face into a numeric representation. We don't store photos of your face or your license.",
+      "3": "We don't sell your data. You can view, correct, or delete it and delete your account anytime you want."
+    },
+    "sections": {
+      "0": {
+        "id": "responsable",
+        "title": "1. Data controller",
+        "body": {
+          "0": "[ConVía company name], NIT [NIT], located at [Address, city]. Contact email for personal data matters: [personal data contact email].",
+          "1": "This policy is issued under Law 1581 of 2012, Decree 1377 of 2013 (compiled in Decree 1074 of 2015) and other Colombian personal data protection laws."
+        }
+      },
+      "1": {
+        "id": "datos",
+        "title": "2. Data we collect",
+        "body": {
+          "0": {
+            "bullets": {
+              "0": "ID and contact: name, university email, phone (optional) and profile photo.",
+              "1": "Account: password (managed encrypted by our auth provider; ConVía can't see it), role (passenger or driver) and institution.",
+              "2": "Vehicle (drivers): make, color, plate, number of seats and vehicle photos.",
+              "3": "Rides: origin, destination, route, date, time, contribution, seats, requests, pickup points, QR code boarding and ride status.",
+              "4": "Communications: chat messages for each ride, ratings and comments, and record of paid contributions.",
+              "5": "Location: your phone's position when you use features like \"Use my location\", the map or nearby rides.",
+              "6": "Biometric data: the numeric representation of your face and the result of each verification (see section 4).",
+              "7": "Technical data: push notification ID and basic device data needed for the app to work."
+            }
+          }
+        }
+      },
+      "2": {
+        "id": "finalidades",
+        "title": "3. How we use your data",
+        "body": {
+          "0": {
+            "bullets": {
+              "0": "Create and manage your account and confirm you belong to an enabled institution.",
+              "1": "Verify your identity and drivers' identities, and prevent impersonation and fraud.",
+              "2": "Post, search, request and coordinate rides, show nearby or relevant rides and calculate routes.",
+              "3": "Show ride participants the info they need: name, photo, rating, vehicle, plate, route and pickup point.",
+              "4": "Enable chat between participants in the same ride and send you notifications about your rides and requests.",
+              "5": "Answer your questions and claims, enforce the Terms and Conditions and cooperate with authorities when the law requires it.",
+              "6": "Improve the app's security and performance."
+            }
+          },
+          "1": "We don't sell or rent your personal data, and we don't use it for third-party advertising."
+        }
+      },
+      "3": {
+        "id": "biometricos",
+        "title": "4. Sensitive data: face verification",
+        "body": {
+          "0": "Biometric data is sensitive data under the law. You are not required to authorize its processing.",
+          "1": "How it works: your phone takes a selfie and turns it into a numeric representation of your face. The photo never leaves your phone and isn't saved. Only the numeric representation is sent to our servers, where it's compared with your registration one (and, for drivers, with the one from your license photo, which isn't saved either). That representation is never sent back to the app or shared with other users.",
+          "2": "Purpose: to confirm that the person requesting or posting a ride is really the account owner, for everyone's safety.",
+          "3": "If you don't authorize this processing, you can still have an account, but you can't request or post rides, because verification is a required safety measure for that. You can revoke authorization by deleting your account."
+        }
+      },
+      "4": {
+        "id": "ubicacion",
+        "title": "5. Location",
+        "body": {
+          "0": "We only access your location with your permission and while you're using the app. We don't track you in the background. You can remove permission anytime in your phone settings; you can still type addresses manually.",
+          "1": "A ride's origin, destination, route and pickup points are saved, because they're needed to coordinate it and ride participants can see them."
+        }
+      },
+      "5": {
+        "id": "terceros",
+        "title": "6. Who we share data with",
+        "body": {
+          "0": "We only share data with:",
+          "1": {
+            "bullets": {
+              "0": "Other users, only as needed for the ride (for example, the driver sees your name, photo and pickup point when you request a seat).",
+              "1": "Tech providers acting as data processors: Supabase (database, authentication, and file storage), Google (maps on Android and Firebase Cloud Messaging for notifications), Apple (maps and notifications on iPhone), and Expo (sending notifications).",
+              "2": "Map services based on OpenStreetMap (place search and route calculation), which receive the searches and coordinates needed, without your name or email.",
+              "3": "Competent authorities, when there is an order or a legal obligation."
+            }
+          },
+          "2": "Some of these providers store or process information on servers located outside Colombia. By accepting this policy you authorize that international transfer, which is done with providers that offer adequate levels of protection."
+        }
+      },
+      "6": {
+        "id": "derechos",
+        "title": "7. Your rights",
+        "body": {
+          "0": "As the data owner, you have the right to:",
+          "1": {
+            "bullets": {
+              "0": "Know, update, and correct your personal data.",
+              "1": "Request proof of the authorization you gave us.",
+              "2": "Be informed about how we use your data.",
+              "3": "Withdraw your authorization and request deletion of your data, when there is no legal or contractual duty to keep it.",
+              "4": "Access your personal data for free.",
+              "5": "File complaints with the Superintendencia de Industria y Comercio (SIC) for violations of the law, after completing the process with ConVía."
+            }
+          },
+          "2": "You can update your name, phone, and photo in Profile > Personal information, and delete your account in Profile > Delete my account."
+        }
+      },
+      "7": {
+        "id": "procedimiento",
+        "title": "8. Inquiries and claims",
+        "body": {
+          "0": "Write to us at [personal data contact email] from the email registered in your account, including your name, your request, and any documents you want to submit.",
+          "1": "Inquiries are answered within a maximum of ten (10) business days and claims within a maximum of fifteen (15) business days, extendable under the terms of Law 1581 of 2012. If the deadline must be extended, we will inform you of the reason."
+        }
+      },
+      "8": {
+        "id": "conservacion",
+        "title": "9. Retention and deletion",
+        "body": {
+          "0": "We keep your data while you have an active account. When you delete your account, your profile, photos, vehicles, trips, requests, messages, and facial representations are deleted, except for information we must keep due to a legal obligation or to handle pending claims.",
+          "1": "Messages and data other users already received during a trip may remain on their devices (for example, in screenshots), outside ConVía's control."
+        }
+      },
+      "9": {
+        "id": "seguridad-datos",
+        "title": "10. Security",
+        "body": {
+          "0": "We apply reasonable technical and administrative measures: encrypted communications, access rules that prevent a user from seeing data that is not theirs, encrypted passwords, and secure storage on your device. No system is foolproof; if we detect an incident affecting your data, we will inform you and report it to the authority as required by law."
+        }
+      },
+      "10": {
+        "id": "menores",
+        "title": "11. Minors",
+        "body": {
+          "0": "ConVía is for people over 18. We do not knowingly collect data from minors; if we detect a minor's account, we will delete it."
+        }
+      },
+      "11": {
+        "id": "vigencia",
+        "title": "12. Effective date and changes",
+        "body": {
+          "0": "This policy is effective as of September 30, 2026. If we make substantial changes to it, we will inform you in the app and, when the law requires it, we will ask for your authorization again. Your data will be processed as long as necessary for the purposes described."
+        }
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@ import { radius } from '@/constants/radius';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { useMembership } from '@/services/membershipService';
+import { useAppStore } from '@/store/appStore';
 
 /**
  * Shown on Home, Trips and Chats until the user's institution is verified: trips, people and
@@ -18,15 +19,17 @@ import { useMembership } from '@/services/membershipService';
 export function VerifyInstitutionCard() {
   const { t } = useTranslation();
   const membership = useMembership();
+  const firstName = useAppStore((state) => state.currentUser?.name)?.trim().split(/\s+/)[0];
   if (!membership || membership.status === 'verified') return null;
   const key = membership.status === 'none' ? 'none' : membership.status === 'review' ? 'review' : 'pending';
   return (
     <View style={styles.card}>
       <View style={styles.row}>
         <Ionicons color={colors.primary} name={key === 'review' ? 'hourglass-outline' : 'school-outline'} size={22} />
-        <Text style={styles.title}>{t(`verifyCard.${key}.title`)}</Text>
+        {/* With the user's first name when we have it; never a bare placeholder. */}
+        <Text style={styles.title}>{key === 'pending' && firstName ? t('verifyCard.pending.titleNamed', { name: firstName }) : t(`verifyCard.${key}.title`)}</Text>
       </View>
-      <Text style={styles.text}>{t(`verifyCard.${key}.text`, { name: membership.institution?.nombre ?? '' })}</Text>
+      <Text style={styles.text}>{t(`verifyCard.${key}.text`, { institution: membership.institution?.nombre || t('verifyCard.yourInstitution') })}</Text>
       <ButtonPrimary onPress={() => router.push('/institution')} title={t(`verifyCard.${key}.action`)} />
     </View>
   );

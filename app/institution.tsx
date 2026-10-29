@@ -104,7 +104,14 @@ export default function InstitutionScreen() {
 
         {status === 'pending' || status === 'review' ? (
           <>
-            {membership.lastCheck?.decision === 'retry' ? <Notice tone="warning">{t('institution.retryHint')}</Notice> : null}
+            {membership.lastCheck?.decision === 'retry' ? (
+              <Notice tone="warning">
+                {/* A reviewer's rejection says why; an automatic retry asks for a sharper photo. */}
+                {membership.lastCheck.reasons?.includes('review_rejected')
+                  ? t('institution.reviewRejected', { reason: t(`institution.reviewReasons.${membership.lastCheck.reasons.find((r) => r.startsWith('review_') && r !== 'review_rejected')?.slice(7) ?? 'unclear'}`) })
+                  : t('institution.retryHint')}
+              </Notice>
+            ) : null}
             {status === 'review' ? <Notice tone="info">{t('institution.reviewHint')}</Notice> : null}
             <View style={styles.verifyCard}>
               <Text style={styles.sectionTitle}>{t('institution.verifyTitle')}</Text>
