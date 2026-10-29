@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
-import { type CardReport, decideCard, idLast4, institutionMatches, nameSimilarity, parseExpiry } from './decide.ts';
+import { type CardReport, decideCard, decideDocument, type DocumentReport, domainBelongs, emailDomainOf, idLast4, institutionMatches, nameSimilarity, parseExpiry } from './decide.ts';
 
 const sabana = { nombre: 'Universidad de La Sabana', nombre_corto: 'La Sabana', dominios: ['unisabana.edu.co'] };
 const report = (changes: Partial<CardReport> = {}): CardReport => ({
@@ -88,5 +88,56 @@ describe('helpers', () => {
     assert.equal(idLast4('1.020.304.567'), '4567');
     assert.equal(idLast4('A-12'), 'A12');
     assert.equal(idLast4(null), null);
+  });
+});
+
+describe('decideDocument (card without photo + account screenshot)', () => {
+  const unal = { nombre: 'Universidad Nacional de Colombia', nombre_corto: 'UNAL', dominios: ['unal.edu.co'] };
+  const doc = (card: Partial<DocumentReport['card']> = {}, screenshot: Partial<DocumentReport['screenshot']> = {}, rest: Partial<DocumentReport> = {}): DocumentReport => ({
+    card: { is_student_id_card: true, has_person_photo: false, looks_like_screen_or_printout: false, full_name: 'PABLO ANDRÉS DEMO', institution_name: 'UNIVERSIDAD NACIONAL DE COLOMBIA', expiry_date: '2027-06-30', ...card },
+    screenshot: { looks_like_institutional_account: true, full_name: 'Pablo Andrés Demo Ruiz', email: 'pademo@unal.edu.co', signs_of_editing: false, ...screenshot },
+    readable: true,
+    confidence: 0.9,
+    ...rest,
+  });
+  const ctx = { profileName: 'Pablo Demo', institution: unal, today: '2026-10-28' };
+
+  test('everything matches → still review (never verified), unflagged, only the e-mail domain kept', () => {
+    const result = decideDocument(doc(), ctx);
+    assert.equal(result.decision, 'review');
+    assert.deepEqual(result.reasons, []);
+    assert.equal(result.summary.flagged, false);
+    assert.equal(result.emailDomain, 'unal.edu.co');
+    assert.ok(!JSON.stringify(result).includes('pademo'));
+  });
+
+  test('unreadable or missing e-mail → retry', () => {
+    assert.equal(decideDocument(doc({}, {}, { readable: false }), ctx).decision, 'retry');
+    assert.equal(decideDocument(doc({}, { email: null }), ctx).decision, 'retry');
+    assert.equal(decideDocument(doc({ full_name: null }), ctx).decision, 'retry');
+  });
+
+  test('every mismatch is flagged for the reviewer', () => {
+    for (const [result, reason] of [
+      [decideDocument(doc({}, { email: 'pablo@personal.example' }), ctx), 'email_domain_mismatch'],
+      [decideDocument(doc({}, { full_name: 'Laura Pérez' }), ctx), 'names_differ'],
+      [decideDocument(doc({ full_name: 'LAURA PÉREZ' }, { full_name: 'Laura Pérez' }), ctx), 'name_mismatch'],
+      [decideDocument(doc({}, { signs_of_editing: true }), ctx), 'edited_screenshot'],
+      [decideDocument(doc({}, { looks_like_institutional_account: false }), ctx), 'not_institutional_account'],
+      [decideDocument(doc({ expiry_date: '2025-01-31' }), ctx), 'expired'],
+      [decideDocument(doc({ has_person_photo: true }), ctx), 'card_has_photo'],
+      [decideDocument(doc({ institution_name: 'UNIVERSIDAD DE LOS ANDES' }), ctx), 'institution_mismatch'],
+    ] as const) {
+      assert.equal(result.decision, 'review', reason);
+      assert.ok(result.reasons.includes(reason), `${reason}: ${result.reasons.join(',')}`);
+      assert.equal(result.summary.flagged, true);
+    }
+  });
+
+  test('a subdomain of the institution counts (student mail)', () => {
+    assert.ok(domainBelongs('est.uexternado.edu.co', { nombre: 'Universidad Externado de Colombia', nombre_corto: 'Externado', dominios: ['uexternado.edu.co'] }));
+    assert.ok(!domainBelongs('unal.edu.co.evil.com', unal));
+    assert.equal(emailDomainOf('Ana <ana@UNAL.edu.co>'), null);
+    assert.equal(emailDomainOf(' ana@UNAL.edu.co '), 'unal.edu.co');
   });
 });

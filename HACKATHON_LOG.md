@@ -142,6 +142,16 @@ Template for each entry:
   - Tested: the decision rules (9 cases), that no crop ever overlaps the face box in an exhaustive sweep of positions, the database migration on the hackathon project (existing users verified, search rules, anonymous access to the institution list blocked), and the deployed function (401 without a session). Not yet tested end to end with a real card: that needs a new, unverified account.
   - The pending request and manual reviews are handled in the database dashboard for now.
 
+### October 28, 2026 (late night) — open sign-up fix; student card without photo
+
+- **Built:**
+  - Fix: sign-up with a personal e-mail was still refused. The app checked the domain itself before calling sign-up, so the open sign-up on the server was never reached. That check is gone; e-mail fields say "Email" with no example domain or institution name anywhere; HTML pages are served with `Cache-Control: no-cache`.
+  - "My student card has no photo": the user uploads the card's front and a screenshot of their institutional account (Teams, Outlook or the student portal), cropped to name and e-mail. The device first checks that neither image shows a face: a card with a photo goes to the automatic path, and a screenshot with a profile picture must be cropped. Muse Spark 1.3 reads both as strict JSON, and code compares the names (card, screenshot and profile), the e-mail's domain against the institution's, the expiry and signs of editing.
+  - This path never verifies by itself, because screenshots are easy to fake: when everything matches it goes to manual review with a summary for the reviewer, any mismatch is flagged, and unreadable images ask to try again. Only the result, the reason codes and the e-mail's domain are stored. Profile shows "Verified with photo ID" or "Verified with document".
+- **Meta model:** Muse Spark 1.3 reads the card and the account screenshot (strict JSON).
+- **PRs:** feat/institution-verification
+- **Notes:** a new account on the live site chose its institution and is pending: open sign-up works end to end up to verification.
+
 ### October 29, 2026
 
 ### October 30, 2026

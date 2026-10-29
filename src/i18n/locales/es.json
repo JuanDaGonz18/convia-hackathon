@@ -60,9 +60,9 @@
     "show": "Mostrar contraseña"
   },
   "auth": {
-    "emailLabel": "Correo institucional",
-    "emailPlaceholder": "Tu correo institucional",
-    "emailRequired": "Escribe tu correo institucional.",
+    "emailLabel": "Correo",
+    "emailPlaceholder": "Tu correo",
+    "emailRequired": "Escribe tu correo.",
     "emailInvalid": "Ese correo no parece válido.",
     "login": {
       "tagline": "Comparte el camino con tu comunidad universitaria.",
@@ -131,7 +131,7 @@
       "faceRequired": "Necesitas registrar tu rostro para pedir o publicar viajes. Puedes hacerlo ahora o más tarde desde tu perfil.",
       "fields": {
         "name": "Nombre completo",
-        "email": "Correo institucional",
+        "email": "Correo",
         "password": "Contraseña",
         "confirm": "Confirmación de la contraseña",
         "terms": "Términos y condiciones"
@@ -140,7 +140,7 @@
         "name": "Escribe tu nombre y apellido.",
         "passwordEmpty": "Crea una contraseña.",
         "terms": "Acepta los términos y condiciones.",
-        "domain": "Ese correo no pertenece a una institución registrada. Usa tu correo institucional (por ejemplo @unisabana.edu.co).",
+        "domain": "No pudimos crear la cuenta con ese correo. Revisa que esté bien escrito.",
         "confirmationSent": "Te enviamos un correo de confirmación. Ábrelo desde este dispositivo y toca «Confirmar». Si no aparece en unos minutos, revisa Correo no deseado; en correos institucionales (Outlook) también puede quedar en cuarentena.",
         "alreadyRegistered": "Ya existe una cuenta con este correo. Inicia sesión con ella.",
         "weakPassword": "La contraseña no cumple los requisitos de seguridad.",
@@ -943,7 +943,7 @@
     "rateLimit": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
     "notConnected": "La app no está conectada al servidor. Contacta al administrador.",
     "noProfile": "Tu cuenta no tiene perfil en ConVía. Contacta al administrador.",
-    "domain": "Usa el correo de tu institución (por ejemplo @unisabana.edu.co).",
+    "domain": "No pudimos usar ese correo. Revisa que esté bien escrito.",
     "institutionNotVerified": "Primero verifica tu institución para ver, publicar o pedir viajes.",
     "institutionRequestPending": "Ya tienes una solicitud pendiente.",
     "institutionAlreadyVerified": "Tu institución ya está verificada.",
@@ -1257,7 +1257,8 @@
     "method": {
       "institutional_email": "Verificada con tu correo institucional",
       "microsoft": "Verificada con Microsoft",
-      "student_id": "Verificada con tu carné"
+      "student_card_photo": "Verificada con carné con foto",
+      "document": "Verificada con documento"
     },
     "searchLabel": "Busca tu institución",
     "searchPlaceholder": "Nombre, sigla o ciudad",
@@ -1279,9 +1280,9 @@
     "title": "Agregar mi institución",
     "subtitle": "Cuéntanos cuál es; la revisamos y te avisamos.",
     "name": "Nombre de la institución",
-    "namePlaceholder": "Ej.: Universidad de Cundinamarca",
+    "namePlaceholder": "Nombre completo de la institución",
     "city": "Ciudad",
-    "cityPlaceholder": "Ej.: Zipaquirá",
+    "cityPlaceholder": "Ciudad de la sede",
     "website": "Sitio web (opcional)",
     "role": "Tu rol",
     "roles": {
@@ -1335,7 +1336,12 @@
       "face_mismatch": "La foto del carné no coincide con tu selfie.",
       "face_not_checked": "No se pudo comparar tu cara.",
       "face_not_found": "No encontramos la foto de tu cara en el carné.",
-      "low_confidence": "La lectura no fue suficientemente clara."
+      "low_confidence": "La lectura no fue suficientemente clara.",
+      "card_has_photo": "El carné tiene foto: usa la opción del carné con foto.",
+      "names_differ": "El nombre del carné y el de la captura no coinciden.",
+      "email_domain_mismatch": "El correo de la captura no es de la institución elegida.",
+      "not_institutional_account": "La captura no parece de una cuenta institucional.",
+      "edited_screenshot": "La captura muestra señales de edición."
     },
     "tryAgain": "Intentar de nuevo",
     "done": "Listo",
@@ -1357,5 +1363,26 @@
       "text": "Te avisaremos cuando quede lista. Puedes intentarlo de nuevo con otra foto.",
       "action": "Ver estado"
     }
+  },
+  "studentDocument": {
+    "entry": "Mi carné no tiene foto",
+    "title": "Carné sin foto",
+    "subtitle": "Sube el frente de tu carné y una captura de tu cuenta institucional (Teams, Outlook o el portal estudiantil).",
+    "privacy": "Recorta la captura para que solo se vean tu nombre y tu correo, sin foto de perfil. Revisamos en tu dispositivo que ninguna imagen muestre una cara antes de enviarla; solo guardamos el resultado y el dominio de tu correo.",
+    "cardTitle": "1. Frente del carné",
+    "cardHint": "Foto o imagen del frente, completo y legible.",
+    "screenshotTitle": "2. Captura de tu cuenta",
+    "screenshotHint": "Recortada a tu nombre completo y tu correo institucional.",
+    "cardHasFace": "Tu carné tiene foto: usa «Verificar con mi carné», que es automático.",
+    "screenshotHasFace": "La captura muestra una cara (foto de perfil). Recórtala para que solo se vean tu nombre y tu correo.",
+    "imageFailed": "No se pudo revisar la imagen. Inténtalo de nuevo.",
+    "send": "Enviar para revisión",
+    "reviewNote": "Este camino siempre lo revisa una persona: las capturas son fáciles de alterar.",
+    "reviewTitle": "Enviado a revisión",
+    "reviewText": "Una persona revisará tus documentos y te avisaremos. Mientras tanto puedes usar la app, pero no ver ni pedir viajes.",
+    "reviewerNotes": "Lo que verá quien revisa:",
+    "retryTitle": "No pudimos leer los documentos",
+    "retryText": "Intenta con imágenes más nítidas: el nombre en el carné, y el nombre y el correo en la captura.",
+    "failed": "No se pudieron enviar los documentos."
   }
 }

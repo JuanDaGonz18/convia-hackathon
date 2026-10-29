@@ -89,6 +89,7 @@ export default function StudentCardScreen() {
               <>
                 <ButtonPrimary icon="camera" onPress={() => void pick('camera')} title={t('studentCard.takePhoto')} />
                 <ButtonSecondary icon="images-outline" onPress={() => void pick('library')} title={t('studentCard.fromGallery')} />
+                <ButtonSecondary icon="document-text-outline" onPress={() => router.push('/student-document')} title={t('studentDocument.entry')} />
               </>
             )}
           </>

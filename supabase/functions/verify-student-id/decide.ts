@@ -130,3 +130,129 @@ export function decideCard(
   if (!(report.confidence >= MIN_CONFIDENCE)) reasons.push('low_confidence');
   return { decision: reasons.length ? 'review' : 'verified', reasons, ...base };
 }
+
+// ─── Card without photo + institutional account screenshot ─────────────────────
+
+/** Muse Spark's strict JSON about the whole card front (no face on it) and the cropped screenshot. */
+export type DocumentReport = {
+  card: {
+    is_student_id_card: boolean;
+    has_person_photo: boolean;
+    looks_like_screen_or_printout: boolean;
+    full_name: string | null;
+    institution_name: string | null;
+    expiry_date: string | null;
+  };
+  screenshot: {
+    looks_like_institutional_account: boolean;
+    full_name: string | null;
+    email: string | null;
+    signs_of_editing: boolean;
+  };
+  readable: boolean;
+  confidence: number;
+};
+
+export type DocumentReason =
+  | 'unreadable'
+  | 'not_a_card'
+  | 'card_has_photo'
+  | 'screen_or_print'
+  | 'institution_mismatch'
+  | 'no_expiry'
+  | 'expired'
+  | 'names_differ'
+  | 'name_mismatch'
+  | 'email_domain_mismatch'
+  | 'not_institutional_account'
+  | 'edited_screenshot'
+  | 'low_confidence';
+
+export type DocumentDecision = {
+  /** Never 'verified': a screenshot is easy to fake, so a person always approves. */
+  decision: 'review' | 'retry';
+  reasons: DocumentReason[];
+  /** Domain of the screenshot's e-mail only (never the full address). */
+  emailDomain: string | null;
+  expiresOn: string | null;
+  institutionRead: string | null;
+  /** For the reviewer: matches and signals, no personal data. */
+  summary: {
+    flagged: boolean;
+    card_vs_screenshot_name: number;
+    card_vs_profile_name: number;
+    screenshot_vs_profile_name: number;
+    email_domain_matches_institution: boolean;
+    institution_matches: boolean;
+    not_expired: boolean;
+    screenshot_looks_institutional: boolean;
+    signs_of_editing: boolean;
+    confidence: number;
+  };
+};
+
+/** The address's domain, lower case, or null when it isn't an e-mail. */
+export function emailDomainOf(email: string | null) {
+  const match = /@([a-z0-9.-]+\.[a-z]{2,})\s*$/i.exec(email?.trim() ?? '');
+  return match ? match[1].toLowerCase() : null;
+}
+
+/** The domain is one of the institution's, or a subdomain of one (e.g. est.uexternado.edu.co). */
+export function domainBelongs(domain: string | null, institution: InstitutionRef) {
+  if (!domain) return false;
+  return institution.dominios.some((own) => domain === own || domain.endsWith(`.${own}`));
+}
+
+/** Symmetric name match: the share of the shorter name's words found in the other. */
+function namesMatch(a: string | null, b: string | null) {
+  if (!a || !b) return 0;
+  return Math.max(nameSimilarity(a, b), nameSimilarity(b, a));
+}
+
+export function decideDocument(
+  report: DocumentReport,
+  { profileName, institution, today }: { profileName: string; institution: InstitutionRef; today: string },
+): DocumentDecision {
+  const { card, screenshot } = report;
+  const emailDomain = emailDomainOf(screenshot.email);
+  const expiresOn = parseExpiry(card.expiry_date);
+  const round = (value: number) => Math.round(value * 100) / 100;
+  const scores = {
+    card_vs_screenshot_name: round(namesMatch(card.full_name, screenshot.full_name)),
+    card_vs_profile_name: round(namesMatch(card.full_name, profileName)),
+    screenshot_vs_profile_name: round(namesMatch(screenshot.full_name, profileName)),
+  };
+  const checks = {
+    email_domain_matches_institution: domainBelongs(emailDomain, institution),
+    institution_matches: institutionMatches(card.institution_name, institution),
+    not_expired: !!expiresOn && expiresOn >= today,
+  };
+  const base = { emailDomain, expiresOn, institutionRead: card.institution_name?.slice(0, 200) ?? null };
+  const summaryOf = (reasons: DocumentReason[]) => ({
+    flagged: reasons.length > 0,
+    ...scores,
+    ...checks,
+    screenshot_looks_institutional: screenshot.looks_like_institutional_account,
+    signs_of_editing: screenshot.signs_of_editing,
+    confidence: round(report.confidence),
+  });
+
+  if (!report.readable || !card.full_name || !screenshot.full_name || !emailDomain) {
+    const reasons: DocumentReason[] = ['unreadable'];
+    return { decision: 'retry', reasons, ...base, summary: summaryOf(reasons) };
+  }
+  const reasons: DocumentReason[] = [];
+  if (!card.is_student_id_card) reasons.push('not_a_card');
+  if (card.has_person_photo) reasons.push('card_has_photo');
+  if (card.looks_like_screen_or_printout) reasons.push('screen_or_print');
+  if (!checks.institution_matches) reasons.push('institution_mismatch');
+  if (!expiresOn) reasons.push('no_expiry');
+  else if (expiresOn < today) reasons.push('expired');
+  if (scores.card_vs_screenshot_name < 1) reasons.push('names_differ');
+  if (Math.min(scores.card_vs_profile_name, scores.screenshot_vs_profile_name) < 1) reasons.push('name_mismatch');
+  if (!checks.email_domain_matches_institution) reasons.push('email_domain_mismatch');
+  if (!screenshot.looks_like_institutional_account) reasons.push('not_institutional_account');
+  if (screenshot.signs_of_editing) reasons.push('edited_screenshot');
+  if (!(report.confidence >= MIN_CONFIDENCE)) reasons.push('low_confidence');
+  return { decision: 'review', reasons, ...base, summary: summaryOf(reasons) };
+}

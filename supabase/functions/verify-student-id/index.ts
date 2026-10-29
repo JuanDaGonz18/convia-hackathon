@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createTransport } from '../verify-pickup/model.ts';
-import { type CardReport, decideCard, type InstitutionRef } from './decide.ts';
+import { type CardReport, decideCard, decideDocument, type DocumentReport, type InstitutionRef } from './decide.ts';
 
 /**
  * verify-student-id: the user's student card says they belong to the institution they chose.
@@ -58,7 +58,54 @@ const SYSTEM = [
   'confidence: 0..1, how sure you are of the fields you returned.',
 ].join(' ');
 
-type Body = { crops?: unknown };
+/** Card without photo: the whole front (the device checked it has no face) and a cropped account screenshot. */
+const DOCUMENT_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['card', 'screenshot', 'readable', 'confidence'],
+  properties: {
+    card: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['is_student_id_card', 'has_person_photo', 'looks_like_screen_or_printout', 'full_name', 'institution_name', 'expiry_date'],
+      properties: {
+        is_student_id_card: { type: 'boolean' },
+        has_person_photo: { type: 'boolean' },
+        looks_like_screen_or_printout: { type: 'boolean' },
+        full_name: { type: ['string', 'null'] },
+        institution_name: { type: ['string', 'null'] },
+        expiry_date: { type: ['string', 'null'] },
+      },
+    },
+    screenshot: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['looks_like_institutional_account', 'full_name', 'email', 'signs_of_editing'],
+      properties: {
+        looks_like_institutional_account: { type: 'boolean' },
+        full_name: { type: ['string', 'null'] },
+        email: { type: ['string', 'null'] },
+        signs_of_editing: { type: 'boolean' },
+      },
+    },
+    readable: { type: 'boolean' },
+    confidence: { type: 'number' },
+  },
+};
+
+const DOCUMENT_SYSTEM = [
+  'You check documents for a Colombian university carpooling app.',
+  'Image 1 is the FRONT of a student ID card without a photo of the person. Image 2 is a screenshot of the person\'s institutional account profile (Microsoft Teams, Outlook or a student portal), cropped to the name and e-mail.',
+  'Return JSON only. Copy text exactly as shown; use null for anything you cannot read with certainty. Never guess.',
+  'card.has_person_photo: the card shows a photo of a person. card.looks_like_screen_or_printout: the card is shown on a screen or is a copy, not the physical card.',
+  'card.expiry_date: validity/expiry ("Vigencia", "Válido hasta", "Vence") as printed.',
+  'screenshot.looks_like_institutional_account: it looks like a real Teams/Outlook/portal profile screen. screenshot.signs_of_editing: mismatched fonts, misaligned or pasted text, artifacts around the name or e-mail, or anything suggesting the screenshot was edited.',
+  'readable: the card name and the screenshot name and e-mail can be read. confidence: 0..1 for the fields returned.',
+].join(' ');
+
+type Body = { mode?: unknown; crops?: unknown; card?: unknown; screenshot?: unknown };
+
+const isImage = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.length <= MAX_CROP_BASE64 && /^[A-Za-z0-9+/=]+$/.test(value);
 
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers });
@@ -77,9 +124,12 @@ Deno.serve(async (request) => {
   } catch {
     return response({ error: 'INVALID_BODY' }, 400);
   }
+  const documentMode = body.mode === 'document';
   // No crops: the phone couldn't find or exclude the face, so nothing was sent → manual review.
   const crops = Array.isArray(body.crops) ? body.crops : [];
-  if (crops.length > MAX_CROPS || crops.some((crop) => typeof crop !== 'string' || crop.length > MAX_CROP_BASE64 || !/^[A-Za-z0-9+/=]+$/.test(crop))) {
+  if (documentMode
+    ? !isImage(body.card) || !isImage(body.screenshot)
+    : crops.length > MAX_CROPS || crops.some((crop) => !isImage(crop))) {
     return response({ error: 'INVALID_BODY' }, 400);
   }
 
@@ -95,12 +145,31 @@ Deno.serve(async (request) => {
     const { error } = await admin.from('student_id_checks').insert({ user_id: userId, institution_id: membership.institution_id, latency_ms: Math.round(performance.now() - started), ...row });
     if (error) throw error;
     if (status) {
-      const { error: statusError } = await admin.rpc('service_set_membership_status', { p_user: userId, p_status: status, p_method: status === 'verified' ? 'student_id' : null });
+      const { error: statusError } = await admin.rpc('service_set_membership_status', { p_user: userId, p_status: status, p_method: status === 'verified' ? 'student_card_photo' : null });
       if (statusError) throw statusError;
     }
   };
 
   try {
+    if (documentMode) {
+      if (!MODEL_API_KEY.trim()) return response({ error: 'MODEL_UNAVAILABLE' }, 503);
+      const result = await readDocument(userId, membership.institution_id, body.card as string, body.screenshot as string);
+      // Never verified automatically: a person approves documents (private.approve_membership).
+      await record({
+        kind: 'document',
+        decision: result.decision.decision,
+        reasons: result.decision.reasons,
+        institution_read: result.decision.institutionRead,
+        expires_on: result.decision.expiresOn,
+        email_domain: result.decision.emailDomain,
+        review_summary: result.decision.summary,
+        looks_real: !result.lookedLikeScreen,
+        model: MODEL,
+        request_id: result.requestId,
+      }, result.decision.decision === 'review' ? 'review' : null);
+      log('decided', { kind: 'document', decision: result.decision.decision, reasons: result.decision.reasons, ms: Math.round(performance.now() - started) });
+      return response({ decision: result.decision.decision, reasons: result.decision.reasons });
+    }
     if (!crops.length) {
       await record({ decision: 'review', reasons: ['face_not_found'] }, 'review');
       log('decided', { decision: 'review', reasons: ['face_not_found'] });
@@ -158,3 +227,37 @@ Deno.serve(async (request) => {
     return response({ error: 'CHECK_FAILED' }, 502);
   }
 });
+
+/** Muse Spark reads the card front and the cropped account screenshot; decideDocument compares. */
+async function readDocument(userId: string, institutionId: string, card: string, screenshot: string) {
+  const [{ data: profile }, { data: institution }, { data: domains }] = await Promise.all([
+    admin.from('profiles').select('nombre').eq('id', userId).single(),
+    admin.from('institutions').select('nombre, nombre_corto').eq('id', institutionId).single(),
+    admin.from('institution_domains').select('dominio').eq('institution_id', institutionId),
+  ]);
+  if (!profile || !institution) throw new Error('NOT_FOUND');
+  const institutionRef: InstitutionRef = { nombre: institution.nombre, nombre_corto: institution.nombre_corto, dominios: (domains ?? []).map((row) => row.dominio) };
+
+  const transport = createTransport({ apiKey: MODEL_API_KEY, baseUrl: Deno.env.get('MODEL_API_BASE_URL') || undefined, log });
+  const data = await transport.json('read_document', '/chat/completions', {
+    model: MODEL,
+    reasoning_effort: 'low',
+    messages: [
+      { role: 'system', content: DOCUMENT_SYSTEM },
+      { role: 'user', content: [
+        { type: 'text', text: `The user chose: ${institution.nombre}. Image 1: card front. Image 2: account screenshot.` },
+        { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${card}` } },
+        { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${screenshot}` } },
+      ] },
+    ],
+    response_format: { type: 'json_schema', json_schema: { name: 'student_document', schema: DOCUMENT_SCHEMA, strict: true } },
+  }, MUSE_TIMEOUT_MS) as { id?: string; choices?: { message?: { content?: unknown } }[] };
+  const content = data.choices?.[0]?.message?.content;
+  const report = JSON.parse(typeof content === 'string' ? content : '{}') as DocumentReport;
+  const today = new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  return {
+    decision: decideDocument(report, { profileName: profile.nombre, institution: institutionRef, today }),
+    lookedLikeScreen: report.card?.looks_like_screen_or_printout === true,
+    requestId: data.id ?? null,
+  };
+}

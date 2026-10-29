@@ -111,6 +111,7 @@ export default function InstitutionScreen() {
               <Text style={styles.muted}>{t('institution.verifyText')}</Text>
               <MetaAiBadge feature="studentCard" />
               <ButtonPrimary icon="card-outline" onPress={() => router.push('/student-card')} title={t('institution.verifyWithCard')} />
+              <ButtonSecondary icon="document-text-outline" onPress={() => router.push('/student-document')} title={t('studentDocument.entry')} />
             </View>
             {!changing ? <ButtonSecondary onPress={() => setChanging(true)} title={t('institution.change')} /> : null}
           </>

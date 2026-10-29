@@ -12,11 +12,12 @@ export type StudentCardDecision = 'verified' | 'review' | 'retry';
 
 export type Membership = {
   status: MembershipStatus;
-  method: 'institutional_email' | 'microsoft' | 'student_id' | null;
+  /** student_card_photo: card with photo, verified automatically · document: card without photo + account screenshot, approved by a person. */
+  method: 'institutional_email' | 'microsoft' | 'student_card_photo' | 'document' | null;
   institution: { id: string; nombre: string; nombre_corto: string | null; ciudad: string | null } | null;
   hasMicrosoft: boolean;
   request: { nombre: string; estado: 'pendiente' | 'aprobada' | 'rechazada'; created_at: string } | null;
-  lastCheck: { decision: StudentCardDecision; reasons: string[]; created_at: string } | null;
+  lastCheck: { decision: StudentCardDecision; kind: 'card_photo' | 'document'; reasons: string[]; created_at: string } | null;
 };
 
 export type InstitutionResult = { id: string; nombre: string; nombre_corto: string | null; ciudad: string | null };
@@ -96,6 +97,20 @@ export const membershipService = {
   async submitCardFace(embedding: number[]) {
     const { error } = await supabase.rpc('submit_student_card_face', { p_embedding: embedding });
     if (error) throw error;
+  },
+
+  /**
+   * Card without photo + institutional account screenshot (both checked on the device to show no face).
+   * Never verified automatically: the result is 'review' (a person approves) or 'retry'.
+   */
+  async verifyDocument(card: string, screenshot: string): Promise<{ decision: StudentCardDecision; reasons: string[] }> {
+    const { data, error } = await supabase.functions.invoke('verify-student-id', { body: { mode: 'document', card, screenshot } });
+    if (error) {
+      const body = await (error as { context?: Response }).context?.json?.().catch(() => null);
+      throw new Error(String(body?.error ?? error.message));
+    }
+    await membershipService.refresh();
+    return data as { decision: StudentCardDecision; reasons: string[] };
   },
 
   /** Crops of the card around the face (base64 JPEG). No crops = the face couldn't be excluded: manual review. */
