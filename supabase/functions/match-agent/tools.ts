@@ -33,8 +33,13 @@ export const READ_TOOLS: ToolSpec[] = [
     type: 'function',
     function: {
       name: 'resolve_place',
-      description: 'Find coordinates for a place the user named (saved places first, then known places of the Sabana area, then a geocoder). Returns candidates; if ambiguous is true, ask the user which one.',
-      parameters: { type: 'object', properties: { query: { type: 'string', description: 'The place as the user wrote it, e.g. "Cota" or "la U".' } }, required: ['query'], additionalProperties: false },
+      description: 'Find coordinates for EVERY place the user named, in one call (saved places first, then known places of the Sabana area, then a geocoder). Returns candidates per place; if ambiguous is true, ask the user which one.',
+      parameters: {
+        type: 'object',
+        properties: { queries: { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 3, description: 'Each place as the user wrote it, e.g. ["Cota", "la U"].' } },
+        required: ['queries'],
+        additionalProperties: false,
+      },
     },
   },
   {
@@ -120,10 +125,12 @@ export async function runReadTool(name: string, argumentsJson: string, context: 
   try {
     switch (name) {
       case 'resolve_place': {
-        if (!isObject(raw) || typeof raw.query !== 'string' || !raw.query.trim() || raw.query.length > 120) {
-          return { ok: false, error: { code: 'INVALID_ARGS', message: 'query must be non-empty text (up to 120 characters)' } };
+        const queries = isObject(raw) && Array.isArray(raw.queries) ? raw.queries : [];
+        if (!queries.length || queries.length > 3 || queries.some((query) => typeof query !== 'string' || !query.trim() || query.length > 120)) {
+          return { ok: false, error: { code: 'INVALID_ARGS', message: 'queries must list 1 to 3 places (non-empty text, up to 120 characters each)' } };
         }
-        return { ok: true, result: await resolvePlace(raw.query, await context.data.savedPlaces(), context.geocode) };
+        const saved = await context.data.savedPlaces();
+        return { ok: true, result: { results: await Promise.all((queries as string[]).map((query) => resolvePlace(query, saved, context.geocode))) } };
       }
       case 'search_trips': {
         const args = validateSearchArgs(raw);

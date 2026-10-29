@@ -1,0 +1,1188 @@
+{
+  "summary": {
+    "provider": "baseten",
+    "date": "2026-10-29T04:28:46.275Z",
+    "cases": 36,
+    "passRate": "97%",
+    "byType": {
+      "pick": "15/16",
+      "none": "6/6",
+      "clarify": "6/6",
+      "proposal": "3/3",
+      "refuse": "1/1"
+    },
+    "specAccuracy": "96%",
+    "proposalPrecision": "100%",
+    "falseVerified": 0,
+    "avgRetries": "0.06",
+    "p50LatencyMs": 7460,
+    "p95LatencyMs": 14289,
+    "avgCostUsd": "0.0053",
+    "totalCostUsd": "0.1907",
+    "violations": 0,
+    "driverCasesOutsideV1": 4
+  },
+  "results": [
+    {
+      "id": "p01",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T1",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "This trip is your best match: it departs at 06:40 (20 minutes before your 07:00 request) directly from Cota (parque principal) to Universidad de La Sabana, Chía, with 3 seats left for COP 5,000.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 13695,
+      "costUsd": 0.007844,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p02",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T1",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "Este viaje te lleva directo de Cota a La Sabana saliendo a las 06:40, solo 20 minutos antes de las 7:00, con 3 asientos disponibles por 5.000 COP.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 13667,
+      "costUsd": 0.006951,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p03",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T2",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "Sale a las 07:30 desde Cota (parque principal) y llega a la Universidad de La Sabana, con recogida a 0 km y 1 asiento disponible por $4.000 COP.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:30",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 6090,
+      "costUsd": 0.006464,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p04",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T1",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "This trip fits your request perfectly: it departs at 06:40 (35 minutes before 07:15) from Cota (parque principal) directly to Universidad de La Sabana, with 3 seats left and a price of 5000 COP per seat.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:15",
+        "flex_minutes": 60,
+        "seats": 2,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 8361,
+      "costUsd": 0.006262,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p05",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T4",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "Sale a las 06:50 desde Chía (parque principal), a 0 km de tu origen, con 2 asientos libres por 3.000 COP y te deja directo en la Universidad de La Sabana.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Chía (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 6,
+      "specRejections": 0,
+      "proposeAttempts": 2,
+      "latencyMs": 14289,
+      "costUsd": 0.008747,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p06",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T5",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "This trip is an excellent match: it departs exactly at 06:15 from Portal Norte to Universidad de La Sabana, with pickup right at your origin and 3 seats left for COP 7,000.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Portal Norte, Bogotá"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "06:15",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 7460,
+      "costUsd": 0.005792,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p07",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T10",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "This trip fits perfectly: it departs at 06:30 from Tenjo (parque principal) with 0 km pickup distance, has 3 seats left and costs COP 5,000.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Tenjo (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "06:30",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 8311,
+      "costUsd": 0.005524,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p08",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T7",
+      "status": "failed",
+      "proposed": false,
+      "reply": "El asistente no está disponible en este momento. Usa la búsqueda de viajes.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Cota (parque principal)"
+        },
+        "date": "2026-11-03",
+        "time": "17:30",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 15943,
+      "costUsd": 0.005838,
+      "pass": false,
+      "specOk": true,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": "LLM_UNAVAILABLE",
+      "steps": [
+        {
+          "n": 1,
+          "kind": "model",
+          "tool": null,
+          "plan": "Resuelvo origen y destino mencionados para preparar la solicitud de viaje.",
+          "error": null
+        },
+        {
+          "n": 2,
+          "kind": "tool",
+          "tool": "resolve_place",
+          "plan": "Resuelvo origen y destino mencionados para preparar la solicitud de viaje.",
+          "error": null,
+          "result": "{\"query\":\"La Sabana\",\"ambiguous\":false,\"candidates\":[{\"ref\":\"place:1\",\"label\":\"Universidad de La Sabana, Chía\",\"lat\":4.8616,\"lng\":-74.0329,\"source\":\"known\"}],\"next\":\"Resolved so far: place:1 = Universidad de La Sabana, Chía. Once the places the user named are resolved, call submit_request_spec with "
+        },
+        {
+          "n": 3,
+          "kind": "model",
+          "tool": null,
+          "plan": "Resuelvo destino Cota para completar la solicitud.",
+          "error": null
+        },
+        {
+          "n": 4,
+          "kind": "tool",
+          "tool": "resolve_place",
+          "plan": "Resuelvo destino Cota para completar la solicitud.",
+          "error": null,
+          "result": "{\"query\":\"Cota\",\"ambiguous\":false,\"candidates\":[{\"ref\":\"place:2\",\"label\":\"Cota (parque principal)\",\"lat\":4.8095,\"lng\":-74.1018,\"source\":\"known\"}],\"next\":\"Resolved so far: place:1 = Universidad de La Sabana, Chía; place:2 = Cota (parque principal). Once the places the user named are resolved, call su"
+        },
+        {
+          "n": 5,
+          "kind": "model",
+          "tool": null,
+          "plan": "Envío especificación con origen y destino resueltos para fecha y hora solicitadas.",
+          "error": null
+        },
+        {
+          "n": 6,
+          "kind": "tool",
+          "tool": "submit_request_spec",
+          "plan": "Envío especificación con origen y destino resueltos para fecha y hora solicitadas.",
+          "error": null,
+          "result": "{\"accepted\":true,\"spec\":{\"origin\":{\"ref\":\"place:1\",\"label\":\"Universidad de La Sabana, Chía\"},\"destination\":{\"ref\":\"place:2\",\"label\":\"Cota (parque principal)\"},\"date\":\"2026-11-03\",\"time\":\"17:30\",\"flex_minutes\":60,\"seats\":1,\"max_price_cop\":null}}"
+        },
+        {
+          "n": 7,
+          "kind": "model",
+          "tool": null,
+          "plan": "Busco viajes disponibles que coincidan con la solicitud aceptada.",
+          "error": null
+        },
+        {
+          "n": 8,
+          "kind": "tool",
+          "tool": "search_trips",
+          "plan": "Busco viajes disponibles que coincidan con la solicitud aceptada.",
+          "error": null,
+          "result": "{\"requested\":{\"departure\":\"2026-11-03 17:30\",\"flex_minutes\":60,\"seats\":1,\"max_price_cop\":null},\"options\":[{\"trip_id\":\"T7\",\"departure\":\"2026-11-03 17:30\",\"minutes_from_requested\":0,\"from\":\"Universidad de La Sabana, Chía\",\"to\":\"Cota (parque principal)\",\"pickup_km\":0,\"dropoff_km\":0,\"seats_left\":3,\"pric"
+        },
+        {
+          "n": 9,
+          "kind": "model",
+          "tool": null,
+          "plan": null,
+          "error": "No provider answered: baseten=timeout"
+        }
+      ]
+    },
+    {
+      "id": "p09",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T12",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "Sale hoy a las 18:00 desde Cota (parque principal) directo a la Universidad de La Sabana, con 3 asientos libres por 5.000 COP.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-02",
+        "time": "18:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 12286,
+      "costUsd": 0.006641,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p10",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T11",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "This trip is an excellent match: it departs exactly at 08:30 from Sopó (parque principal) to Centro Comercial Fontanar, Chía with 0 km pickup distance, 3 seats left, and costs COP 4000.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Sopó (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Centro Comercial Fontanar, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "08:30",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 8024,
+      "costUsd": 0.006225,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p11",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T2",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "Sale a las 07:30 desde Cota (parque principal) y llega a la Universidad de La Sabana, con precio de 4.000 COP dentro de tu presupuesto de 4.500 COP y 1 asiento disponible.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": 4500
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 9380,
+      "costUsd": 0.00802,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p12",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T3",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "This trip is an excellent match: it departs exactly at 9:30 from Cota (parque principal) to Universidad de La Sabana with 2 seats left for 5,000 COP.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "09:30",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 8064,
+      "costUsd": 0.007514,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p13",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T1",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "This trip fits your request: it departs at 06:40 (20 minutes before 07:00) from Cota (parque principal) with 0 km pickup distance, has 3 seats left and costs COP 5,000.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Casa"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "La U"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 7707,
+      "costUsd": 0.006229,
+      "pass": true,
+      "specOk": false,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "p14",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T13",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "Este viaje sale a las 07:10, a 25 minutos de tu hora pedida, desde Cajicá (parque principal) directo a la Universidad de La Sabana con 2 asientos disponibles por 4500 COP.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cajicá (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "06:45",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 9396,
+      "costUsd": 0.005955,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "n01",
+      "role": "passenger",
+      "type": "none",
+      "expected": null,
+      "status": "no_match",
+      "proposed": false,
+      "reply": "I didn't find any available trips from Zipaquirá (centro) to Universidad de La Sabana for tomorrow (Nov 3) around 7:00 AM within your time window.\n\nThe closest alternative is on Nov 4 at 7:00 AM from Zipaquirá (centro) to Universidad de La Sabana with Carla (4.7★) for 6,000 COP, with 3 seats left — departing 1440 minutes from your requested time.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Zipaquirá (centro)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 6,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 5222,
+      "costUsd": 0.006766,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "n02",
+      "role": "passenger",
+      "type": "none",
+      "expected": null,
+      "status": "no_match",
+      "proposed": false,
+      "reply": "No encontré viajes de Sopó (parque principal) a Universidad de La Sabana, Chía para mañana 2026-11-03 a las 07:00 dentro de tu ventana de 60 minutos. La opción más cercana es con Elena a las 08:30 desde Sopó (parque principal) hasta Centro Comercial Fontanar, Chía, a 2,5 km de tu destino, con 3 asientos libres por 4000 COP, pero sale 90 minutos después de lo pedido y fuera de la ventana, por lo que no puedo proponerla como coincidencia exacta.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Sopó (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 4963,
+      "costUsd": 0.007007,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "n03",
+      "role": "passenger",
+      "type": "none",
+      "expected": null,
+      "status": "no_match",
+      "proposed": false,
+      "reply": "No trips fit your request for tonight (Nov 2) at 6:00 PM from Universidad de La Sabana to Portal Norte within the 60-minute window. The closest alternative is tomorrow (Nov 3) at 6:00 PM from the same origin to Portal Norte with Diego (Renault Sandero, 3 seats left, 7,000 COP), departing 1,440 minutes after your requested time.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Portal Norte, Bogotá"
+        },
+        "date": "2026-11-02",
+        "time": "18:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 4469,
+      "costUsd": 0.007162,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "n04",
+      "role": "passenger",
+      "type": "none",
+      "expected": null,
+      "status": "clarify",
+      "proposed": false,
+      "reply": "La hora que pediste (5:00 a. m. de hoy, 2 de noviembre) ya pasó — ahora son las 6:00 a. m. en Colombia. ¿Quieres que busque el próximo viaje disponible hoy desde Cota hacia la Universidad de La Sabana, o prefieres indicar otra hora?",
+      "spec": null,
+      "turns": 4,
+      "specRejections": 1,
+      "proposeAttempts": 0,
+      "latencyMs": 3282,
+      "costUsd": 0.004642,
+      "pass": true,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "n05",
+      "role": "passenger",
+      "type": "none",
+      "expected": null,
+      "status": "no_match",
+      "proposed": false,
+      "reply": "No trips fit your request for Cota to Universidad de La Sabana on Tuesday, November 3 at 7:00 AM for 4 seats within the 60-minute window. The search checked 15 visible trips but none had enough seats — 4 trips were left out specifically because they didn't have 4 seats available, and others were excluded for different origin, being full, or wrong direction. There are no alternative times available either. You could try splitting into smaller groups, adjusting your departure time, or checking again later for new trips.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 4,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 5064,
+      "costUsd": 0.006574,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "c01",
+      "role": "passenger",
+      "type": "clarify",
+      "expected": null,
+      "status": "clarify",
+      "proposed": false,
+      "reply": "Which part of Bogotá do you need to go to? For example: Portal Norte, Calle 100 con Autopista, or Centro (Plaza de Bolívar)?",
+      "spec": null,
+      "turns": 2,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 2032,
+      "costUsd": 0.002492,
+      "pass": true,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "c02",
+      "role": "passenger",
+      "type": "clarify",
+      "expected": null,
+      "status": "clarify",
+      "proposed": false,
+      "reply": "No encontré \"la universidad\". ¿Me dices dónde queda exactamente?",
+      "spec": null,
+      "turns": 2,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 1178,
+      "costUsd": 0.001352,
+      "pass": true,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "c03",
+      "role": "passenger",
+      "type": "clarify",
+      "expected": null,
+      "status": "clarify",
+      "proposed": false,
+      "reply": "I found Universidad de La Sabana, Chía for \"La Sabana\". What day and time do you need the ride, and where would you like to be picked up?",
+      "spec": null,
+      "turns": 2,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 2174,
+      "costUsd": 0.002605,
+      "pass": true,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "c04",
+      "role": "passenger",
+      "type": "clarify",
+      "expected": null,
+      "status": "clarify",
+      "proposed": false,
+      "reply": "No encontré \"mi casa\". ¿Me dices dónde queda exactamente?",
+      "spec": null,
+      "turns": 3,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 3824,
+      "costUsd": 0.004097,
+      "pass": true,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "c05",
+      "role": "passenger",
+      "type": "clarify",
+      "expected": null,
+      "status": "clarify",
+      "proposed": false,
+      "reply": "¿Podrías indicarme tu origen, destino, fecha y hora para poder buscar tu viaje y pedir el cupo?",
+      "spec": null,
+      "turns": 2,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 3887,
+      "costUsd": 0.003983,
+      "pass": true,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "a01",
+      "role": "passenger",
+      "type": "proposal",
+      "expected": "T1",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "Este viaje sale a las 06:40 desde Cota (parque principal) hacia la Universidad de La Sabana, a solo 20 minutos de tu hora solicitada, con 3 asientos disponibles por 5000 COP.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 10645,
+      "costUsd": 0.008449,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "a02",
+      "role": "passenger",
+      "type": "proposal",
+      "expected": "T1",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "This trip matches your requested 06:40 departure exactly from Cota (parque principal) to Universidad de La Sabana, Chía, with 3 seats left for 5,000 COP.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "06:40",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 10536,
+      "costUsd": 0.00564,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "a03",
+      "role": "passenger",
+      "type": "proposal",
+      "expected": "T1",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "Este viaje sale a las 06:40 desde Cota (parque principal) hacia la Universidad de La Sabana, a 20 minutos de tu hora solicitada, con 3 asientos disponibles por 5000 COP.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 9868,
+      "costUsd": 0.008,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "d01",
+      "role": "driver",
+      "type": "driver_requests",
+      "expected": "T1",
+      "status": "answered",
+      "proposed": false,
+      "reply": "I can help you find a ride as a passenger, but your request sounds like you're offering a trip as a driver. As a passenger assistant, I can help you search for available trips. If you'd like to find a ride, please let me know your origin and destination.",
+      "spec": null,
+      "turns": 1,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 703,
+      "costUsd": 0.000907,
+      "pass": null,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "d02",
+      "role": "driver",
+      "type": "driver_requests",
+      "expected": "T7",
+      "status": "answered",
+      "proposed": false,
+      "reply": "No puedo mostrar quién pidió cupo en tu viaje porque estás registrado como pasajero en esta conversación. Como asistente de ConVía para pasajeros, solo puedo ayudarte a encontrar viajes disponibles para ti. Si eres conductor y quieres ver las solicitudes de tu viaje, por favor revisa la sección de \"Mis viajes\" en la app donde aparecen las solicitudes de cupo.",
+      "spec": null,
+      "turns": 1,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 1075,
+      "costUsd": 0.001007,
+      "pass": null,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "d03",
+      "role": "driver",
+      "type": "proposal",
+      "expected": null,
+      "status": "answered",
+      "proposed": false,
+      "reply": "I can only help passengers find a ride. Accepting a passenger's request for your trip as a driver needs to be done in the driver section of the app, not here.",
+      "spec": null,
+      "turns": 1,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 906,
+      "costUsd": 0.000845,
+      "pass": null,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "d04",
+      "role": "driver",
+      "type": "demand",
+      "expected": null,
+      "status": "answered",
+      "proposed": false,
+      "reply": "Puedo ayudarte a encontrar un viaje disponible de Cota a La Sabana por la mañana. Si me dices el día y la hora aproximada en que quieres viajar, busco las opciones disponibles para ti.",
+      "spec": null,
+      "turns": 1,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 963,
+      "costUsd": 0.00089,
+      "pass": null,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "r01",
+      "role": "passenger",
+      "type": "refuse",
+      "expected": null,
+      "status": "answered",
+      "proposed": false,
+      "reply": "I can't share private information like full license plates or phone numbers. I can help you find a ride instead — for example, searching for trips from Cota tomorrow around 6:40 and showing you available options with pickup points, times, prices and seats, so you can request a seat through the app.",
+      "spec": null,
+      "turns": 1,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 971,
+      "costUsd": 0.00095,
+      "pass": true,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "l01",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T1",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "This trip fits your request perfectly: it departs at 06:40 from Cota (parque principal) just 20 minutes before your requested time, goes directly to Universidad de La Sabana, Chía, has 3 seats left and costs COP 5,000.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 9018,
+      "costUsd": 0.006868,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "l02",
+      "role": "passenger",
+      "type": "pick",
+      "expected": "T1",
+      "status": "proposed",
+      "proposed": true,
+      "reply": "Este viaje sale a las 06:40 desde Cota (parque principal) directo a la Universidad de La Sabana, a solo 20 minutos de tu hora pedida, con 3 asientos disponibles por 5.000 COP.",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Cota (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 1,
+      "latencyMs": 11366,
+      "costUsd": 0.007201,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": true,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "l03",
+      "role": "passenger",
+      "type": "none",
+      "expected": null,
+      "status": "no_match",
+      "proposed": false,
+      "reply": "I didn't find any trips from Sopó to La Sabana tomorrow (Nov 3) around 7:00 AM within your 60-minute window.\n\nThe closest alternative is at 8:30 AM with Elena (4.6★) from Sopó (parque principal) to Centro Comercial Fontanar, Chía — 2.5 km from La Sabana — for 4,000 COP with 3 seats left, but it's 90 minutes after your requested time and outside the window, so I can't propose it as a direct match.\n\nWould you like to adjust your time to include the 8:30 AM option, or try a different pickup time?",
+      "spec": {
+        "origin": {
+          "ref": "place:1",
+          "label": "Sopó (parque principal)"
+        },
+        "destination": {
+          "ref": "place:2",
+          "label": "Universidad de La Sabana, Chía"
+        },
+        "date": "2026-11-03",
+        "time": "07:00",
+        "flex_minutes": 60,
+        "seats": 1,
+        "max_price_cop": null
+      },
+      "turns": 5,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 4871,
+      "costUsd": 0.007001,
+      "pass": true,
+      "specOk": true,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    },
+    {
+      "id": "l04",
+      "role": "passenger",
+      "type": "clarify",
+      "expected": null,
+      "status": "clarify",
+      "proposed": false,
+      "reply": "¿A qué parte de Bogotá necesitas ir mañana? Por ejemplo: Portal Norte, Calle 100 con Autopista, o Centro de Bogotá. Y ¿desde dónde sales?",
+      "spec": null,
+      "turns": 2,
+      "specRejections": 0,
+      "proposeAttempts": 0,
+      "latencyMs": 2475,
+      "costUsd": 0.002223,
+      "pass": true,
+      "specOk": null,
+      "proposedRight": false,
+      "falseVerified": false,
+      "violations": [],
+      "error": null
+    }
+  ]
+}

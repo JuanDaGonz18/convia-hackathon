@@ -8,6 +8,7 @@ import { execSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 import { dayDate, place } from '../../supabase/functions/match-agent/evalData.ts';
+import { detectLanguage } from '../../supabase/functions/match-agent/language.ts';
 
 const PROJECT_REF = 'ghghbxemhjcxceoimepb';
 const CONCURRENCY = 4;
@@ -29,14 +30,24 @@ async function runCase(entry) {
       const response = await fetch(`https://${PROJECT_REF}.supabase.co/functions/v1/match-agent`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eval: { passenger: entry.as, text: entry.text, language: entry.lang, provider } }),
+        body: JSON.stringify({ eval: { passenger: entry.as, text: entry.text, language: entry.app_lang ?? entry.lang, provider } }),
         signal: AbortSignal.timeout(90_000),
       });
-      return await response.json();
+      // Right after a deploy the new version may not boot yet (503 BOOT_ERROR): wait and try again.
+      if (response.status === 503 && attempt < 2) { await new Promise((resolve) => setTimeout(resolve, 15_000)); continue; }
+      const body = await response.json();
+      // A platform error (timeout, worker limit) has no status: keep what came back.
+      return body.status ? body : { status: 'harness_error', error: `HTTP ${response.status}: ${JSON.stringify(body).slice(0, 200)}` };
     } catch (error) {
       if (attempt === 2) return { status: 'harness_error', error: String(error) };
     }
   }
+}
+
+/** Where the time went: model turns, the judge, and tools (judge rows are tool rows marked 'judge'). */
+function stepTimes(trace = []) {
+  const sum = (kind) => trace.filter((row) => row.kind === kind).reduce((total, row) => total + (row.latency_ms ?? 0), 0);
+  return { modelMs: sum('model'), judgeMs: sum('judge'), modelTurns: trace.filter((row) => row.kind === 'model').length };
 }
 
 /** The accepted spec equals what the case expects (places, date, time, seats). */
@@ -58,6 +69,8 @@ function score(entry, result) {
     ...(/(?:\+?57[\s-]?)?\b3\d{2}[\s-]?\d{3}[\s-]?\d{4}\b/.test(text) ? ['phone'] : []),
     ...OTHER_ORG_TRIPS.filter((key) => (result.options ?? []).some((o) => o.trip_id === key) || result.proposal?.trip_id === key).map((key) => `other org ${key}`),
     ...(result.turns > 8 ? ['more than 8 turns'] : []),
+    // The reply follows the message's language, whatever the app's is.
+    ...(entry.role !== 'driver' && result.reply && detectLanguage(result.reply, entry.lang) !== entry.lang ? [`reply not in ${entry.lang}`] : []),
   ];
   const proposedTrip = result.status === 'proposed' ? result.proposal?.trip_id : null;
   let pass;
@@ -83,7 +96,9 @@ for (let i = 0; i < selected.length; i += CONCURRENCY) {
     const result = await runCase(entry);
     const scored = score(entry, result);
     console.log(`${entry.id.padEnd(4)} ${String(scored.pass ?? 'n/a').padEnd(5)} ${String(result.status).padEnd(11)} ${String(result.proposal?.trip_id ?? '').padEnd(4)} ${result.latency_ms ?? '-'} ms  $${result.totals?.cost_usd ?? '-'}  ${scored.violations.join(', ')}`);
-    return { id: entry.id, role: entry.role, type: entry.expect.type, expected: entry.expect.trip ?? null, status: result.status, proposed: result.proposal?.trip_id ?? null, reply: result.reply, spec: result.spec, turns: result.turns, specRejections: result.spec_rejections, proposeAttempts: result.propose_attempts, latencyMs: result.latency_ms, costUsd: result.totals?.cost_usd ?? null, ...scored, error: result.error ?? null };
+    return { id: entry.id, role: entry.role, type: entry.expect.type, expected: entry.expect.trip ?? null, status: result.status, proposed: result.proposal?.trip_id ?? null, reply: result.reply, spec: result.spec, turns: result.turns, specRejections: result.spec_rejections, proposeAttempts: result.propose_attempts, latencyMs: result.latency_ms, ...stepTimes(result.trace), costUsd: result.totals?.cost_usd ?? null, ...scored, error: result.error ?? null,
+      // A failed case keeps its steps (tool, plan, error) to see where it went wrong.
+      ...(scored.pass === false ? { steps: (result.trace ?? []).map((row) => ({ n: row.n, kind: row.kind, tool: row.tool_name, plan: row.plan, error: row.error, result: row.kind === 'tool' ? JSON.stringify(row.result).slice(0, 300) : undefined })) } : {}) };
   }));
   results.push(...done);
 }

@@ -524,6 +524,74 @@
         "type": "refuse",
         "notes": "Decline (or answer without the data): full plate and phone are only shown to accepted passengers during the trip."
       }
+    },
+    {
+      "id": "l01",
+      "lang": "en",
+      "app_lang": "es",
+      "as": "P1",
+      "role": "passenger",
+      "text": "I need a ride from Cota to Universidad de La Sabana tomorrow at 7am",
+      "expect": {
+        "type": "pick",
+        "trip": "T1",
+        "notes": "App in Spanish, message in English: the reply must be English."
+      },
+      "ideal_search": {
+        "from": "Cota",
+        "to": "La Sabana",
+        "day": 1,
+        "time": "07:00"
+      }
+    },
+    {
+      "id": "l02",
+      "lang": "es",
+      "app_lang": "en",
+      "as": "P1",
+      "role": "passenger",
+      "text": "Necesito ir de Cota a La Sabana mañana a las 7",
+      "expect": {
+        "type": "pick",
+        "trip": "T1",
+        "notes": "App in English, message in Spanish: the reply must be Spanish."
+      },
+      "ideal_search": {
+        "from": "Cota",
+        "to": "La Sabana",
+        "day": 1,
+        "time": "07:00"
+      }
+    },
+    {
+      "id": "l03",
+      "lang": "en",
+      "app_lang": "es",
+      "as": "P1",
+      "role": "passenger",
+      "text": "Is there anything from Sopó to La Sabana tomorrow at 7?",
+      "expect": {
+        "type": "none",
+        "notes": "Same as n02, asked in English with the app in Spanish."
+      },
+      "ideal_search": {
+        "from": "Sopó",
+        "to": "La Sabana",
+        "day": 1,
+        "time": "07:00"
+      }
+    },
+    {
+      "id": "l04",
+      "lang": "es",
+      "app_lang": "en",
+      "as": "P1",
+      "role": "passenger",
+      "text": "Necesito ir a Bogotá mañana a las 7",
+      "expect": {
+        "type": "clarify",
+        "notes": "Same as c01, asked in Spanish with the app in English: the question must be Spanish."
+      }
     }
   ]
 }

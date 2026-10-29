@@ -301,11 +301,42 @@ describe('loop with the real checkpoint 2', () => {
   });
 });
 
+describe('places in one call', () => {
+  test('both places resolve in one turn, so a proposal takes 4 model turns', async () => {
+    const model = scripted([
+      () => answer([toolCall('resolve_place', { queries: ['Cota', 'La Sabana'] })]),
+      (request) => {
+        const last = JSON.parse(String(request.messages.at(-1)?.content));
+        assert.deepEqual(last.results.map((r: { candidates: { ref: string }[] }) => r.candidates[0].ref), ['place:1', 'place:2']);
+        return answer([toolCall('submit_request_spec', SPEC)]);
+      },
+      () => answer([toolCall('search_trips', { origin: 'place:1', destination: 'place:2', date: '2026-10-30', time: '07:00' })]),
+      () => answer([toolCall('propose_request_seat', { trip_id: ROWS[0].id, explanation: 'Sale a las 6:40 desde Cota.' })]),
+    ]);
+    const verdict: ProposalVerdict = { verified: true, checks: ['ok'], proposal: { trip: { trip_id: ROWS[0].id } as never, seats: 1, explanation: 'x', hash: 'h', departureIso: '', price: 5000, fields: {} as never } };
+    const outcome = await runAgent(newRunState(objective), deps(model.chat, { verifyProposal: async () => verdict }).deps, 'es');
+    assert.equal(outcome.status, 'proposed');
+    assert.equal(outcome.state.turns, 4);
+    assert.equal(outcome.state.placeLookups, 2);
+  });
+
+  test('more than 3 places, or an empty one, is rejected with what to send', async () => {
+    const model = scripted([
+      () => answer([toolCall('resolve_place', { queries: ['a', 'b', 'c', 'd'] })]),
+      (request) => {
+        assert.match(String(request.messages.at(-1)?.content), /1 to 3 places/);
+        return answer([toolCall('decline', { message: 'fin' })]);
+      },
+    ]);
+    assert.equal((await runAgent(newRunState(objective), deps(model.chat).deps, 'es')).status, 'answered');
+  });
+});
+
 describe('loop guards against guessing', () => {
   test('after 4 place lookups more are refused, and decline ends the run as answered', async () => {
-    const lookup = () => answer([toolCall('resolve_place', { query: 'Cota' })]);
+    const lookup = (query: string) => () => answer([toolCall('resolve_place', { query })]);
     const model = scripted([
-      lookup, lookup, lookup, lookup, lookup,
+      lookup('Narnia'), lookup('Mordor'), lookup('Gondor'), lookup('Rohan'), lookup('Atlantis'),
       (request) => {
         assert.match(String(request.messages.at(-1)?.content), /TOO_MANY_LOOKUPS/);
         return answer([toolCall('decline', { message: 'No puedo compartir teléfonos ni placas completas.' })]);
@@ -315,5 +346,47 @@ describe('loop guards against guessing', () => {
     const outcome = await runAgent(newRunState(objective), d, 'es');
     assert.equal(outcome.status, 'answered');
     assert.equal(outcome.state.placeLookups, 5);
+  });
+
+  test('looking up a place it already has is free and points to submit_request_spec (seen in the eval: Cota, La Sabana, Cota again…)', async () => {
+    const lookup = (query: string) => () => answer([toolCall('resolve_place', { query })]);
+    const model = scripted([
+      lookup('Cota'), lookup('La Sabana'), lookup('cota '),
+      (request) => {
+        const last = String(request.messages.at(-1)?.content);
+        assert.match(last, /already_resolved/);
+        assert.match(last, /place:1 = Cota.*place:2 = Universidad de La Sabana.*call submit_request_spec/);
+        // After a repeat the next turn must submit the spec (the model kept calling resolve_place while "submitting").
+        assert.deepEqual(request.toolChoice, { name: 'submit_request_spec' });
+        assert.ok(request.tools.some((tool) => tool.function.name === 'resolve_place'), 'the tool list stays the same');
+        return answer([toolCall('submit_request_spec', SPEC)]);
+      },
+      () => answer([toolCall('decline', { message: 'fin' })]),
+    ]);
+    const outcome = await runAgent(newRunState(objective), deps(model.chat).deps, 'es');
+    assert.equal(outcome.state.placeLookups, 2);
+    assert.equal(outcome.state.nextPlace, 3);
+    assert.ok(outcome.spec);
+  });
+
+  test('a place that was not found points to ask_clarification; looking it up again ends with that question (c04: "mi casa", no saved home)', async () => {
+    const lookup = (query: string) => () => answer([toolCall('resolve_place', { query })]);
+    const model = scripted([
+      lookup('mi casa'),
+      (request) => {
+        assert.match(String(request.messages.at(-1)?.content), /Not found: \\"mi casa\\": ask the user/);
+        return answer([toolCall('resolve_place', { query: 'La Sabana' })]);
+      },
+      (request) => {
+        const last = String(request.messages.at(-1)?.content);
+        assert.match(last, /Not found: \\"mi casa\\": ask the user/);
+        assert.doesNotMatch(last, /submit_request_spec/);
+        return answer([toolCall('resolve_place', { query: 'Mi casa' })]);
+      },
+    ]);
+    const outcome = await runAgent(newRunState(objective), deps(model.chat).deps, 'es');
+    assert.equal(outcome.status, 'clarify');
+    assert.equal(outcome.reply, 'No encontré "Mi casa". ¿Me dices dónde queda exactamente?');
+    assert.equal(model.requests.length, 3);
   });
 });

@@ -111,6 +111,16 @@ describe('chat', () => {
     assert.equal(result.content, null);
   });
 
+  test('tool choice: required, or one named tool in the OpenAI shape', async () => {
+    const tool = { type: 'function' as const, function: { name: 'submit_request_spec', description: 'x', parameters: { type: 'object', properties: {} } } };
+    const { fetchImpl, calls } = fakeFetch({ [BASETEN]: () => completion(reply('ok')) });
+    const llm = createLlm({ providers, fetch: fetchImpl });
+    await llm.chat({ messages: [{ role: 'user', content: 'hi' }], tools: [tool], toolChoice: 'required' });
+    await llm.chat({ messages: [{ role: 'user', content: 'hi' }], tools: [tool], toolChoice: { name: 'submit_request_spec' } });
+    assert.equal(calls[0].body.tool_choice, 'required');
+    assert.deepEqual(calls[1].body.tool_choice, { type: 'function', function: { name: 'submit_request_spec' } });
+  });
+
   test('HTTP errors, network errors and invalid JSON fall back, and are kept in the attempts', async () => {
     for (const [answer, failure] of [
       [() => new Response('busy', { status: 429 }), 'http_429'],

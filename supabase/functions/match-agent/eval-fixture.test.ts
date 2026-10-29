@@ -127,8 +127,8 @@ describe('fixture can be seeded', () => {
 describe('expected outcomes match the ranking', () => {
   const searchable = cases.filter((entry) => entry.ideal_search);
 
-  test('there are about 30 cases, in English and Spanish', () => {
-    assert.ok(cases.length >= 28 && cases.length <= 35, `${cases.length} cases`);
+  test('there are about 30–40 cases, in English and Spanish', () => {
+    assert.ok(cases.length >= 28 && cases.length <= 40, `${cases.length} cases`);
     assert.equal(new Set(cases.map((entry) => entry.id)).size, cases.length, 'case ids are unique');
   });
 

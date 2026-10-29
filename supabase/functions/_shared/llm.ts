@@ -24,7 +24,8 @@ export type ChatRequest = {
   messages: ChatMessage[];
   tools?: ToolSpec[];
   /** 'required': the model must call a tool (the agent loop); default 'auto'. */
-  toolChoice?: 'auto' | 'required';
+  /** 'required' = any tool; { name } = that tool (OpenAI-style named tool choice). */
+  toolChoice?: 'auto' | 'required' | { name: string };
   /** Tokens per call, reasoning included: the model reasons before answering, so leave room. */
   maxTokens?: number;
   temperature?: number;
@@ -188,7 +189,7 @@ export function createLlm({ providers, fetch: fetchImpl = globalThis.fetch }: { 
         body: JSON.stringify({
           model: provider.model,
           messages: request.messages,
-          ...(request.tools?.length ? { tools: request.tools, tool_choice: request.toolChoice ?? 'auto' } : {}),
+          ...(request.tools?.length ? { tools: request.tools, tool_choice: typeof request.toolChoice === 'object' ? { type: 'function', function: { name: request.toolChoice.name } } : request.toolChoice ?? 'auto' } : {}),
           max_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS,
           temperature: request.temperature ?? 0,
         }),

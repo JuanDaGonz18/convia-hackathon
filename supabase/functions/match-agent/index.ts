@@ -5,6 +5,7 @@ import { supabaseToolData } from './data.ts';
 import { fixtureData, FIXTURE_NOW } from './evalData.ts';
 import { createJudge } from './judge.ts';
 import { type AgentOutcome, describeSpec, type LoopDeps, newRunState, type RunState, runAgent, type TraceStep } from './loop.ts';
+import { detectLanguage } from './language.ts';
 import { buildObjective } from './objective.ts';
 import { photonGeocoder } from './places.ts';
 import { type StepRow, toStepRow, totals } from './trace.ts';
@@ -50,7 +51,7 @@ function buildDeps(data: ToolData & VerifyData, record: LoopDeps['record'], now:
   // Eval mode can pin one provider (baseten or modal) to compare them on the same cases.
   const env = (name: string) => (name === 'AGENT_PROVIDERS' && onlyProvider ? onlyProvider : Deno.env.get(name));
   const llm = createLlm({ providers: providersFromEnv(env) });
-  const judge = createJudge({ apiKey: MODEL_API_KEY, baseUrl: Deno.env.get('MODEL_API_BASE_URL') || undefined, log });
+  const judge = createJudge({ apiKey: MODEL_API_KEY, baseUrl: Deno.env.get('MODEL_API_BASE_URL') || undefined, log, effort: 'minimal' });
   let judgeTurn = 0;
   // The judge's verdict is part of the trace ("How the agent decided").
   const tracedJudge: Judge = async (input) => {
@@ -119,7 +120,8 @@ Deno.serve(async (request) => {
     const provider = evalCase.provider === 'modal' || evalCase.provider === 'baseten' ? evalCase.provider : undefined;
     const deps = buildDeps(fixtureData(evalCase.passenger), (step) => { trace.push(step); }, now, `viewer-${evalCase.passenger}`, false, provider);
     const started = Date.now();
-    const language = evalCase.language === 'en' ? 'en' : 'es';
+    // `language` is the app's; the reply follows the message.
+    const language = detectLanguage(evalCase.text, evalCase.language === 'en' ? 'en' : 'es');
     const outcome = await runAgent(newRunState(buildObjective({ text: evalCase.text, language, now: new Date(now()) })), deps, language);
     const rows = trace.map((step, index) => toStepRow('eval', index + 1, step as TraceStep & { kindOverride?: 'judge' }));
     return json({ ...resultBody(null, outcome), turns: outcome.state.turns, spec_rejections: outcome.state.specRejections, propose_attempts: outcome.state.proposeAttempts, latency_ms: Date.now() - started, totals: totals(rows), trace: rows });
@@ -168,7 +170,9 @@ Deno.serve(async (request) => {
   // ── A run: NDJSON progress, then the result. ──
   const message = typeof body.message === 'string' ? body.message.trim() : '';
   const resumeId = typeof body.run_id === 'string' ? body.run_id : null;
-  const language = body.language === 'en' ? 'en' : 'es';
+  const appLanguage = body.language === 'en' ? 'en' : 'es';
+  // Replies follow the language of the message; the screen's labels stay in the app's language.
+  let language = detectLanguage(message, appLanguage);
   const step = body.step === true;
   if (!message && !resumeId) return json({ error: 'INVALID_BODY' }, 400);
   // Step-through debugging is for development (eval and demo accounts).
@@ -180,9 +184,10 @@ Deno.serve(async (request) => {
   let runId: string;
   let state: RunState;
   if (resumeId) {
-    const { data: run } = await admin.from('agent_runs').select('user_id, status, state').eq('id', resumeId).maybeSingle();
+    const { data: run } = await admin.from('agent_runs').select('user_id, status, state, language').eq('id', resumeId).maybeSingle();
     if (!run || run.user_id !== user.id || run.status !== 'paused' || !run.state) return json({ error: 'NOT_FOUND' }, 404);
     runId = resumeId;
+    language = run.language === 'en' ? 'en' : 'es';
     state = run.state as RunState;
   } else {
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();

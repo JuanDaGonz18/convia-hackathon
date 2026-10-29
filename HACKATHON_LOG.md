@@ -182,7 +182,26 @@ Template for each entry:
   - Live on the hackathon project with the demo passenger: a verified proposal (Confirm disabled in demo), an honest "you already requested that trip", and an honest "no trips" answer.
   - Drivers are outside v1: the agent only helps passengers.
 
+### October 28, 2026 (before midnight) — pickup at night; assistant language and speed
+
+- **Built:**
+  - Pickup check: 4 new real clips of the same car (approaching, night with light, night with low light, night blurry). When the middle frame is only good for "film again", the frame where SAM saw the plate best is read once more before asking to retry: the approaching car went from "film again" to "it's your ride". At night, no clip gave a false "don't get in"; the plates that were too small or blurred to read gave "film again". The SAM threshold (0.5) was checked from 0.3 to 0.8 and picks the same car and plate on every clip, so it stays.
+  - Assistant replies in the language of each message (the screen keeps the app's language); on the web, Enter sends and Shift+Enter adds a line.
+  - Assistant reliability: a place it already looked up is not looked up again, a place that was not found ends with a question to the user, and the eval now keeps the steps of any failed case.
+  - Assistant speed: every place in one lookup (one model turn fewer), and the claim judge at minimal reasoning effort after checking it on 12 explanations with a known answer (36/36 right, no unsupported claim passed).
+- **Meta model:** SAM 3.1 + Muse Spark 1.3 (pickup); Muse Spark Open (assistant); Muse Spark 1.3 (judge).
+- **PRs:** feat/matching-agent
+- **Notes:** eval on Baseten, 36 cases (4 new for reply language): 100% passed, 0 proposals wrongly marked verified; p50 7.6 s → 5.2 s and p95 17.0 s → 9.6 s, now under the 12 s target. Pickup on 7 real clips: 6 as expected; the night-with-light clip stays "film again" because the plate is about 60 px wide in the 720p recording.
+
 ### October 29, 2026
+
+- **Built:**
+  - Fix: publishing a trip or requesting a seat failed on the hackathon project since the institution migration (Oct 28). The trigger that requires a verified institution read the driver and the passenger in one expression, which PL/pgSQL resolves for both tables; it now reads only the field of the table being written. Found while testing the demo job below.
+  - The judges' demo keeps itself alive: a daily database job (pg_cron, 04:00 Colombia) clears the demo accounts' pickup checks, removes their old trips, and gives each demo passenger an accepted ride 1–3 days ahead. It touches only `@demo.convia.test` accounts.
+  - README: how to try each feature, and the privacy notes for the student ID check and the assistant.
+- **Meta model:** none new.
+- **PRs:** feat/matching-agent
+- **Notes:** both changes were tested inside transactions that were rolled back: the job created the five rides, a second run kept them, and the real data was unchanged.
 
 ### October 30, 2026
 

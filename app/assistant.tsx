@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, type NativeSyntheticEvent, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, type TextInputKeyPressEventData, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -66,6 +66,14 @@ export default function AssistantScreen() {
   const nextId = useRef(1);
 
   const update = (id: number, change: (turn: Turn) => Turn) => setTurns((all) => all.map((turn) => (turn.id === id ? change(turn) : turn)));
+
+  // Web: Enter sends, Shift+Enter adds a line. Phones keep the return key for new lines and send with the button.
+  const onWebKeyPress = (event: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
+    const key = event.nativeEvent as TextInputKeyPressEventData & { shiftKey?: boolean; isComposing?: boolean };
+    if (key.key !== 'Enter' || key.shiftKey || key.isComposing) return;
+    event.preventDefault();
+    void ask(text);
+  };
 
   const ask = async (question: string) => {
     const clean = question.trim();
@@ -204,6 +212,7 @@ export default function AssistantScreen() {
             editable={!busy}
             multiline
             onChangeText={setText}
+            onKeyPress={Platform.OS === 'web' ? onWebKeyPress : undefined}
             onSubmitEditing={() => void ask(text)}
             placeholder={t('assistant.placeholder')}
             placeholderTextColor={colors.textSecondary}

@@ -96,7 +96,7 @@ describe('runReadTool', () => {
   });
 
   test('a data error becomes TOOL_FAILED instead of crashing the run', async () => {
-    const outcome = await runReadTool('resolve_place', '{"query":"Cota"}', context({ savedPlaces: async () => { throw new Error('saved_places: timeout'); } }));
+    const outcome = await runReadTool('resolve_place', '{"queries":["Cota"]}', context({ savedPlaces: async () => { throw new Error('saved_places: timeout'); } }));
     assert.deepEqual(outcome, { ok: false, error: { code: 'TOOL_FAILED', message: 'saved_places: timeout' } });
   });
 

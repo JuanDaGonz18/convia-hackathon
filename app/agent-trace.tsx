@@ -21,8 +21,13 @@ function summary(step: AgentStep, t: ReturnType<typeof useTranslation>['t']): st
   if (result.error && typeof result.error === 'object') return `${(result.error as { code?: string }).code}: ${(result.error as { message?: string }).message}`;
   switch (step.tool_name) {
     case 'resolve_place': {
-      const candidates = (result.candidates as { ref: string; label: string }[] | undefined) ?? [];
-      return candidates.length ? candidates.map((c) => `${c.ref} ${c.label}`).join(' · ') + (result.ambiguous ? ` (${t('agentTrace.ambiguous')})` : '') : t('agentTrace.noPlace');
+      // One line per place asked (older runs stored a single place at the top level).
+      type Place = { query?: string; ambiguous?: boolean; candidates?: { ref: string; label: string }[]; already_resolved?: { ref: string; label: string }[] };
+      const places = (result.results as Place[] | undefined) ?? [result as Place];
+      return places.map((place) => {
+        const found = place.candidates ?? place.already_resolved ?? [];
+        return found.length ? found.map((c) => `${c.ref} ${c.label}`).join(' · ') + (place.ambiguous ? ` (${t('agentTrace.ambiguous')})` : '') : `${place.query ?? ''} — ${t('agentTrace.noPlace')}`;
+      }).join('\n');
     }
     case 'submit_request_spec':
       return result.accepted ? t('agentTrace.specAccepted') : `${t('agentTrace.specRejected')}: ${((result.errors as string[]) ?? []).join(' · ')}`;

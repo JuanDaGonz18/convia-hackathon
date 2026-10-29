@@ -37,13 +37,16 @@ const SYSTEM = [
 
 export type JudgeLog = (event: string, data: Record<string, unknown>) => void;
 
-export function createJudge({ apiKey, baseUrl, log }: { apiKey: string; baseUrl?: string; log?: JudgeLog }): Judge & { last?: { requestId: string | null; latencyMs: number } } {
+export type JudgeOptions = { apiKey: string; baseUrl?: string; log?: JudgeLog; effort?: 'minimal' | 'low'; maxTokens?: number };
+
+export function createJudge({ apiKey, baseUrl, log, effort = 'low', maxTokens }: JudgeOptions): Judge & { last?: { requestId: string | null; latencyMs: number } } {
   const transport = createTransport({ apiKey, baseUrl, log });
   const judge = (async ({ explanation, facts }) => {
     const started = performance.now();
     const data = await transport.json('judge_claims', '/chat/completions', {
       model: JUDGE_MODEL,
-      reasoning_effort: 'low',
+      reasoning_effort: effort,
+      ...(maxTokens ? { max_tokens: maxTokens } : {}),
       messages: [
         { role: 'system', content: SYSTEM },
         { role: 'user', content: `FACTS:\n${JSON.stringify(facts)}\n\nEXPLANATION:\n${explanation}` },
