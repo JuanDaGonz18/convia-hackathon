@@ -23,20 +23,14 @@ type Check =
 
 /**
  * Under the sign-up e-mail field: says whether the domain belongs to an
- * enabled institution as the user types, and lists the enabled ones.
- * Sign-up still checks the domain on the server; this only warns early.
+ * enabled institution as the user types. Any e-mail can sign up: an
+ * institutional one is verified at once, any other chooses and verifies its
+ * institution after logging in. The list of institutions is never shown.
  */
 export function InstitutionDomainHint({ email }: Readonly<{ email: string }>) {
   const { t } = useTranslation();
-  const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [check, setCheck] = useState<Check | null>(null);
   const domain = emailDomain(email);
-
-  useEffect(() => {
-    let active = true;
-    void institutionService.listEnabled().then((list) => active && setInstitutions(list)).catch(() => undefined);
-    return () => { active = false; };
-  }, []);
 
   useEffect(() => {
     if (!domain || !isSupabaseEnabled) return;
@@ -57,7 +51,6 @@ export function InstitutionDomainHint({ email }: Readonly<{ email: string }>) {
 
   // A result for an older domain is not shown.
   const current = check && check.domain === domain ? check : null;
-  const list = institutions.map((item) => `${item.name} (@${item.domain})`).join(', ');
 
   return (
     <View accessibilityLiveRegion="polite" style={styles.container}>
@@ -73,11 +66,10 @@ export function InstitutionDomainHint({ email }: Readonly<{ email: string }>) {
         </View>
       ) : current?.status === 'blocked' ? (
         <View style={styles.row}>
-          <Ionicons color={colors.error} name="alert-circle" size={16} />
-          <Text style={styles.blocked}>{t('institutions.blocked', { domain: current.domain })}</Text>
+          <Ionicons color={colors.textSecondary} name="information-circle-outline" size={16} />
+          <Text style={styles.muted}>{t('institutions.openSignup')}</Text>
         </View>
       ) : null}
-      {list && current?.status !== 'allowed' ? <Text style={styles.muted}>{t('institutions.enabled', { list })}</Text> : null}
     </View>
   );
 }
@@ -87,5 +79,4 @@ const styles = StyleSheet.create({
   row: { alignItems: 'center', flexDirection: 'row', gap: spacing[4] },
   muted: { ...typography.caption, color: colors.textSecondary, flexShrink: 1 },
   allowed: { ...typography.caption, color: SUCCESS_TEXT, flexShrink: 1, fontWeight: '600' },
-  blocked: { ...typography.caption, color: colors.error, flexShrink: 1 },
 });

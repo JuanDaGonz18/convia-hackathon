@@ -60,9 +60,9 @@
     "show": "Show password"
   },
   "auth": {
-    "emailLabel": "University email",
-    "emailPlaceholder": "Your university email",
-    "emailRequired": "Enter your university email.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Your email",
+    "emailRequired": "Enter your email.",
     "emailInvalid": "That email doesn't look valid.",
     "login": {
       "tagline": "Share the ride with your campus community.",
@@ -131,7 +131,7 @@
       "faceRequired": "You need to register your face to request or post rides. You can do it now or later from your profile.",
       "fields": {
         "name": "Full name",
-        "email": "University email",
+        "email": "Email",
         "password": "Password",
         "confirm": "Password confirmation",
         "terms": "Terms and conditions"
@@ -140,7 +140,7 @@
         "name": "Enter your first and last name.",
         "passwordEmpty": "Create a password.",
         "terms": "Accept the terms and conditions.",
-        "domain": "That email isn't from a registered institution. Use your institutional email (e.g. @unisabana.edu.co).",
+        "domain": "We couldn't create an account with that email. Check that it's spelled correctly.",
         "confirmationSent": "We sent you a confirmation e-mail. Open it on this device and tap \"Confirm\". If it doesn't show up within a few minutes, check your Junk folder; institutional (Outlook) accounts may also hold it in quarantine.",
         "alreadyRegistered": "An account already exists with this email. Log in with it.",
         "weakPassword": "Your password doesn't meet the security requirements.",
@@ -943,7 +943,12 @@
     "rateLimit": "Too many attempts. Wait a moment and try again.",
     "notConnected": "The app isn't connected to the server. Contact your admin.",
     "noProfile": "Your account has no ConVía profile. Contact your admin.",
-    "domain": "Use your institution email (e.g. @unisabana.edu.co)."
+    "domain": "We couldn't use that email. Check that it's spelled correctly.",
+    "institutionNotVerified": "Verify your institution first to see, publish or request trips.",
+    "institutionRequestPending": "You already have a pending request.",
+    "institutionAlreadyVerified": "Your institution is already verified.",
+    "tooManyAttempts": "Too many attempts today. Try again tomorrow.",
+    "noInstitutionChosen": "Choose your institution first."
   },
   "distance": {
     "meters": "{{value}} m",
@@ -1184,8 +1189,7 @@
   "institutions": {
     "checking": "Checking domain…",
     "allowed": "{{name}}: your institution is enabled.",
-    "blocked": "@{{domain}} isn't from an enabled institution on ConVía.",
-    "enabled": "Enabled institutions: {{list}}."
+    "openSignup": "Any e-mail works; after signing up you choose and verify your institution."
   },
   "plans": {
     "unavailable": "This feature isn't available right now."
@@ -1239,5 +1243,146 @@
     "vehicleCheck": "SAM 3.1 finds the car and the plate; Muse Spark 1.3 reads them to confirm it is your vehicle.",
     "studentCard": "Muse Spark 1.3 reads the card (your face is blurred on your phone before it is sent).",
     "agent": "Muse Spark Open (open weights) finds and compares trips for you."
+  },
+  "institution": {
+    "kicker": "YOUR INSTITUTION",
+    "title": "Your institution",
+    "subtitle": "ConVía shares trips only within the same verified institution.",
+    "status": {
+      "none": "No institution",
+      "pending": "Not verified yet",
+      "review": "In manual review",
+      "verified": "Verified"
+    },
+    "method": {
+      "institutional_email": "Verified with your institutional email",
+      "microsoft": "Verified with Microsoft",
+      "student_card_photo": "Verified with photo ID",
+      "document": "Verified with document"
+    },
+    "searchLabel": "Find your institution",
+    "searchPlaceholder": "Name, acronym or city",
+    "searchHint": "Type at least 3 letters.",
+    "noResults": "We couldn't find that institution.",
+    "searchFailed": "Couldn't search. Check your connection.",
+    "chooseFailed": "Couldn't choose the institution.",
+    "verifyTitle": "Show that you belong",
+    "verifyText": "Take a photo of your student ID. Your face is compared on your device and never sent.",
+    "verifyWithCard": "Verify with my student ID",
+    "change": "Choose another institution",
+    "notListed": "My institution isn't listed",
+    "requestPending": "You asked us to add “{{name}}”. We will let you know once we review it.",
+    "reviewHint": "Your student ID is in manual review. Meanwhile you can try again with another photo.",
+    "retryHint": "We couldn't read your student ID. Try a sharper photo.",
+    "verifiedHint": "You can now see and request trips in your institution."
+  },
+  "institutionRequest": {
+    "title": "Add my institution",
+    "subtitle": "Tell us which one; we will review it and let you know.",
+    "name": "Institution name",
+    "namePlaceholder": "The institution's full name",
+    "city": "City",
+    "cityPlaceholder": "City of the campus",
+    "website": "Website (optional)",
+    "role": "Your role",
+    "roles": {
+      "estudiante": "Student",
+      "profesor": "Professor",
+      "administrativo": "Staff",
+      "otro": "Other"
+    },
+    "submit": "Send request",
+    "after": "While we review it, you can use the app but can't see or request trips.",
+    "nameRequired": "Type the institution's name.",
+    "cityRequired": "Type the city.",
+    "failed": "Couldn't send the request."
+  },
+  "studentCard": {
+    "title": "Verify with my student ID",
+    "subtitle": "A photo of your institution's current student ID.",
+    "tips": {
+      "flat": "Lay the card on a table, without glare.",
+      "light": "In good light and in focus.",
+      "whole": "The whole card visible.",
+      "privacy": "Your face is compared with your selfie on this device and left out: only the rest of the card is sent."
+    },
+    "takePhoto": "Photograph my ID",
+    "fromGallery": "Choose from gallery",
+    "stepFace": "Comparing your face on this device…",
+    "stepReading": "Reading the card with AI…",
+    "result": {
+      "verified": {
+        "title": "Institution verified!",
+        "text": "You can now see and request trips in your institution."
+      },
+      "review": {
+        "title": "In manual review",
+        "text": "We couldn't confirm it automatically. A person will review it; nothing is rejected without a review."
+      },
+      "retry": {
+        "title": "We couldn't read the card",
+        "text": "Try a sharper photo in good light."
+      }
+    },
+    "reasons": {
+      "unreadable": "The text couldn't be read.",
+      "not_a_card": "It doesn't look like a student ID.",
+      "screen_or_print": "It looks like a screen or a copy, not the physical card.",
+      "institution_mismatch": "The card's institution doesn't match the one you chose.",
+      "no_expiry": "We couldn't find the expiry date.",
+      "expired": "The card has expired.",
+      "name_partial": "The name only partly matches your profile.",
+      "name_mismatch": "The name doesn't match your profile.",
+      "face_mismatch": "The card's photo doesn't match your selfie.",
+      "face_not_checked": "Your face couldn't be compared.",
+      "face_not_found": "We couldn't find your photo on the card.",
+      "low_confidence": "The reading wasn't clear enough.",
+      "card_has_photo": "The card has a photo: use the photo ID option.",
+      "names_differ": "The names on the card and the screenshot don't match.",
+      "email_domain_mismatch": "The screenshot's email isn't from the chosen institution.",
+      "not_institutional_account": "The screenshot doesn't look like an institutional account.",
+      "edited_screenshot": "The screenshot shows signs of editing."
+    },
+    "tryAgain": "Try again",
+    "done": "Done",
+    "failed": "Couldn't verify the student ID."
+  },
+  "verifyCard": {
+    "none": {
+      "title": "Choose your institution",
+      "text": "To see and request trips, choose and verify your institution.",
+      "action": "Choose institution"
+    },
+    "pending": {
+      "title": "Verify {{name}}",
+      "text": "Show that you belong to {{name}} to see and request trips.",
+      "action": "Verify now"
+    },
+    "review": {
+      "title": "Your verification is in review",
+      "text": "We'll let you know when it's done. You can try again with another photo.",
+      "action": "See status"
+    }
+  },
+  "studentDocument": {
+    "entry": "My student card has no photo",
+    "title": "Card without photo",
+    "subtitle": "Upload the front of your card and a screenshot of your institutional account (Teams, Outlook or the student portal).",
+    "privacy": "Crop the screenshot so only your name and email show, without a profile picture. Your device checks that no image shows a face before sending it; we only keep the result and your email domain.",
+    "cardTitle": "1. Front of the card",
+    "cardHint": "A photo or image of the whole front, legible.",
+    "screenshotTitle": "2. Account screenshot",
+    "screenshotHint": "Cropped to your full name and institutional email.",
+    "cardHasFace": "Your card has a photo: use \"Verify with my student ID\", which is automatic.",
+    "screenshotHasFace": "The screenshot shows a face (profile picture). Crop it so only your name and email show.",
+    "imageFailed": "Couldn't check the image. Try again.",
+    "send": "Send for review",
+    "reviewNote": "A person always reviews this path: screenshots are easy to alter.",
+    "reviewTitle": "Sent for review",
+    "reviewText": "A person will review your documents and we'll let you know. Meanwhile you can use the app, but not see or request trips.",
+    "reviewerNotes": "What the reviewer will see:",
+    "retryTitle": "We couldn't read the documents",
+    "retryText": "Try sharper images: the name on the card, and the name and email on the screenshot.",
+    "failed": "Couldn't send the documents."
   }
 }
