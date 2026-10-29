@@ -21,7 +21,12 @@ import { analyzeStudentCard } from '@/services/faceRecognition';
 import { membershipService, type StudentCardDecision } from '@/services/membershipService';
 import { errorMessage } from '@/utils/format';
 
-type Phase = { kind: 'idle' } | { kind: 'working'; step: 'face' | 'reading' } | { kind: 'done'; decision: StudentCardDecision; reasons: string[] };
+type Phase =
+  | { kind: 'idle' }
+  | { kind: 'working'; step: 'face' | 'reading' | 'review' }
+  | { kind: 'done'; decision: StudentCardDecision; reasons: string[] }
+  // The device couldn't use the card's photo: nothing was sent; try again, or ask for a manual review.
+  | { kind: 'noFace'; reason: string };
 
 /**
  * Verify the chosen institution with a student card. On the phone (or in the browser) the
@@ -40,13 +45,13 @@ export default function StudentCardScreen() {
     setPhase({ kind: 'working', step: 'face' });
     try {
       const analysis = await analyzeStudentCard(uri);
-      let crops: string[] = [];
-      if (analysis.ok) {
-        await membershipService.submitCardFace(analysis.embedding);
-        crops = analysis.crops;
+      if (!analysis.ok) {
+        setPhase({ kind: 'noFace', reason: analysis.reason });
+        return;
       }
+      await membershipService.submitCardFace(analysis.embedding);
       setPhase({ kind: 'working', step: 'reading' });
-      const result = await membershipService.verifyCard(crops);
+      const result = await membershipService.verifyCard(analysis.crops);
       setPhase({ kind: 'done', decision: result.decision, reasons: result.reasons });
     } catch (checkError) {
       setPhase({ kind: 'idle' });
@@ -62,6 +67,19 @@ export default function StudentCardScreen() {
     if (uri) await check(uri);
   };
 
+  /** Without crops the server records a manual review (reason face_not_found). */
+  const requestReview = async () => {
+    setError(null);
+    setPhase({ kind: 'working', step: 'review' });
+    try {
+      const result = await membershipService.verifyCard([]);
+      setPhase({ kind: 'done', decision: result.decision, reasons: result.reasons });
+    } catch (reviewError) {
+      setPhase({ kind: 'idle' });
+      setError(errorMessage(reviewError, t('studentCard.failed')));
+    }
+  };
+
   const working = phase.kind === 'working';
 
   return (
@@ -70,7 +88,16 @@ export default function StudentCardScreen() {
         <ScreenHeader kicker={t('institution.kicker')} subtitle={t('studentCard.subtitle')} title={t('studentCard.title')} />
         <MetaAiBadge feature="studentCard" />
 
-        {phase.kind !== 'done' ? (
+        {phase.kind === 'noFace' ? (
+          <View style={styles.result}>
+            <Ionicons color={colors.warning} name="refresh-circle-outline" size={56} />
+            <Text style={styles.resultTitle}>{t('studentCard.noFace.title')}</Text>
+            <Text style={styles.resultText}>{t(`studentCard.noFace.${phase.reason}`, { defaultValue: t('studentCard.noFace.face_not_found') })}</Text>
+            <ButtonPrimary icon="camera" onPress={() => setPhase({ kind: 'idle' })} title={t('studentCard.tryAgain')} />
+            <ButtonSecondary icon="person-outline" onPress={() => void requestReview()} title={t('studentCard.noFace.requestReview')} />
+            <Text style={styles.reason}>{t('studentCard.noFace.reviewNote')}</Text>
+          </View>
+        ) : phase.kind !== 'done' ? (
           <>
             <View style={styles.tips}>
               {(['flat', 'light', 'whole', 'privacy'] as const).map((tip) => (
@@ -83,7 +110,7 @@ export default function StudentCardScreen() {
             {working ? (
               <View style={styles.working}>
                 <ActivityIndicator color={colors.primary} />
-                <Text style={styles.tipText}>{t(phase.step === 'face' ? 'studentCard.stepFace' : 'studentCard.stepReading')}</Text>
+                <Text style={styles.tipText}>{t(phase.step === 'face' ? 'studentCard.stepFace' : phase.step === 'review' ? 'studentCard.stepReview' : 'studentCard.stepReading')}</Text>
               </View>
             ) : (
               <>

@@ -217,6 +217,19 @@ Template for each entry:
   - New tests: the answer stream's clean-up on disconnect, the attempt caps, a forged service token, Confirm on a database error, and a SQL check run inside a rolled-back transaction (trip and seat-request inserts, the demo car lock, the daily job, the literal search). A live sample check saved its result as expected.
   - Deferred, with reasons: the vehicle-autofill hourly limit lives in memory (needs a database counter; the function is cheap and requires sign-in); plates written in lowercase in the assistant's trace (a looser pattern would also mask ordinary text); a stricter student-ID name match and detecting a faint second photo on a card (both change verification decisions and need their own testing; doubtful cases already go to manual review); a retried pickup request can be charged twice (now bounded by the caps); a parked copy of the trip's car could in theory trigger the early exit (unlikely; fixing it changes the pipeline and needs all real clips re-run).
 
+### October 29, 2026 (evening) — user-reported fixes; plans hidden
+
+- **Built:**
+  - The "verify your institution" card showed a bare `{{name}}`; it now uses the user's first name, or a neutral title, and names the institution with a fallback.
+  - Student ID: when the device can't use the photo on the card, the user sees why and chooses **Try again** or **Request a manual review**; nothing is sent until then (before, any miss went straight to review). On the web, the card is also scanned in smaller, enlarged tiles for small printed portraits; the detection threshold is unchanged, so a wrong "face" can never move the crop onto the real one.
+  - Manual review has a written policy and a tool (`hackathon/admin/review-institutions.mjs`): list, approve, or reject with a reason the app shows. No card image is stored, so reviewers decide from the recorded checks. The two test accounts left in review were rejected as "unclear".
+  - "Appearance & language" opened a "page not found": the web router strips its `/app` base path as plain text, so `/appearance` became `/app/earance`. The screen now lives at `/display`.
+  - Spanish/English on ten more screens (statistics, preferences, trip history, routes and alerts, favorite drivers, my places, terms and privacy, personal info, messages, trip chat). The English legal texts are a Muse Spark translation through the same checked pipeline, with a note that the Spanish version applies.
+  - With `EXPO_PUBLIC_SHOW_PLANS` off, nothing plan-related appears: the ConVía+ avatar ring, the "· ConVía+" labels, the stats unlock button and plan wording in error messages are hidden, and `/plus` redirects home.
+- **Meta model:** Muse Spark 1.3 (English texts and legal translation).
+- **PRs:** fix/user-reported-bugs, fix/hide-plans
+- **Notes:** checked live in English on every listed screen, and no plan text on sixteen screens. The new card-detection pass is not yet measured on a real card.
+
 ### October 30, 2026
 
 ### October 31, 2026
