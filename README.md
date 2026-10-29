@@ -17,7 +17,7 @@ The new code is part of **ConVía**, a carpooling app for university students an
 
 | Feature | Meta model | PR | Demo timestamp |
 | --- | --- | --- | --- |
-| | | | |
+| **Pickup check** ("Verificar mi carro"): the passenger films the arriving car for 5 s; SAM tracks the car and its plate across frames and Muse Spark reads the plate from the best frame, then code decides: it's your ride / don't get in / film again | SAM 3.1 + Muse Spark 1.3 | [#1](https://github.com/JuanDaGonz18/convia-hackathon/pull/1) | |
 
 ## What existed before the event (not in this repository)
 
@@ -41,7 +41,16 @@ Models used by the code in this repository:
 
 | Model | ID | Used for | Where |
 | --- | --- | --- | --- |
-| | | | |
+| SAM 3.1 | `sam-3.1` | Tracking the arriving car ("car") and its plate ("license plate") across the frames of a 5 s clip, with confidence per frame | `supabase/functions/verify-pickup/model.ts` (`segmentVideo`) |
+| Muse Spark 1.3 | `muse-spark-1.3` | Reading plate, brand and color from the frame SAM picked, as strict JSON | `supabase/functions/verify-pickup/model.ts` (`readPlate`) |
+
+## Privacy decisions
+
+- **Faces never leave the phone** (pre-existing): only a 128-number embedding goes to ConVía's own database. No face data is ever sent to Meta.
+- **Pickup clips are never kept.** The clip goes to SAM 3.1 inline, so it is never stored at the model provider. The clip and its frames are deleted from ConVía's storage after every check, whatever the outcome. Only the result is stored: reason code, plate read, timings.
+- **No "person" segmentation.** We considered running SAM 3.1 with the prompt "person" to make sure no image of people is kept. Since no image is kept at all, it would add cost (one more prompt over every frame, about $0.02 per check) without protecting anyone further. If clips or frames are ever stored, for example to resolve a dispute, people must be blurred first.
+- **The full plate and the driver's phone** are only given to the accepted passenger of an active trip.
+- **Never accuse on a doubt.** "Don't get in" requires a confident reading: another plate, or the right plate on a car of a clearly different brand or color. Colors that light can change into each other (gray, silver, dark blue, black…) are never treated as different. Anything uncertain asks the passenger to film again.
 
 ## Pre-existing code it depends on
 
