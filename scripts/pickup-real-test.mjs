@@ -7,7 +7,7 @@
 // Each clip is first turned into what the app records (3 s from the middle, 720p, 2.5 Mbps, no audio),
 // then frames are extracted every 0.5 s, as the app does with expo-video-thumbnails.
 //
-// Usage: node scripts/pickup-real-test.mjs [--min-confidence 0.5] [--effort low] [--seconds 3] [--only file.mp4]
+// Usage: node scripts/pickup-real-test.mjs [--dir test-clips] [--min-confidence 0.5] [--effort low] [--seconds 3] [--only file.mp4]
 //        node scripts/pickup-real-test.mjs --replay test-clips/results-….json
 //          re-decides a previous run with the current clips.json (fixed plates/colors), without calling the API.
 // Needs MODEL_API_KEY in supabase/functions/.env and ffmpeg/ffprobe (or FFMPEG_DIR).
@@ -21,7 +21,6 @@ import { analyzeClip, DEFAULT_PIPELINE_CONFIG } from '../supabase/functions/veri
 import { createModelClient } from '../supabase/functions/verify-pickup/model.ts';
 import { filterConfident, parseSamVideo, pickMainCar, pickPlate } from '../supabase/functions/verify-pickup/tracks.ts';
 
-const CLIPS_DIR = 'test-clips';
 const THRESHOLDS = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
 // Prices from https://dev.meta.ai/docs/pricing-rate-limits (USD).
 const SAM_PER_FRAME = 0.20 / 1000;
@@ -30,6 +29,8 @@ const MUSE_OUT_PER_TOKEN = 4.25 / 1e6;
 
 const args = process.argv.slice(2);
 const arg = (name, fallback) => (args.includes(name) ? args[args.indexOf(name) + 1] : fallback);
+// --dir: another folder with the same clips.json layout (e.g. the demo's sample clips).
+const CLIPS_DIR = arg('--dir', 'test-clips');
 const minConfidence = Number(arg('--min-confidence', '0.5'));
 const effort = arg('--effort', 'minimal');
 const only = arg('--only', null);

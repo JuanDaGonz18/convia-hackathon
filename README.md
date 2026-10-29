@@ -11,17 +11,18 @@ The new code is part of **ConVía**, a carpooling app for university students an
 
 <!-- Replace with the final links. -->
 - Video: _coming soon_
-- Live app: _coming soon_
+- Live app: https://convia-hackathon.pages.dev (web app at `/app/`; judges log in with the demo accounts from the submission form)
 
 ## Built during the hackathon
 
 | Feature | Meta model | PR | Demo timestamp |
 | --- | --- | --- | --- |
-| **Pickup check** ("Verificar mi carro"): the passenger films the arriving car for 5 s; SAM tracks the car and its plate across frames and Muse Spark reads the plate from the best frame, then code decides: it's your ride / don't get in / film again | SAM 3.1 + Muse Spark 1.3 | [#1](https://github.com/JuanDaGonz18/convia-hackathon/pull/1) | |
+| **Pickup check** ("Verificar mi carro"): the passenger films the arriving car for 3 s; SAM tracks the car and its plate across frames and Muse Spark reads the plate from the best frame, then code decides: it's your ride / don't get in / film again | SAM 3.1 + Muse Spark 1.3 | [#1](https://github.com/JuanDaGonz18/convia-hackathon/pull/1) | |
 | **Spanish / English**: i18next with a language picker (Sistema / Español / English); the English texts are generated from the Spanish ones by a script that sends them to Muse Spark in batches, checks every key and {{placeholder}}, and never overwrites reviewed text | Muse Spark 1.3 | [#2](https://github.com/JuanDaGonz18/convia-hackathon/pull/2) | |
 | **"Remember me" and password recovery**: keep the session or end it with the tab/app; reset link by e-mail and a new-password screen | — | [#2](https://github.com/JuanDaGonz18/convia-hackathon/pull/2) | |
-| **Sign-up domain check**: while typing the e-mail, says whether its institution is enabled and lists the enabled ones | — | feat/block3-ux | |
-| **Vehicle autofill**: from the vehicle photo, Muse Spark proposes brand, line, color and (only if fully legible) plate; the driver confirms or corrects every field. The photo is not stored | Muse Spark 1.3 | feat/vehicle-autofill | |
+| **Sign-up domain check**: while typing the e-mail, says whether its institution is enabled and lists the enabled ones | — | [#3](https://github.com/JuanDaGonz18/convia-hackathon/pull/3) | |
+| **Vehicle autofill**: from the vehicle photo, Muse Spark proposes brand, line, color and (only if fully legible) plate; the driver confirms or corrects every field. The photo is not stored | Muse Spark 1.3 | [#3](https://github.com/JuanDaGonz18/convia-hackathon/pull/3) | |
+| **Demo for the judges**: bilingual landing page with the web app at `/app/`; demo accounts can run the real pickup check on three sample clips of fictional cars (the trip's car, another car, the plate covered) instead of filming | SAM 3.1 + Muse Spark 1.3 (check); Muse Image 1.0 (sample cars) | [#4](https://github.com/JuanDaGonz18/convia-hackathon/pull/4) | |
 
 ## What existed before the event (not in this repository)
 
@@ -45,10 +46,15 @@ Models used by the code in this repository:
 
 | Model | ID | Used for | Where |
 | --- | --- | --- | --- |
-| SAM 3.1 | `sam-3.1` | Tracking the arriving car ("car") and its plate ("license plate") across the frames of a 5 s clip, with confidence per frame | `supabase/functions/verify-pickup/model.ts` (`segmentVideo`) |
+| SAM 3.1 | `sam-3.1` | Tracking the arriving car ("car") and its plate ("license plate") across the frames of a 3 s clip, with confidence per frame | `supabase/functions/verify-pickup/model.ts` (`segmentVideo`) |
 | Muse Spark 1.3 | `muse-spark-1.3` | Reading plate, brand and color from the frame SAM picked, as strict JSON | `supabase/functions/verify-pickup/model.ts` (`readPlate`) |
 | Muse Spark 1.3 | `muse-spark-1.3` | Translating the app's Spanish texts into English (batches, strict JSON, placeholders checked) | `scripts/translate-locale.mjs` |
 | Muse Spark 1.3 | `muse-spark-1.3` | Proposing brand, line, color and plate from the driver's vehicle photo, strict JSON with a confidence per field | `supabase/functions/suggest-vehicle/` (`suggest.ts`) |
+| Muse Image 1.0 | `muse-image-1.0` | Generating the three fictional sample cars used in the demo (see below); not called by the app | `hackathon-samples/`, `hackathon-landing/hero-car.jpg` |
+
+### AI-generated sample images
+
+Every car image and clip in `hackathon-samples/` and the landing's `hackathon-landing/hero-car.jpg` was **generated with Meta's Muse Image (`muse-image-1.0`)**. The cars and plates (CNV 026, KTR 418, and one with the plate covered) are **fictional**; no real vehicle or person is shown. The 3 s clips were made from those still images so the judges can run the real verify-pickup pipeline without filming a real car. The landing page labels the hero image the same way.
 
 ## Privacy decisions
 

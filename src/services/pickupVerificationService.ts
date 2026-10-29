@@ -7,6 +7,9 @@ import type { PickupClientReason } from '@/content/pickupVerification';
 import { ensureSupabaseConfigured, isSupabaseEnabled, supabase } from '@/lib/supabase';
 
 export type PickupStatus = 'verified' | 'mismatch' | 'retry';
+/** Demo sample clips of fictional cars: the trip's car, another car, the trip's car with the plate covered. */
+export type PickupSample = 'match' | 'other' | 'covered';
+export const PICKUP_SAMPLES: PickupSample[] = ['match', 'other', 'covered'];
 /** Real steps: the app's own upload, then what the server reports as it happens. */
 export type PickupStage = 'uploading' | 'analyzing' | 'car_found' | 'plate_found' | 'reading_plate';
 
@@ -214,6 +217,24 @@ export const pickupVerificationService = {
     // The server deletes the files whenever it handles the request; if it may not have, don't leave them stored.
     if (!result.verificationId) cleanup();
     return result;
+  },
+
+  /**
+   * Demo accounts: runs the real check on one of the server's sample clips
+   * (fictional cars) instead of a filmed one. The server refuses it for
+   * any other account and limits the checks per day.
+   */
+  async verifySample(requestId: string, sample: PickupSample, onStage: (stage: PickupStage) => void): Promise<PickupVerification> {
+    if (!isSupabaseEnabled) return clientRetry('offline');
+    ensureSupabaseConfigured();
+    const body = { request_id: requestId, sample };
+    const result = await invokeStreaming(body, onStage).catch(() => null);
+    if (result) return result;
+    onStage('analyzing');
+    const { data, error } = await supabase.functions.invoke<FunctionResponse>('verify-pickup', { body });
+    return error || !data?.status
+      ? refusal(error instanceof FunctionsHttpError ? error.context.status : 0)
+      : fromResponse(data);
   },
 
   /** Flags a mismatch for review. Only the passenger, only once per result. */

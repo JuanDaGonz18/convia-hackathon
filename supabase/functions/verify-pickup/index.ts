@@ -58,8 +58,49 @@ function parseFrames(value: unknown, folder: string): FrameInput[] | null {
   return frames;
 }
 
-async function download(path: string) {
-  const { data, error } = await admin.storage.from(BUCKET).download(path);
+// ─── Demo samples ───────────────────────────────────────────────────────────
+// Demo accounts (judges) can't film the demo driver's car, so they pick one of
+// three sample clips of fictional cars (generated with Muse Image). The clip
+// and its frames come from a private bucket and go through the same real
+// SAM + Muse pipeline; only the source of the files changes.
+const SAMPLE_BUCKET = 'pickup-samples';
+const SAMPLES = ['match', 'other', 'covered'] as const;
+const DEMO_EMAIL_DOMAIN = '@demo.convia.test';
+/** Real sample checks (about $0.04 each) in the last 24 h: per demo account, and for all demo accounts together. */
+const DEMO_MAX_PER_ACCOUNT = Number(Deno.env.get('PICKUP_DEMO_MAX_PER_ACCOUNT')) || 60;
+const DEMO_MAX_TOTAL = Number(Deno.env.get('PICKUP_DEMO_MAX_TOTAL')) || 300;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** A demo account may run another sample check while under its own limit and the shared one. */
+async function demoCheckAllowed(userId: string) {
+  const { data: demoUsers, error } = await admin.from('profiles').select('id').ilike('email', `%${DEMO_EMAIL_DOMAIN}`);
+  if (error) throw error;
+  const { data: checks, error: checksError } = await admin
+    .from('pickup_verifications')
+    .select('passenger_id')
+    .in('passenger_id', demoUsers.map((user) => user.id))
+    .gte('created_at', new Date(Date.now() - DAY_MS).toISOString());
+  if (checksError) throw checksError;
+  const own = checks.filter((check) => check.passenger_id === userId).length;
+  log('demo_quota', { own, total: checks.length });
+  return own < DEMO_MAX_PER_ACCOUNT && checks.length < DEMO_MAX_TOTAL;
+}
+
+/** Real checks of filmed clips, per request. */
+async function requestCheckAllowed(requestId: string) {
+  const { count, error } = await admin.from('pickup_verifications').select('id', { count: 'exact', head: true }).eq('request_id', requestId);
+  if (error) throw error;
+  return (count ?? 0) < MAX_ATTEMPTS_PER_REQUEST;
+}
+
+/** The sample's clip and frames (pickup-samples/<sample>/frames.json lists them). */
+async function loadSample(sample: (typeof SAMPLES)[number]): Promise<{ clipPath: string; frames: FrameInput[] }> {
+  const manifest = JSON.parse(new TextDecoder().decode(await download(`${sample}/frames.json`, SAMPLE_BUCKET))) as FrameInput[];
+  return { clipPath: `${sample}/clip.mp4`, frames: manifest.slice(0, MAX_FRAMES) };
+}
+
+async function download(path: string, bucket = BUCKET) {
+  const { data, error } = await admin.storage.from(bucket).download(path);
   if (error || !data) throw new Error(`download failed: ${path}`);
   return new Uint8Array(await data.arrayBuffer());
 }
@@ -75,24 +116,47 @@ Deno.serve(async (request) => {
   if (authError || !authData.user) return response({ error: 'AUTH_REQUIRED' }, 401);
   const userId = authData.user.id;
 
-  let body: { request_id?: unknown; clip_path?: unknown; frames?: unknown; mock_outcome?: unknown };
+  let body: { request_id?: unknown; clip_path?: unknown; frames?: unknown; sample?: unknown; mock_outcome?: unknown };
   try {
     body = await request.json();
   } catch {
     return response({ error: 'INVALID_BODY' }, 400);
   }
   const requestId = typeof body.request_id === 'string' ? body.request_id : '';
+  let args: VerifyArgs;
+  if (body.sample !== undefined) {
+    const sample = SAMPLES.find((name) => name === body.sample);
+    if (!requestId || !sample) return response({ error: 'INVALID_BODY' }, 400);
+    if (!authData.user.email?.toLowerCase().endsWith(DEMO_EMAIL_DOMAIN)) return response({ error: 'SAMPLES_DEMO_ONLY' }, 403);
+    let sampleFiles;
+    try {
+      sampleFiles = await loadSample(sample);
+    } catch {
+      return response({ error: 'SAMPLE_NOT_FOUND' }, 404);
+    }
+    const { clipPath, frames } = sampleFiles;
+    // Sample files are shared and kept: nothing to delete afterwards.
+    args = { userId, requestId, clipPath, frames, uploaded: [], bucket: SAMPLE_BUCKET, demo: true, mockOutcome: body.mock_outcome, started };
+  } else {
+    const parsed = parseUpload(body, userId, requestId);
+    if (!parsed) return response({ error: 'INVALID_BODY' }, 400);
+    args = { userId, requestId, ...parsed, bucket: BUCKET, demo: false, mockOutcome: body.mock_outcome, started };
+  }
+  return answerRequest(request, args);
+});
+
+/** The caller's own uploaded clip and frames for this request, or null if the paths are not theirs. */
+function parseUpload(body: { clip_path?: unknown; frames?: unknown }, userId: string, requestId: string) {
   const clipPath = typeof body.clip_path === 'string' ? body.clip_path : '';
   const folder = `${userId}/${requestId}`;
   const [owner, requestFolder, clipName, ...rest] = clipPath.split('/');
   const frames = parseFrames(body.frames, folder);
   // Files must be in the caller's own folder for this request.
-  if (!requestId || `${owner}/${requestFolder}` !== folder || !CLIP_NAME.test(clipName ?? '') || rest.length || !frames) {
-    return response({ error: 'INVALID_BODY' }, 400);
-  }
-  const uploaded = [clipPath, ...frames.map((frame) => frame.path)];
-  const args = { userId, requestId, clipPath, frames, uploaded, mockOutcome: body.mock_outcome, started };
+  if (!requestId || `${owner}/${requestFolder}` !== folder || !CLIP_NAME.test(clipName ?? '') || rest.length || !frames) return null;
+  return { clipPath, frames, uploaded: [clipPath, ...frames.map((frame) => frame.path)] };
+}
 
+async function answerRequest(request: Request, args: VerifyArgs) {
   // The app asks for NDJSON to show real progress; anything else gets one JSON answer.
   if (!request.headers.get('accept')?.includes('application/x-ndjson')) {
     const outcome = await verify(args, () => undefined);
@@ -111,7 +175,7 @@ Deno.serve(async (request) => {
     },
   });
   return new Response(stream, { headers: { ...headers, 'Content-Type': 'application/x-ndjson', 'Cache-Control': 'no-store' } });
-});
+}
 
 type VerifyArgs = {
   userId: string;
@@ -119,6 +183,10 @@ type VerifyArgs = {
   clipPath: string;
   frames: FrameInput[];
   uploaded: string[];
+  /** Where the clip and frames are: the caller's uploads, or the demo samples. */
+  bucket: string;
+  /** A demo account using a sample: limited per day instead of per request. */
+  demo: boolean;
   mockOutcome: unknown;
   started: number;
 };
@@ -126,9 +194,10 @@ type VerifyArgs = {
 type Outcome = { status: number; body: Record<string, unknown>; after: () => Promise<void> };
 
 async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analyzing') => void): Promise<Outcome> {
-  const { userId, requestId, clipPath, frames, uploaded, started } = args;
+  const { userId, requestId, clipPath, frames, uploaded, bucket, demo, started } = args;
   // No video or frame is ever kept: they may show the plate, the street and people.
   const cleanup = async () => {
+    if (!uploaded.length) return;
     const { error } = await admin.storage.from(BUCKET).remove(uploaded);
     if (error) log('cleanup_error', { detail: error.message });
   };
@@ -157,16 +226,15 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
 
     // Everything the check needs, at once.
     const downloadStarted = performance.now();
-    const videoDownload = download(clipPath).then((bytes) => ({ bytes, ms: Math.round(performance.now() - downloadStarted) }));
+    const videoDownload = download(clipPath, bucket).then((bytes) => ({ bytes, ms: Math.round(performance.now() - downloadStarted) }));
     videoDownload.catch(() => undefined);
-    const [{ data: vehicle, error: vehicleError }, { data: driver, error: driverError }, { count, error: countError }] = await Promise.all([
+    const [{ data: vehicle, error: vehicleError }, { data: driver, error: driverError }, allowed] = await Promise.all([
       admin.from('vehicles').select('placa, marca, color').eq('id', trip.vehicle_id).single(),
       admin.from('profiles').select('nombre, telefono').eq('id', trip.driver_id).single(),
-      admin.from('pickup_verifications').select('id', { count: 'exact', head: true }).eq('request_id', requestId),
+      demo ? demoCheckAllowed(userId) : requestCheckAllowed(requestId),
     ]);
     if (vehicleError) throw vehicleError;
     if (driverError) throw driverError;
-    if (countError) throw countError;
     const registered = { plate: normalizePlate(vehicle.placa), brand: vehicle.marca, color: vehicle.color };
     // Motorcycle plates (ABC12D) can't be checked with this flow.
     if (!isCarPlate(registered.plate)) return finish(422, { error: 'UNSUPPORTED_VEHICLE' });
@@ -189,7 +257,7 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
         mock: MOCK,
       };
     };
-    if ((count ?? 0) >= MAX_ATTEMPTS_PER_REQUEST) {
+    if (!allowed) {
       return finish(200, answer({ decision: pickupRetry('too_many_attempts'), report: null, framesProcessed: null, timings: {}, debug: {} }, null));
     }
 
@@ -199,7 +267,7 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
       timeMs: frame.time_ms,
       width: frame.width,
       height: frame.height,
-      load: () => download(frame.path),
+      load: () => download(frame.path, bucket),
     }));
     const client = MOCK
       ? createMockClient(registered, mockOutcome(registered.plate, args.mockOutcome))
@@ -210,7 +278,7 @@ async function verify(args: VerifyArgs, onProgress: (step: ProgressStep | 'analy
     const { decision, report } = result;
     // Chosen here so the answer can carry it before the row is saved.
     const verificationId = crypto.randomUUID();
-    log('done', { status: decision.status, reason: decision.reason, mock: MOCK, ms: latencyMs, timings: result.timings, frames: result.framesProcessed, debug: result.debug });
+    log('done', { status: decision.status, reason: decision.reason, mock: MOCK, demo, ms: latencyMs, timings: result.timings, frames: result.framesProcessed, debug: result.debug });
 
     return finish(200, answer(result, verificationId), async () => {
       const { error: saveError } = await admin.from('pickup_verifications').insert({

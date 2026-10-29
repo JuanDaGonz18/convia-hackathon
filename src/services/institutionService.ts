@@ -13,7 +13,8 @@ export const institutionService = {
     if (!isSupabaseEnabled) return [];
     const { data, error } = await supabase.from('institutions').select('nombre, dominio').eq('activo', true).order('nombre');
     if (error) throw error;
-    return (data ?? []).map((row) => ({ name: row.nombre, domain: row.dominio }));
+    // Test domains (the judges' demo organization) are not offered to new users.
+    return (data ?? []).filter((row) => !row.dominio.endsWith('.test')).map((row) => ({ name: row.nombre, domain: row.dominio }));
   },
 
   /** The institution that owns this address's domain, or null if none is enabled. */

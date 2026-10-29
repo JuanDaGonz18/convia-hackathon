@@ -89,15 +89,29 @@ Template for each entry:
   - Web review fixes: one consistent text about who sees the plate (partial plate before requesting, full plate only for accepted passengers during the trip); Passenger/Driver cards fill the row on sign-up; sign-up checks the e-mail domain while typing and lists the enabled institutions; maps open on Chía / La Sabana; ConVía+ (plans, "+" badges, upgrade prompts) hidden behind a flag, off by default, since this is an academic, non-commercial project.
   - Vehicle autofill: Muse Spark proposes brand, line, color and plate from the vehicle photo; nothing is filled until the driver accepts, and every field stays editable.
 - **Meta model:** Muse Spark 1.3 translated 673 new texts (~$0.16, reviewed for "trip"/"post" terminology) and powers the vehicle autofill (~$0.004 and 3–5 s per photo).
-- **PRs:** feat/i18n-auth (phase 2a), feat/block3-ux, feat/vehicle-autofill
+- **PRs:** [#3](https://github.com/JuanDaGonz18/convia-hackathon/pull/3)
 - **Notes:**
   - Autofill on frames of the team's real clips: brand, line and color right on every frame of the registered car; plate right when visible and left empty when covered. On another car it read that car's plate correctly. Fields below a confidence threshold are never suggested.
   - suggest-vehicle deployed to the hackathon project.
   - Auth e-mails: Outlook Safe Links opens every link to scan it, which used up the one-time confirmation and reset links before the person clicked. The e-mails now open a page with a "Confirmar" / "Crear contraseña nueva" button, and the token is only used on that tap (changes to pre-existing files, not published here).
   - The model sometimes repeats the brand in the line ("Mazda Mazda 3"); the code strips it.
-  - Pending: translating the remaining screens; notifications in the user's language (needs the locale on the profile); translating messages raised by the database and by the on-device face check; the legal documents in English; the 404 of the production web login page.
+  - Pending: translating the remaining screens; notifications in the user's language (needs the locale on the profile); translating messages raised by the database and by the on-device face check; the legal documents in English; the 404 of the production web login page; e-mails to @unisabana.edu.co not arriving or held in quarantine.
+  - Demo for the judges: Muse Image generated three fictional cars (plate CNV026, another car KTR418, the plate covered); turned into 3 s clips and run through the real verify-pickup pipeline: 3/3 as expected (verified in 5.3 s, mismatch in 7.3 s, retry in 7.3 s; about $0.04 each). Text in the images was legible enough for SAM and Muse to read.
 
 ### October 28, 2026
+
+- **Built:** the demo for the judges.
+  - A bilingual (English/Spanish) landing page with the problem, what was built, the demo video slot and links to the web app (at `/app/` on the same site) and the Android APK. `npm run build:demo-site` exports the web app and puts the landing at the root, ready for Cloudflare Pages.
+  - Sample mode in "Verificar mi carro": demo accounts can't film the demo driver's car, so they pick one of three sample clips (the trip's car CNV 026, another car KTR 418, the plate covered). The clip and its frames come from a private bucket and go through the same real SAM 3.1 + Muse Spark pipeline; only the source of the files changes. Limited per demo passenger per day; other accounts get `SAMPLES_DEMO_ONLY`.
+  - Demo organization with a confirmed demo driver and passenger, a vehicle and an accepted trip in the hackathon project (passwords are kept out of the repository).
+  - verify-pickup redeployed to the hackathon project with sample mode; it still answers 401 without a session.
+- **Meta model:** Muse Image 1.0 (`muse-image-1.0`) generated the three fictional sample cars and the landing's hero image; the landing labels it "Sample vehicle generated with Meta's Muse Image — fictional car and plate". The check itself is SAM 3.1 + Muse Spark 1.3.
+- **PRs:** [#4](https://github.com/JuanDaGonz18/convia-hackathon/pull/4)
+- **Notes:**
+  - Test domains (`.test`) are not listed as enabled institutions at sign-up, so the demo organization stays invisible to real users (change to a pre-existing file, not published here).
+  - Demo site live on Cloudflare Pages: https://convia-hackathon.pages.dev (landing at the root, web app at `/app/`). Three deploy problems found by testing the live URL, all fixed: Pages applies `_redirects` before static files, so a `/app/*` rule answered the app's JavaScript with HTML (blank page; the rules are now one per route, generated from `app/`); Pages never uploads folders named `node_modules`, where Expo puts the icon fonts (moved to `assets/vendor`); and on the web a sample's result never showed although the check ran (`app/pickup-verify.tsx`), nor did the samples after a reload (the profile now loads on the first session event).
+  - Tested in the browser on the live site as the demo passenger: 3/3 as expected. Trip's car → "it's your ride" (CNV026, 0.98, 5.6 s); other car → "don't get in" (read KTR418, 0.95, 8.2 s); plate covered → "film again" (6.8 s). Times from tap to answer; the server part is 4.3–6.4 s.
+  - Ready for several judges at once: five demo passengers, each with their own accepted trip with the demo driver (plates are unique, so one driver owns the CNV026 car the samples show). Destructive actions on demo accounts (cancel a trip or request, report a sample result, delete a vehicle or the account, change the password, edit the demo car) are shown disabled with "Disabled in demo mode", so nobody can break the shared demo. Sample checks are capped at 60 per account and 300 across all demo accounts per 24 h (about $0.04 each).
 
 ### October 29, 2026
 
