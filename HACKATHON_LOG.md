@@ -203,6 +203,20 @@ Template for each entry:
 - **PRs:** feat/matching-agent
 - **Notes:** both changes were tested inside transactions that were rolled back: the job created the five rides, a second run kept them, and the real data was unchanged.
 
+### October 29, 2026 (afternoon) — independent review fixes
+
+- **Built:** fixes from a read-only review of the whole hackathon scope by a separate Claude session.
+  - A pickup clip is now deleted even if the app disconnects while the answer is streaming.
+  - Every pickup attempt is recorded before the paid model call, so errors and parallel calls count toward the caps; filmed clips also have daily caps per passenger and in total.
+  - The assistant's evaluation endpoint only accepts the exact service key.
+  - Demo accounts can't delete their account or remove or change the shared demo car, and the daily demo job only serves the five known demo passengers.
+  - Confirm no longer returns a server error when the database fails; the institution search treats `%` and `_` as plain text; the public-sync check also catches project references and Baseten/Modal keys; email confirmation is pinned in the project's auth settings (it was already on).
+- **Meta model:** none new.
+- **PRs:** [#8](https://github.com/JuanDaGonz18/convia-hackathon/pull/8)
+- **Notes:**
+  - New tests: the answer stream's clean-up on disconnect, the attempt caps, a forged service token, Confirm on a database error, and a SQL check run inside a rolled-back transaction (trip and seat-request inserts, the demo car lock, the daily job, the literal search). A live sample check saved its result as expected.
+  - Deferred, with reasons: the vehicle-autofill hourly limit lives in memory (needs a database counter; the function is cheap and requires sign-in); plates written in lowercase in the assistant's trace (a looser pattern would also mask ordinary text); a stricter student-ID name match and detecting a faint second photo on a card (both change verification decisions and need their own testing; doubtful cases already go to manual review); a retried pickup request can be charged twice (now bounded by the caps); a parked copy of the trip's car could in theory trigger the early exit (unlikely; fixing it changes the pipeline and needs all real clips re-run).
+
 ### October 30, 2026
 
 ### October 31, 2026
