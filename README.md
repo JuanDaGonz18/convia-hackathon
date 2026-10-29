@@ -23,6 +23,7 @@ The new code is part of **ConVía**, a carpooling app for university students an
 | **Sign-up domain check**: while typing the e-mail, says whether its institution is enabled and lists the enabled ones | — | [#3](https://github.com/JuanDaGonz18/convia-hackathon/pull/3) | |
 | **Vehicle autofill**: from the vehicle photo, Muse Spark proposes brand, line, color and (only if fully legible) plate; the driver confirms or corrects every field. The photo is not stored | Muse Spark 1.3 | [#3](https://github.com/JuanDaGonz18/convia-hackathon/pull/3) | |
 | **Demo for the judges**: bilingual landing page with the web app at `/app/`; demo accounts can run the real pickup check on three sample clips of fictional cars (the trip's car, another car, the plate covered) instead of filming | SAM 3.1 + Muse Spark 1.3 (check); Muse Image 1.0 (sample cars) | [#4](https://github.com/JuanDaGonz18/convia-hackathon/pull/4) | |
+| **Trip assistant** ("Encuentra tu viaje"): the passenger describes the trip in their own words; an agent with a tool allowlist resolves places, searches with the app's matcher and proposes one seat. Code checks the parsed request before searching and the proposal before showing it (live data, numbers, then a judge model); the passenger confirms, bound to a hash of the proposal. Every step is visible in "How the assistant decided" | Muse Spark Open (agent) + Muse Spark 1.3 (judge) | [#7](https://github.com/JuanDaGonz18/convia-hackathon/pull/7) | |
 
 ## What existed before the event (not in this repository)
 
@@ -50,6 +51,8 @@ Models used by the code in this repository:
 | Muse Spark 1.3 | `muse-spark-1.3` | Reading plate, brand and color from the frame SAM picked, as strict JSON | `supabase/functions/verify-pickup/model.ts` (`readPlate`) |
 | Muse Spark 1.3 | `muse-spark-1.3` | Translating the app's Spanish texts into English (batches, strict JSON, placeholders checked) | `scripts/translate-locale.mjs` |
 | Muse Spark 1.3 | `muse-spark-1.3` | Proposing brand, line, color and plate from the driver's vehicle photo, strict JSON with a confidence per field | `supabase/functions/suggest-vehicle/` (`suggest.ts`) |
+| Muse Spark Open | `meta-models/muse-spark-open-1026` (Baseten); `meta-models/Muse-Spark-Open-816B-A42B` (Modal, fallback) | The trip assistant: tool calls for places, trip search and the seat proposal | `supabase/functions/match-agent/` (`loop.ts`) |
+| Muse Spark 1.3 | `muse-spark-1.3` | Judging every claim in the assistant's proposal against the trip data, strict JSON | `supabase/functions/match-agent/judge.ts` |
 | Muse Image 1.0 | `muse-image-1.0` | Generating the three fictional sample cars used in the demo (see below); not called by the app | `hackathon-samples/`, `hackathon-landing/hero-car.jpg` |
 
 ### AI-generated sample images
