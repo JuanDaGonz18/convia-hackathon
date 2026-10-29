@@ -67,6 +67,20 @@ Template for each entry:
   - The function streams its progress as NDJSON; the answer is sent before the row is saved and the files are deleted.
   - In the app, the clip uploads while frames are being extracted.
 
+### October 26, 2026 (evening) — web fixes, Spanish/English, password recovery
+
+- **Built:**
+  - Web: icons no longer fail with an uncaught 12 s font timeout; the app is a centered phone-width column on computers; links to a tab switch tabs instead of stacking a second tab navigator (changes to pre-existing files, not published here).
+  - "Remember me" now decides whether the session survives closing the tab or app; password recovery by e-mail with a new-password screen.
+  - Spanish/English with a language picker on login, sign-up and Profile → Appearance & language. Translated so far: login, sign-up, password recovery, "Verificar mi carro", tab bar, dates and prices.
+  - Branded auth e-mails (confirmation, recovery, e-mail change) for the hackathon project, after setting up SMTP.
+- **Meta model:** Muse Spark 1.3 translated the Spanish texts into English (246 keys, about $0.06), with every key and {{placeholder}} checked; then reviewed by hand (terminology, apostrophes).
+- **PRs:** [#2](https://github.com/JuanDaGonz18/convia-hackathon/pull/2)
+- **Notes:**
+  - The icon font timeout only showed with the font delayed past 12 s; reproduced by delaying it 15 s (6 errors before, 0 after).
+  - Supabase rejects custom e-mail templates on the free tier until custom SMTP is configured.
+  - Next: translate the remaining screens (~70 files).
+
 ### October 27, 2026
 
 ### October 28, 2026
