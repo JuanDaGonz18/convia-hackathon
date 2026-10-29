@@ -113,6 +113,20 @@ Template for each entry:
   - Tested in the browser on the live site as the demo passenger: 3/3 as expected. Trip's car → "it's your ride" (CNV026, 0.98, 5.6 s); other car → "don't get in" (read KTR418, 0.95, 8.2 s); plate covered → "film again" (6.8 s). Times from tap to answer; the server part is 4.3–6.4 s.
   - Ready for several judges at once: five demo passengers, each with their own accepted trip with the demo driver (plates are unique, so one driver owns the CNV026 car the samples show). Destructive actions on demo accounts (cancel a trip or request, report a sample result, delete a vehicle or the account, change the password, edit the demo car) are shown disabled with "Disabled in demo mode", so nobody can break the shared demo. Sample checks are capped at 60 per account and 300 across all demo accounts per 24 h (about $0.04 each).
 
+### October 28, 2026 (afternoon) — ride-matching agent, groundwork
+
+- **Built:** the parts of the ride-matching agent that the agent loop will stand on (the loop, the confirm flow and the screen come next).
+  - A chat client for Muse Spark Open (open weights) with Baseten Model APIs first and a Modal Shared Endpoint as automatic fallback. A timeout, network or HTTP error, invalid JSON or an empty reply on one provider goes to the next. Every answer records the provider, the model name the provider's response returned, its request id and (on Baseten) the deployment that served it; failed attempts are kept too.
+  - Trace tables `agent_runs` and `agent_steps` with RLS: only the function writes, each user reads their own runs.
+  - Read-only tools: `resolve_place` (saved places, then known places of the Sabana area, then a geocoder; ambiguous names come back as a question), `search_trips` and `trip_details`, which read the `available_trips` view with the user's own session (same organization, masked plates, no phones) and rank in code with the app's own matcher.
+  - An evaluation set of 31 requests in English and Spanish against a fixed world (`evals/matching-agent`), including a full trip, a departed one, one from another organization and a prompt injection in a driver's note. A unit test runs every expected pick through the real ranking.
+- **Meta model:** Muse Spark Open on Baseten (`meta-models/muse-spark-open-1026`) and Modal (`meta-models/Muse-Spark-Open-816B-A42B`), checked with one real call each.
+- **PRs:** feat/matching-agent (not opened yet).
+- **Notes:**
+  - Both providers reason before answering and bill those tokens as output; with a 64-token limit Modal returned an empty reply. Steps get 1,024 tokens and an empty reply counts as a failed step.
+  - Modal sends no request-id header, so the response's `id` is stored instead.
+  - The app's matcher uses the device's time zone for "today" and "tomorrow"; Edge Functions run in UTC, so the agent's search takes an explicit Colombia date and time window.
+  - Before submitting: run `judges-demo.mjs reset --yes` on November 4 (the demo trips must be in the future during judging) and put the six demo logins in the submission form.
 ### October 28, 2026 (evening) — one main branch, a 64 MB APK, and a UX batch
 
 - **Built:**
@@ -152,7 +166,42 @@ Template for each entry:
 - **PRs:** feat/institution-verification
 - **Notes:** a new account on the live site chose its institution and is pending: open sign-up works end to end up to verification.
 
+### October 28, 2026 (night) — matching agent
+
+- **Built:**
+  - "Find your trip" assistant: the passenger writes where they leave from, where they go and when (Spanish or English); an agent finds places, searches trips with the app's own matcher, proposes one seat, and the passenger confirms. The agent never requests a seat by itself.
+  - Loop with two phases and a tool allowlist per phase, at most 8 model turns and 40 s, every turn a tool call with a short plan note. Checkpoint 1: the parsed request (places as references to lookups made in this run, date, window, seats) is checked by code before any search and frozen. Checkpoint 2, inside the propose tool: the trip is re-read (still open, seats left, same verified institution, inside the window, not already requested, no clash, unchanged), every number in the explanation must be that trip's data, then Muse Spark 1.3 checks each claim. Up to 3 retries with the failures as feedback.
+  - Confirm is bound to a SHA-256 of the proposal (trip, seats, price, departure, pickup, drop-off), re-checked against the database, used once, valid 10 minutes, and the request is created with the passenger's own session. Disabled on demo accounts.
+  - Progress streams to the screen (understanding → searching → choosing → verifying); "How the assistant decided" shows every step: plan, provider, model, request id, latency, cost and the judge's claims. Phones and full plates are masked in the stored trace.
+  - Eval: 32 cases (picks, no match, clarify, proposal, refusal, prompt injection in a driver note) run against the deployed function with fixture data and the real models.
+  - First live run fixes: one search per run (the request is frozen, so a repeat can only return the same), "no match" right after an empty search, and a trip checkpoint 2 can't propose (already requested, full, clash) is dropped without spending a retry.
+- **Meta model:** Muse Spark Open (`muse-spark-open-1026` on Baseten; Modal Shared Endpoint as fallback) runs the agent; Muse Spark 1.3 is the claim judge.
+- **PRs:** feat/matching-agent
+- **Notes:**
+  - Eval on Baseten: 100% of passenger cases, 0 proposals wrongly marked verified, 0 safety violations, p50 8.0 s, p95 14–17 s (target 12 s, not met yet), about $0.006 per run. Modal: 96%, p95 22 s.
+  - Live on the hackathon project with the demo passenger: a verified proposal (Confirm disabled in demo), an honest "you already requested that trip", and an honest "no trips" answer.
+  - Drivers are outside v1: the agent only helps passengers.
+
+### October 28, 2026 (before midnight) — pickup at night; assistant language and speed
+
+- **Built:**
+  - Pickup check: 4 new real clips of the same car (approaching, night with light, night with low light, night blurry). When the middle frame is only good for "film again", the frame where SAM saw the plate best is read once more before asking to retry: the approaching car went from "film again" to "it's your ride". At night, no clip gave a false "don't get in"; the plates that were too small or blurred to read gave "film again". The SAM threshold (0.5) was checked from 0.3 to 0.8 and picks the same car and plate on every clip, so it stays.
+  - Assistant replies in the language of each message (the screen keeps the app's language); on the web, Enter sends and Shift+Enter adds a line.
+  - Assistant reliability: a place it already looked up is not looked up again, a place that was not found ends with a question to the user, and the eval now keeps the steps of any failed case.
+  - Assistant speed: every place in one lookup (one model turn fewer), and the claim judge at minimal reasoning effort after checking it on 12 explanations with a known answer (36/36 right, no unsupported claim passed).
+- **Meta model:** SAM 3.1 + Muse Spark 1.3 (pickup); Muse Spark Open (assistant); Muse Spark 1.3 (judge).
+- **PRs:** feat/matching-agent
+- **Notes:** eval on Baseten, 36 cases (4 new for reply language): 100% passed, 0 proposals wrongly marked verified; p50 7.6 s → 5.2 s and p95 17.0 s → 9.6 s, now under the 12 s target. Pickup on 7 real clips: 6 as expected; the night-with-light clip stays "film again" because the plate is about 60 px wide in the 720p recording.
+
 ### October 29, 2026
+
+- **Built:**
+  - Fix: publishing a trip or requesting a seat failed on the hackathon project since the institution migration (Oct 28). The trigger that requires a verified institution read the driver and the passenger in one expression, which PL/pgSQL resolves for both tables; it now reads only the field of the table being written. Found while testing the demo job below.
+  - The judges' demo keeps itself alive: a daily database job (pg_cron, 04:00 Colombia) clears the demo accounts' pickup checks, removes their old trips, and gives each demo passenger an accepted ride 1–3 days ahead. It touches only `@demo.convia.test` accounts.
+  - README: how to try each feature, and the privacy notes for the student ID check and the assistant.
+- **Meta model:** none new.
+- **PRs:** feat/matching-agent
+- **Notes:** both changes were tested inside transactions that were rolled back: the job created the five rides, a second run kept them, and the real data was unchanged.
 
 ### October 30, 2026
 

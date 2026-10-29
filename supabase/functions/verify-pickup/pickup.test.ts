@@ -217,6 +217,32 @@ describe('analyzeClip', () => {
     assert.deepEqual(loaded, [1500, 500]);
   });
 
+  test("a middle frame only good for \"film again\" gets a second reading on SAM's frame (approaching car, night)", async () => {
+    const loaded: number[] = [];
+    const tracked = [0, 500, 1000].map((timeMs) => ({ timeMs, width: 640, height: 360, load: async () => { loaded.push(timeMs); return new Uint8Array([0xff]); } }));
+    // The middle frame (500 ms = frame 15) shows the plate, but too small to read; SAM's best is frame 24 (0.8 s → 1000 ms).
+    const base = createMockClient(REGISTERED, 'verified');
+    let reads = 0;
+    const client: ModelClient = {
+      ...base,
+      async readPlate(image, box) {
+        reads += 1;
+        const report = await base.readPlate(image, box);
+        return reads === 1 ? { ...report, plate_text: '', plate_readable: false, confidence: 0, image_quality: 'poor' } : report;
+      },
+    };
+    const result = await analyzeClip({ ...clip, frames: tracked }, REGISTERED, client);
+    assert.equal(result.decision.status, 'verified');
+    assert.equal(result.debug.museFrame, 'middle_then_sam_pick');
+    assert.deepEqual(loaded, [500, 1000]);
+
+    // A middle reading that already decides (here a mismatch) is not read again.
+    loaded.length = 0;
+    const mismatch = await analyzeClip({ ...clip, frames: tracked }, REGISTERED, createMockClient(REGISTERED, 'mismatch'));
+    assert.equal(mismatch.decision.status, 'mismatch');
+    assert.equal(mismatch.debug.museFrame, 'middle');
+  });
+
   test('the clip goes inline with its real MIME type, and a model failure is a retry', async () => {
     const urls: string[] = [];
     const failing: ModelClient = {

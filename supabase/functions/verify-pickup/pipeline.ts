@@ -191,14 +191,22 @@ export async function analyzeClip(
     if (!plate) return done(pickupRetry('no_plate'));
     debug.plate = { frame: plate.frame, box: plate.box, score: Number(plate.score.toFixed(5)) };
 
+    const samFrame = nearestFrame(clip.frames, plate.frame, info.fps);
+    const readSamPick = () => read(samFrame!, scaleBox(plate.box, samFrame!.width, samFrame!.height));
     let reading: Reading;
     if (speculativeShows(car)) {
       reading = speculative;
       debug.museFrame = 'middle';
+      // An approaching car shows its plate best near the end: if the middle frame was only good
+      // enough for "film again", read the frame SAM picked once before asking the user to retry.
+      const middleReport = await speculative.report;
+      if (decidePickup(middleReport, registered).status === 'retry' && samFrame && samFrame !== speculative.frame) {
+        reading = readSamPick();
+        debug.museFrame = 'middle_then_sam_pick';
+      }
     } else {
-      const frame = nearestFrame(clip.frames, plate.frame, info.fps);
-      if (!frame) return done(pickupRetry('frame_missing'));
-      reading = read(frame, scaleBox(plate.box, frame.width, frame.height));
+      if (!samFrame) return done(pickupRetry('frame_missing'));
+      reading = readSamPick();
       debug.museFrame = 'sam_pick';
     }
     debug.frameTimeMs = reading.frame.timeMs;

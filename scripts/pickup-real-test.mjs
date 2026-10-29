@@ -4,6 +4,7 @@
 // Clips live in test-clips/ (gitignored: they show real plates) with a manifest:
 //   test-clips/clips.json → [{ "file": "logan-front.mp4", "plate": "ABC123", "brand": "Renault Logan",
 //                              "color": "Gris", "expected": "verified" }, ...]
+//   optional "also_ok": ["retry"] for clips where another result is acceptable too.
 // Each clip is first turned into what the app records (3 s from the middle, 720p, 2.5 Mbps, no audio),
 // then frames are extracted every 0.5 s, as the app does with expo-video-thumbnails.
 //
@@ -37,6 +38,9 @@ const only = arg('--only', null);
 const seconds = Number(arg('--seconds', '3'));
 const replay = arg('--replay', null);
 
+/** `expected` is the ideal result; `also_ok` lists acceptable ones (a dark clip may verify or ask to retry, never mismatch). */
+const asExpected = (clip, status) => clip.expected === status || (clip.also_ok ?? []).includes(status);
+
 function calibrate(carText, plateText) {
   const cars = parseSamVideo(carText ?? '');
   const plates = parseSamVideo(plateText ?? '');
@@ -55,7 +59,7 @@ if (replay) {
     const clip = clips[row.file];
     if (!clip || !row.report) { console.log(`---- ${row.file}: ${row.status ?? 'error'}/${row.reason ?? row.error} (no Muse reading to re-decide)`); continue; }
     const decision = decidePickup(row.report, { plate: clip.plate, brand: clip.brand, color: clip.color });
-    const hit = clip.expected === decision.status;
+    const hit = asExpected(clip, decision.status);
     ok += hit ? 1 : 0;
     console.log(`${hit ? 'OK  ' : 'MISS'} ${row.file}: ${decision.status}/${decision.reason} read=${decision.plateRead ?? '-'} brand=${row.report.brand}(${row.report.brand_confidence}) color=${row.report.color}(${row.report.color_confidence}) expected=${clip.expected}`);
   }
@@ -145,7 +149,7 @@ for (const clip of manifest) {
       expected: clip.expected,
       status: result.decision.status,
       reason: result.decision.reason,
-      ok: clip.expected ? clip.expected === result.decision.status : null,
+      ok: clip.expected ? asExpected(clip, result.decision.status) : null,
       plateRead: result.decision.plateRead,
       confidence: result.decision.confidence,
       totalMs: result.timings.total,

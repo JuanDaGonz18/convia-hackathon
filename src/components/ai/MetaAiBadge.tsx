@@ -14,7 +14,8 @@ export type MetaAiFeature = 'pickup' | 'autofill' | 'vehicleCheck' | 'studentCar
  * "✨ AI by Meta", the same small badge wherever a Meta model is used. Tapping it shows one
  * line on which model does what (and taps again to hide it).
  */
-export function MetaAiBadge({ feature }: Readonly<{ feature: MetaAiFeature }>) {
+/** `model`: named in the badge itself (e.g. "Muse Spark Open" on the agent screen). */
+export function MetaAiBadge({ feature, model }: Readonly<{ feature: MetaAiFeature; model?: string }>) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   return (
@@ -27,7 +28,7 @@ export function MetaAiBadge({ feature }: Readonly<{ feature: MetaAiFeature }>) {
         onPress={() => setOpen((value) => !value)}
         style={styles.badge}
       >
-        <Text style={styles.badgeText}>{t('metaAi.badge')}</Text>
+        <Text style={styles.badgeText}>{model ? `${t('metaAi.badge')} — ${model}` : t('metaAi.badge')}</Text>
       </Pressable>
       {open ? <Text accessibilityLiveRegion="polite" style={styles.tooltip}>{t(`metaAi.${feature}`)}</Text> : null}
     </View>
