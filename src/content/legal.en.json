@@ -212,7 +212,7 @@
         "title": "4. Sensitive data: face verification",
         "body": {
           "0": "Biometric data is sensitive data under the law. You are not required to authorize its processing.",
-          "1": "How it works: your phone takes a selfie and turns it into a numeric representation of your face. The photo never leaves your phone and isn't saved. Only the numeric representation is sent to our servers, where it's compared with your registration one (and, for drivers, with the one from your license photo, which isn't saved either). That representation is never sent back to the app or shared with other users.",
+          "1": "How it works: your phone takes a selfie and turns it into a numeric representation of your face. The photo never leaves your phone and isn't saved. Only the numeric representation is sent to our servers, where it's compared with your registration one (and, for drivers, with the one from your license photo, which isn't saved either). That representation is never sent back to the app or shared with other users. If your student card check goes to manual review, we keep the card images you sent, without your face (your phone cuts it out before sending them), for up to 7 days; then they are deleted.",
           "2": "Purpose: to confirm that the person requesting or posting a ride is really the account owner, for everyone's safety.",
           "3": "If you don't authorize this processing, you can still have an account, but you can't request or post rides, because verification is a required safety measure for that. You can revoke authorization by deleting your account."
         }
