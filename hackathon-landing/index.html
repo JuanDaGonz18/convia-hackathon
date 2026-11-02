@@ -84,10 +84,10 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:14px;border-top:1px soli
       <div>
         <p class="kicker" data-i18n="kicker">Meta Global AI Developer Hackathon · 2026</p>
         <h1 data-i18n="title">Know it's your ride before you get in.</h1>
-        <p class="lead" data-i18n="lead">ConVía is verified carpooling for the university community of Chía, Colombia. Drivers and passengers are students and staff with an institutional e-mail, and the app checks the arriving car with Meta's SAM 3.1 and Muse Spark.</p>
+        <p class="lead" data-i18n="lead">ConVía is verified carpooling for the university community of Chía, Colombia. Anyone can sign up with any e-mail: institutional e-mails are verified automatically, others with a student ID. The app checks the arriving car with Meta's SAM 3.1 and Muse Spark.</p>
         <div class="ctas">
           <a class="btn primary" id="open-app" href="app/" data-i18n="openApp">Open web app</a>
-          <a class="btn secondary" id="apk" href="#" data-i18n="apk">Download Android APK</a>
+          <a class="btn secondary" id="apk" href="#" data-i18n="apk">Download Android APK · 64 MB</a>
         </div>
         <p class="note" data-i18n="demoNote">Judges: use the demo accounts from the submission form. The passenger already has an accepted trip; open "Verificar mi carro" and try a sample video.</p>
       </div>
@@ -115,6 +115,11 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:14px;border-top:1px soli
     <section>
       <h2 data-i18n="builtTitle">Built during the hackathon</h2>
       <div class="grid">
+        <div class="card" style="grid-column:1/-1">
+          <span class="tag">Muse Spark Open + Muse Spark</span>
+          <h3 data-i18n="b0Title">Trip assistant</h3>
+          <p data-i18n="b0">The passenger describes the trip in their own words. Muse Spark Open plans the search with the app's tools and proposes one seat, a Muse Spark judge checks every claim against the trip data, and the passenger confirms the exact trip, price and time. "How the assistant decided" shows every step. In our evals, 32 of 32 passenger cases passed, with a p95 of about 9.6 s.</p>
+        </div>
         <div class="card">
           <span class="tag">SAM 3.1 + Muse Spark</span>
           <h3 data-i18n="b1Title">Pickup check</h3>
@@ -144,6 +149,7 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:14px;border-top:1px soli
         <li data-i18n="s1">Open the web app (or install the Android APK) and log in with the demo passenger.</li>
         <li data-i18n="s2">Go to Trips → My requests: the trip with Daniela is accepted.</li>
         <li data-i18n="s3">Tap "Verificar mi carro" and pick a sample video: the trip's car, another car, or the plate covered. The check runs on the real SAM 3.1 + Muse Spark pipeline.</li>
+        <li data-i18n="s3b">Still as the demo passenger, tap "✨ Ask the assistant" on Home and describe a trip, e.g. "From Universidad de La Sabana to Fontanar tomorrow at 11 am". Open "How the assistant decided" to see every step and the judge's checks. Confirm is disabled for demo accounts.</li>
         <li data-i18n="s4">Log in as the demo driver and add a vehicle with a photo to see the autofill.</li>
       </ol>
     </section>
@@ -157,16 +163,16 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:14px;border-top:1px soli
 <script>
 // Links set at deploy time: the latest Android build and the demo video (YouTube embed URL).
 const LINKS = {
-  apk: 'https://expo.dev/accounts/juanda1809/projects/convia-hackathon/builds/2380d349-9368-4609-93c5-49f343632343',
+  apk: 'https://github.com/JuanDaGonz18/convia-hackathon/releases/download/v1.0-hackathon/convia.apk',
   video: '',
 };
 
 const ES = {
   kicker: 'Meta Global AI Developer Hackathon · 2026',
   title: 'Sabes que es tu carro antes de subirte.',
-  lead: 'ConVía es carpooling verificado para la comunidad universitaria de Chía, Colombia. Conductores y pasajeros son estudiantes y funcionarios con correo institucional, y la app verifica el carro que llega con SAM 3.1 y Muse Spark de Meta.',
+  lead: 'ConVía es carpooling verificado para la comunidad universitaria de Chía, Colombia. Cualquiera puede registrarse con cualquier correo: los correos institucionales se verifican automáticamente y los demás con el carné estudiantil. La app verifica el carro que llega con SAM 3.1 y Muse Spark de Meta.',
   openApp: 'Abrir la app web',
-  apk: 'Descargar el APK de Android',
+  apk: 'Descargar el APK de Android · 64 MB',
   demoNote: 'Jurado: usen las cuentas demo del formulario de entrega. El pasajero ya tiene un viaje aceptado; abran "Verificar mi carro" y prueben un video de ejemplo.',
   heroAlt: 'Un Renault Logan blanco ficticio con placa CNV 026 llegando por una calle de Chía',
   verdict: 'Es tu carro',
@@ -177,6 +183,8 @@ const ES = {
   p2Title: 'Desconfianza entre desconocidos',
   p2: 'La gente no comparte el carro con desconocidos. ConVía solo admite miembros verificados de la misma institución, verifica el rostro en el teléfono y deja que el pasajero confirme el carro antes de subirse.',
   builtTitle: 'Lo que construimos en el hackathon',
+  b0Title: 'Asistente de viajes',
+  b0: 'El pasajero describe el viaje con sus propias palabras. Muse Spark Open planea la búsqueda con las herramientas de la app y propone un cupo, un juez Muse Spark revisa cada afirmación contra los datos del viaje y el pasajero confirma el viaje, el precio y la hora exactos. "Cómo lo decidió el asistente" muestra cada paso. En nuestras evaluaciones pasaron 32 de 32 casos de pasajero, con un p95 de unos 9,6 s.',
   b1Title: 'Verificar mi carro',
   b1: 'El pasajero graba 3 segundos del carro que llega. SAM 3.1 sigue el carro y su placa en los fotogramas, Muse Spark lee placa, marca y color en el mejor, y el código decide: es tu carro, no te subas o graba de nuevo. Unos 6–8 s.',
   b2Title: 'Autocompletar el vehículo',
@@ -189,6 +197,7 @@ const ES = {
   s1: 'Abre la app web (o instala el APK de Android) e inicia sesión con el pasajero demo.',
   s2: 'Ve a Viajes → Mis solicitudes: el viaje con Daniela está aceptado.',
   s3: 'Toca "Verificar mi carro" y elige un video de ejemplo: el carro del viaje, otro carro o la placa tapada. La verificación corre en el pipeline real de SAM 3.1 + Muse Spark.',
+  s3b: 'Con el mismo pasajero demo, toca "✨ Pregúntale al asistente" en Inicio y describe un viaje, por ejemplo "De la Universidad de La Sabana a Fontanar mañana a las 11 am". Abre "Cómo lo decidió el asistente" para ver cada paso y las revisiones del juez. Confirmar está desactivado para las cuentas demo.',
   s4: 'Inicia sesión como el conductor demo y agrega un vehículo con foto para ver el autocompletado.',
   footer: 'Los carros y placas de los ejemplos son ficticios, generados con Muse Image. ConVía es un proyecto académico, sin fines comerciales.',
 };
