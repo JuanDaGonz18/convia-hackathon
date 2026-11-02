@@ -238,6 +238,12 @@ Template for each entry:
 
 ### November 2, 2026
 
+- **Built:**
+  - New Android APK (EAS preview build, versionCode 4, 64 MB, arm64 only) with all the October 29 fixes, published as a direct download on the public repository's release `v1.0-hackathon`.
+  - Landing page: direct APK link with its size, a card for the trip assistant (Muse Spark Open plans and proposes, a Muse Spark judge checks every claim, the passenger confirms; 32/32 passenger cases, p95 about 9.6 s), a "Try it" step for it, and the hero now says sign-up is open to any e-mail (institutional e-mails verify automatically, others with a student ID).
+- **Meta model:** none new.
+- **Notes:** student-card face check measured on real cards (on this PC only, photos deleted after): virtual student cards (screenshots) show a ~88 px face vs the 90 px minimum, so they route to manual review by design; reviewed via `npm run review`.
+
 ### November 3, 2026
 
 ### November 4, 2026
