@@ -8,8 +8,11 @@ import { type CardReport, decideCard, decideDocument, type DocumentReport, type 
  * The phone (or browser) never sends the whole photo: only crops of the card AROUND the face,
  * so no face pixels reach the server or Meta. Muse Spark 1.3 reads the crops as strict JSON;
  * decide.ts decides. The face is compared on the phone (embedding vs the user's selfie, stored
- * by submit_student_card_face), on the phone and in the browser alike. Nothing is stored but the
- * result: no image, no name, last 4 ID digits only.
+ * by submit_student_card_face), on the phone and in the browser alike. Only the result is
+ * recorded (no name, last 4 ID digits only). When a check goes to manual review, the images Muse
+ * read (face already removed on the device) are kept for the reviewer in the private
+ * face-verifications bucket, <user_id>/student-card-review-*.jpg, and deleted when the reviewer
+ * decides, on the next check, or after 7 days (card-review-cleanup).
  */
 
 const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
@@ -22,6 +25,8 @@ const MAX_CHECKS_PER_DAY = Number(Deno.env.get('STUDENT_ID_MAX_PER_DAY')) || 5;
 /** The face comparison must be this recent (same rule as seat requests). */
 const FACE_WINDOW_MS = 10 * 60 * 1000;
 const MUSE_TIMEOUT_MS = 30_000;
+const REVIEW_BUCKET = 'face-verifications';
+const REVIEW_PREFIX = 'student-card-review-';
 
 const headers = {
   'Access-Control-Allow-Origin': '*',
@@ -107,6 +112,31 @@ type Body = { mode?: unknown; crops?: unknown; card?: unknown; screenshot?: unkn
 
 const isImage = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.length <= MAX_CROP_BASE64 && /^[A-Za-z0-9+/=]+$/.test(value);
 
+/**
+ * The images of the user's latest check that went to manual review (none otherwise). Older ones are
+ * removed first. Never fails the check: without the images the reviewer still has the recorded result.
+ */
+async function keepForReview(userId: string, images: { name: string; base64: string }[]) {
+  try {
+    const bucket = admin.storage.from(REVIEW_BUCKET);
+    const { data: old, error } = await bucket.list(userId, { search: REVIEW_PREFIX, limit: 100 });
+    if (error) throw error;
+    const stale = (old ?? []).filter((file) => file.name.startsWith(REVIEW_PREFIX)).map((file) => `${userId}/${file.name}`);
+    if (stale.length) {
+      const { error: removeError } = await bucket.remove(stale);
+      if (removeError) throw removeError;
+    }
+    const stamp = Date.now();
+    for (const image of images) {
+      const bytes = Uint8Array.from(atob(image.base64), (c) => c.charCodeAt(0));
+      const { error: uploadError } = await bucket.upload(`${userId}/${REVIEW_PREFIX}${stamp}-${image.name}.jpg`, bytes, { contentType: 'image/jpeg' });
+      if (uploadError) throw uploadError;
+    }
+  } catch (error) {
+    log('review_files_failed', { detail: String((error as Error)?.message ?? error).slice(0, 200) });
+  }
+}
+
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers });
   if (request.method !== 'POST') return response({ error: 'METHOD_NOT_ALLOWED' }, 405);
@@ -167,11 +197,18 @@ Deno.serve(async (request) => {
         model: MODEL,
         request_id: result.requestId,
       }, result.decision.decision === 'review' ? 'review' : null);
+      // The card is kept only if Muse also saw no person photo on it (the device checked both).
+      await keepForReview(userId, result.decision.decision !== 'review' ? [] : [
+        ...(result.cardHasPhoto ? [] : [{ name: 'card', base64: body.card as string }]),
+        { name: 'account', base64: body.screenshot as string },
+      ]);
       log('decided', { kind: 'document', decision: result.decision.decision, reasons: result.decision.reasons, ms: Math.round(performance.now() - started) });
       return response({ decision: result.decision.decision, reasons: result.decision.reasons });
     }
     if (!crops.length) {
       await record({ decision: 'review', reasons: ['face_not_found'] }, 'review');
+      // Nothing was sent (the device couldn't exclude the face), so there is no image to keep.
+      await keepForReview(userId, []);
       log('decided', { decision: 'review', reasons: ['face_not_found'] });
       return response({ decision: 'review', reasons: ['face_not_found'] });
     }
@@ -219,6 +256,7 @@ Deno.serve(async (request) => {
       model: MODEL,
       request_id: data.id ?? null,
     }, decision.decision === 'retry' ? null : decision.decision);
+    await keepForReview(userId, decision.decision === 'review' ? crops.map((crop, i) => ({ name: `crop${i + 1}`, base64: crop as string })) : []);
     // Reason codes only, never the name or numbers read.
     log('decided', { decision: decision.decision, reasons: decision.reasons, crops: crops.length, ms: Math.round(performance.now() - started) });
     return response({ decision: decision.decision, reasons: decision.reasons });
@@ -258,6 +296,7 @@ async function readDocument(userId: string, institutionId: string, card: string,
   return {
     decision: decideDocument(report, { profileName: profile.nombre, institution: institutionRef, today }),
     lookedLikeScreen: report.card?.looks_like_screen_or_printout === true,
+    cardHasPhoto: report.card?.has_person_photo !== false,
     requestId: data.id ?? null,
   };
 }
