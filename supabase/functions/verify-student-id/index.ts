@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { MB, readJsonBody } from '../_shared/guard.ts';
 import { createTransport } from '../verify-pickup/model.ts';
 import { type CardReport, decideCard, decideDocument, type DocumentReport, type InstitutionRef } from './decide.ts';
 
@@ -19,6 +20,8 @@ const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE
 const MODEL_API_KEY = Deno.env.get('MODEL_API_KEY') ?? '';
 const MODEL = 'muse-spark-1.3';
 const MAX_CROPS = 4;
+/** 4 crops of up to 2 MB of base64 each, or a card plus a screenshot, with room for the JSON around them. */
+const MAX_BODY_BYTES = 10 * MB;
 /** About 1.5 MB of JPEG per crop once decoded. */
 const MAX_CROP_BASE64 = 2_000_000;
 const MAX_CHECKS_PER_DAY = Number(Deno.env.get('STUDENT_ID_MAX_PER_DAY')) || 5;
@@ -148,12 +151,9 @@ Deno.serve(async (request) => {
   if (authError || !authData.user) return response({ error: 'AUTH_REQUIRED' }, 401);
   const userId = authData.user.id;
 
-  let body: Body;
-  try {
-    body = await request.json();
-  } catch {
-    return response({ error: 'INVALID_BODY' }, 400);
-  }
+  const read = await readJsonBody(request, MAX_BODY_BYTES);
+  if (!read.ok) return response({ error: read.error }, read.status);
+  const body = read.body as Body;
   const documentMode = body.mode === 'document';
   // No crops: the phone couldn't find or exclude the face, so nothing was sent → manual review.
   const crops = Array.isArray(body.crops) ? body.crops : [];

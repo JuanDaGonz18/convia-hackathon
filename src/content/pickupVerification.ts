@@ -10,6 +10,7 @@ export const PICKUP_CLIENT_REASONS = [
   'recording_failed',
   'frames_failed',
   'upload_failed',
+  'storage_quota',
   'network_error',
   'not_found',
   'not_accepted',
