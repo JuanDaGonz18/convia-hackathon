@@ -5,6 +5,7 @@ import { FunctionsHttpError } from '@supabase/supabase-js';
 
 import type { PickupClientReason } from '@/content/pickupVerification';
 import { ensureSupabaseConfigured, isSupabaseEnabled, supabase } from '@/lib/supabase';
+import { isStorageQuotaError } from '@/utils/format';
 
 export type PickupStatus = 'verified' | 'mismatch' | 'retry';
 /** Demo sample clips of fictional cars: the trip's car, another car, the trip's car with the plate covered. */
@@ -199,10 +200,10 @@ export const pickupVerificationService = {
     }
     try {
       await Promise.all(uploads);
-    } catch {
+    } catch (uploadError) {
       await Promise.allSettled(uploads);
       cleanup();
-      return clientRetry('upload_failed');
+      return clientRetry(isStorageQuotaError(uploadError) ? 'storage_quota' : 'upload_failed');
     }
 
     const body = { request_id: requestId, clip_path: clipPath, frames };

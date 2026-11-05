@@ -11,6 +11,11 @@
     "close": "Close",
     "loading": "Loading"
   },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "body": "This screen hit an unexpected error. Your data is safe. Try again; if it keeps happening, close and reopen the app.",
+    "retry": "Try again"
+  },
   "nav": {
     "home": "Home",
     "trips": "Trips",
@@ -261,7 +266,7 @@
       "reportFailed": "Couldn't send the report. Try again.",
       "cancel": "Cancel the ride",
       "cancelTitle": "Cancel your ride?",
-      "cancelMessage": "You'll free up your seat and the driver will be notified.",
+      "cancelMessage": "You'll free up your seat and the driver will see it in their requests.",
       "cancelConfirm": "Yes, cancel",
       "cancelled": "You canceled your ride.",
       "cancelFailed": "Couldn't cancel your ride."
@@ -360,6 +365,10 @@
       "upload_failed": {
         "title": "Couldn't upload the video",
         "text": "Check your connection and try again."
+      },
+      "storage_quota": {
+        "title": "Too many saved videos",
+        "text": "Wait a few minutes and try again."
       },
       "network_error": {
         "title": "Couldn't connect to verification",
@@ -497,7 +506,36 @@
     "takeAnotherPhoto": "Take another photo",
     "reviewData": "Review vehicle info",
     "verifying": "Verifying…",
-    "later": "Verify later"
+    "later": "Verify later",
+    "reasons": {
+      "plate_match": "Done! The plate in the photo matches your vehicle's plate.",
+      "plate_mismatch": "The plate in the photo ({{read}}) doesn't match the registered one ({{expected}}). Check the vehicle's plate or take the photo of your own car.",
+      "vehicle_mismatch": "The plate matches, but the brand and color don't match the registered vehicle. Check the vehicle details.",
+      "plate_uncertain": "The plate almost matches, but we couldn't read it clearly. Take another photo closer to the plate.",
+      "no_car": "We couldn't find a car in the photo. Frame the whole car and try again.",
+      "multiple_cars": "There's more than one car in the photo. Take the photo of your car only.",
+      "car_too_far": "The car looks too far away. Get a little closer without cutting off the car.",
+      "no_plate": "The plate isn't visible. Take the photo from the front or back, with the plate in view.",
+      "not_live_photo": "It looks like a photo of a screen or a printout. Take the photo of the car itself.",
+      "poor_quality": "The photo came out blurry or dark. Take it again in good light and hold still.",
+      "plate_unreadable": "We couldn't read the whole plate. Get closer and make sure it's fully visible with no glare.",
+      "low_confidence": "We're not sure what we read. Take another photo with the plate closer and well lit.",
+      "unsupported_plate": "AI verification is only available for cars (plates with 3 letters and 3 numbers).",
+      "too_many_attempts": "You made many attempts in a row. Wait a while before verifying again.",
+      "timeout": "The check took too long. Try again in a moment.",
+      "rate_limited": "Many checks are running right now. Wait a minute and try again.",
+      "service_unavailable": "The verification service isn't available right now. Try again in a few minutes.",
+      "bad_model_response": "We couldn't analyze the photo. Try again.",
+      "save_failed": "We couldn't save the result. Try again.",
+      "server_error": "Something went wrong on our side. Try again in a moment.",
+      "not_connected": "Vehicle verification needs a connection to the server.",
+      "auth_required": "Your session expired. Sign in again.",
+      "photo_unreadable": "We couldn't read the photo. Take it again.",
+      "upload_failed": "We couldn't upload the photo. Check your connection and try again.",
+      "storage_quota": "You've reached the limit of saved photos. Try again later.",
+      "not_found": "We couldn't find the vehicle or the photo. Save the vehicle and try again.",
+      "network_error": "We couldn't reach the verification service. Try again."
+    }
   },
   "weekdays": {
     "short": {
@@ -554,7 +592,7 @@
     "updatedNotified_one": "Trip updated. We told {{count}} passenger: {{changes}}.",
     "updatedNotified_other": "Trip updated. We told {{count}} passengers: {{changes}}.",
     "updated": "Trip updated.",
-    "published": "Trip posted! We'll let you know when someone requests a seat",
+    "published": "Trip posted! Seat requests will show up in Requests",
     "notVerified": "Only identity-verified drivers can post trips. Get verified from your profile.",
     "publishFailed": "Couldn't post the trip.",
     "kicker": {
@@ -569,8 +607,8 @@
       "new": "Post trip"
     },
     "repeated": "We copied your last trip. Check the date and time, change what you need and post it.",
-    "accepted_one": "You have {{count}} accepted passenger. We'll let them know what you changed.",
-    "accepted_other": "You have {{count}} accepted passengers. We'll let them know what you changed.",
+    "accepted_one": "You have {{count}} accepted passenger. They'll see the changes in the trip details.",
+    "accepted_other": "You have {{count}} accepted passengers. They'll see the changes in the trip details.",
     "vehicle": "Vehicle",
     "loadingVehicles": "Loading your vehicles…",
     "registerVehicle": "Register a vehicle",
@@ -783,7 +821,7 @@
     "title": "Requests",
     "scanQr": "Scan boarding QR",
     "findTrip": "Find a trip",
-    "emptyDriver": "When someone requests a seat on your upcoming trips, they'll show up here and we'll send you a notification.",
+    "emptyDriver": "When someone requests a seat on your upcoming trips, they'll show up here.",
     "emptyPassenger": "When you request a seat on a trip, you'll see here if the driver accepted you and your boarding code.",
     "emptyDriverTitle": "No requests yet",
     "emptyPassengerTitle": "You haven't requested seats yet",
@@ -800,9 +838,9 @@
     "cancel": "Cancel request",
     "confirmReject": "Yes, decline",
     "confirmCancel": "Yes, cancel",
-    "rejectMessage": "The passenger will be notified they can't join this trip.",
-    "cancelMessage": "You'll free up your seat and the driver will be notified.",
-    "rejected": "Request declined. We let the passenger know",
+    "rejectMessage": "The passenger will see in their trips that they can't join this trip.",
+    "cancelMessage": "You'll free up your seat and the driver will see it in their requests.",
+    "rejected": "Request declined. The passenger will see it in their trips",
     "rejectFailed": "Couldn't decline the request.",
     "cancelled": "You canceled your request and freed your seat",
     "cancelFailed": "Couldn't cancel the request.",
@@ -828,7 +866,7 @@
     "mark": "Mark",
     "vehiclePhoto": "Photo of {{brand}} vehicle",
     "sentTitle": "Request sent!",
-    "sentText": "We let the driver know. When they accept your pickup point you'll get a notification and the trip chat will open.",
+    "sentText": "Your request is now on the driver's list. When they accept your pickup point you'll see it in Trips and the trip chat will open.",
     "myRequests": "View my requests",
     "full": "This trip is already full. Find another in the trip list.",
     "pickupLabel": "Pickup point",
@@ -948,7 +986,8 @@
     "institutionRequestPending": "You already have a pending request.",
     "institutionAlreadyVerified": "Your institution is already verified.",
     "tooManyAttempts": "Too many attempts today. Try again tomorrow.",
-    "noInstitutionChosen": "Choose your institution first."
+    "noInstitutionChosen": "Choose your institution first.",
+    "storageQuota": "You've reached the limit of saved files. Try again later."
   },
   "distance": {
     "meters": "{{value}} m",
@@ -1079,6 +1118,80 @@
       "title": "Driver permit suspended",
       "body": "Your driver permit is suspended. Contact your institution's admin."
     }
+  },
+  "driverLicense": {
+    "kicker": "DRIVER",
+    "title": "Driver's license",
+    "intro": "To drive, complete the verification below.",
+    "subtitle": "We compare your face with the photo on your license to confirm you're the one driving. This doesn't check that the license is genuine or look it up in RUNT or any other official source.",
+    "loadFailed": "We couldn't load your driver permit.",
+    "suspendedTitle": "Permit suspended",
+    "suspendedBody": "Your driver permit is suspended. Contact your institution's administrator.",
+    "verifiedTitle": "Driver identity verified",
+    "verifiedBody": "Your identity matches your license photo. You can now post trips.",
+    "nowDriver": "Your identity matches your license photo. You're now in driver mode.",
+    "switchFromProfile": "Your identity matches your license photo. Turn on driver mode from your profile.",
+    "photoProcessed": "License photo processed. Now confirm it's you with a selfie.",
+    "cameraNeeded": "We need camera access to photograph your license. You can also upload a photo you already have.",
+    "pickFailed": "We couldn't open the camera or the gallery.",
+    "openSettings": "Open phone settings",
+    "steps": {
+      "photo": "License photo uploaded",
+      "face": "Face detected",
+      "verified": "Driver identity verified",
+      "ready": "Identity check ready",
+      "selfieMissing": "Take a selfie so we can compare it with your license."
+    },
+    "verifyIdentity": "Verify my identity",
+    "changePhoto": "Change your license photo",
+    "section": "Driver's license",
+    "tips": {
+      "whole": "Capture the whole license, on the side with the photo.",
+      "flat": "Keep the license flat on a surface.",
+      "glare": "Avoid glare and reflections on the photo.",
+      "faceClear": "Make sure your photo is clearly visible.",
+      "light": "Use good light.",
+      "focus": "Avoid blurry photos: focus before you capture."
+    },
+    "processing": "Looking for your face on the license… the photo is analyzed on your phone and then deleted.",
+    "takePhoto": "Take photo",
+    "uploadPhoto": "Upload photo",
+    "changeNote": "If you change your license photo, you'll need to verify your identity again.",
+    "storageNote": "We don't keep your license photo: only a numeric representation of your face, which never leaves the server."
+  },
+  "boardingQr": {
+    "kicker": "BOARDING",
+    "title": "Your boarding code",
+    "titleBoarded": "You're on board!",
+    "subtitle": "Show this code to the driver when you get in the vehicle.",
+    "notFound": "We couldn't find this request.",
+    "notFoundCancelled": "We couldn't find this request. It may have been cancelled.",
+    "loadFailed": "We couldn't load your code.",
+    "boardedToast": "All set! You're on board. Have a good trip",
+    "brightness": "Turn up your screen brightness if the driver can't scan it.",
+    "boardedTitle": "The driver scanned your code",
+    "boardedText": "Buckle up and enjoy the ride.",
+    "waiting": "The code appears when the driver accepts your request. This screen updates on its own.",
+    "pickup": "Pickup: {{place}}"
+  },
+  "qrScanner": {
+    "cameraTitle": "We need the camera",
+    "cameraText": "We use it to read the code each passenger shows when getting in. Nothing is recorded or stored.",
+    "allowCamera": "Allow camera",
+    "openSettings": "Open phone settings",
+    "notConviaTitle": "This isn't a ConVía code",
+    "notConviaText": "Ask the passenger to open their boarding code in the app.",
+    "boardedTitle": "Passenger on board!",
+    "boardedText": "The code is valid. You can scan the next one.",
+    "failedTitle": "We couldn't validate this code",
+    "failedText": "This code doesn't belong to an accepted passenger on your trip in progress.",
+    "notYourTrip": "This code isn't from one of your trips.",
+    "notAccepted": "The passenger doesn't have an accepted seat.",
+    "boardedCount": "{{count}} on board",
+    "close": "Close scanner",
+    "instruction": "Point at the passenger's code",
+    "validating": "Validating…",
+    "scanAgain": "Scan another"
   },
   "modeSwitch": {
     "failed": "Couldn't switch modes.",
@@ -1272,7 +1385,7 @@
     "verifyWithCard": "Verify with my student ID",
     "change": "Choose another institution",
     "notListed": "My institution isn't listed",
-    "requestPending": "You asked us to add “{{name}}”. We will let you know once we review it.",
+    "requestPending": "You asked us to add “{{name}}”. You'll see the result here once we review it.",
     "reviewHint": "Your student ID is in manual review. Meanwhile you can try again with another photo.",
     "retryHint": "We couldn't read your student ID. Try a sharper photo.",
     "verifiedHint": "You can now see and request trips in your institution.",
@@ -1285,7 +1398,7 @@
   },
   "institutionRequest": {
     "title": "Add my institution",
-    "subtitle": "Tell us which one; we will review it and let you know.",
+    "subtitle": "Tell us which one; we'll review it and you'll see the result in the app.",
     "name": "Institution name",
     "namePlaceholder": "The institution's full name",
     "city": "City",
@@ -1361,7 +1474,7 @@
       "face_unusable": "Your card's photo isn't sharp enough. Move a little closer, in good light, without glare.",
       "nothing_to_read": "The card's photo fills almost the whole picture. Step back a little so the whole card shows.",
       "requestReview": "Request a manual review",
-      "reviewNote": "A person will review your request; no photo is sent. We'll let you know when it's done."
+      "reviewNote": "A person will review your request; no photo is sent. You'll see the result in the app when it's done."
     }
   },
   "verifyCard": {
@@ -1378,7 +1491,7 @@
     },
     "review": {
       "title": "Your verification is in review",
-      "text": "We'll let you know when it's done. You can try again with another photo.",
+      "text": "You'll see the result in the app when it's done. You can try again with another photo.",
       "action": "See status"
     },
     "yourInstitution": "your institution"
@@ -1398,7 +1511,7 @@
     "send": "Send for review",
     "reviewNote": "A person always reviews this path: screenshots are easy to alter.",
     "reviewTitle": "Sent for review",
-    "reviewText": "A person will review your documents and we'll let you know. Meanwhile you can use the app, but not see or request trips.",
+    "reviewText": "A person will review your documents; you'll see the result in the app. Meanwhile you can use the app, but not see or request trips.",
     "reviewerNotes": "What the reviewer will see:",
     "retryTitle": "We couldn't read the documents",
     "retryText": "Try sharper images: the name on the card, and the name and email on the screenshot.",
@@ -1528,7 +1641,7 @@
     "notifyRecurring": "Recurring rides posted",
     "notifyRecurringHint": "A summary when we post the rides for your weekly schedule.",
     "pushHint": "Requests, replies, messages, and changes to your rides follow the Notifications switch in your profile.",
-    "pushWebHint": "Notifications go to the ConVía app on your phone; they are not sent on the web version. There you can turn them off from your profile."
+    "pushUnavailableHint": "This version of ConVía doesn't send push notifications. Requests, replies, messages and changes to your trips show up in the app when you open it."
   },
   "placeKinds": {
     "home": "Home",
@@ -1579,12 +1692,12 @@
   "savedRoutes": {
     "kicker": "YOUR RIDES",
     "title": "Routes and alerts",
-    "subtitle": "Save trips you take often to search them in one tap. With the alert on, we'll let you know when a matching ride is posted.",
+    "subtitle": "Save trips you take often to search them in one tap. With the alert on, new matching rides show up on this screen.",
     "anyDay": "Any day",
     "between": "{{days}} · {{from}} to {{to}}",
     "anyTime": "{{days}} · any time",
     "loadFailed": "Couldn't load your routes.",
-    "alertOn": "We'll tell you about new matching rides",
+    "alertOn": "New matching rides will show up here",
     "alertOff": "Alert off",
     "alertFailed": "Couldn't change the alert.",
     "deleted": "Route deleted",
@@ -1603,7 +1716,7 @@
     "betaAlerts": "Alerts are from ConVía+ and open during beta.",
     "new": "New route",
     "found": "Trips your alerts found",
-    "foundNone": "No new trips match your routes yet. We'll let you know as soon as one is posted.",
+    "foundNone": "No new trips match your routes yet. They'll show up here as soon as one is posted.",
     "foundNoAlerts": "Turn on a route alert to see matching trips posted here.",
     "back": "Back",
     "confirmDelete": "Yes, delete",
@@ -1614,7 +1727,7 @@
     "kicker": "YOUR ROUTES",
     "newTitle": "New route",
     "editTitle": "Edit route",
-    "subtitle": "Use it to search in one tap and, if you want, we'll tell you when a matching trip is posted.",
+    "subtitle": "Use it to search in one tap and, if you want, see matching trips in Routes and alerts as they are posted.",
     "errors": {
       "origin": "Choose where you're picked up.",
       "destination": "Choose where you're going.",
@@ -1622,7 +1735,7 @@
       "time": "End time must be after start time."
     },
     "saved": "Route saved",
-    "savedWithAlert": "Route saved. We'll let you know when a matching trip shows up",
+    "savedWithAlert": "Route saved. Matching trips will show up in Routes and alerts",
     "saveFailed": "Couldn't save the route.",
     "name": "Name (optional)",
     "namePlaceholder": "For example: Home to university",

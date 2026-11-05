@@ -10,16 +10,22 @@ The new code is part of **ConVía**, a carpooling app for university students an
 ## Demo
 
 <!-- Replace with the final links. -->
-- Video: _coming soon_
+- Video: https://youtu.be/GNadpCJzaLQ
 - Live app: https://convia-hackathon.pages.dev (web app at `/app/`; judges log in with the demo accounts from the submission form)
 
 ### How to try it
 
 The demo accounts (one driver and five passengers) are in the submission form, not in this repository. The app follows the browser's language; Spanish or English can also be chosen on the login screen or in Profile → Appearance & language. Each passenger always has an accepted ride with the demo driver one to three days ahead (a daily job keeps it that way during judging).
 
+**Please follow these rules for the shared demo accounts:**
+
+- **One passenger account per judge.** Use only the passenger account assigned to you in the submission form, and never share it: each passenger has its own ride, so two people on one account interfere with each other.
+- **The driver demo account is operated by one designated member of the ConVía team only.** Judges don't need it for the steps below; if you want to see the driver side, ask the team for access instead of signing in with it.
+- **Don't start, finish, edit, accept or reject the demo trips.** They are shared by every judge, and a change affects all of them until the daily reset (04:00 Colombia time, 09:00 UTC). Cancelling is already blocked for demo accounts. If a demo trip looks wrong, tell the ConVía team and we'll restore it.
+
 1. **Pickup check** (passenger): Home → *Your next ride* → **Verify my car**. Demo accounts can't film the demo car, so they pick one of three sample clips (the trip's car, another car, the plate covered) and the real SAM 3.1 + Muse Spark check runs on it.
 2. **Trip assistant** (passenger): Home → **✨ Ask the assistant** → describe a trip in Spanish or English, e.g. "From Universidad de La Sabana to Fontanar tomorrow at 11 am". Watch the steps, the proposal marked *Verified*, and **How the assistant decided** (every step, the model that answered and the judge's claims). Confirm is disabled for demo accounts.
-3. **Vehicle autofill** (driver): add a vehicle and choose its photo; Muse Spark suggests brand, line, color and (only if fully legible) plate.
+3. **Vehicle autofill**: shown in the demo video, because it needs a driver account and the demo driver is not for judges. To try it yourself, use your own account (see step 4): Profile → **Driver** mode → license photo and selfie, then Vehicles → **Add vehicle** and choose a photo of the car; Muse Spark suggests brand, line, color and (only if fully legible) plate.
 4. **Student ID check**: create an account with any personal e-mail, choose an institution, then **Verify with my student ID** (your own card; the face is compared on the device and never sent).
 
 ## Built during the hackathon

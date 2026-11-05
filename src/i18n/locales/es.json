@@ -11,6 +11,11 @@
     "close": "Cerrar",
     "loading": "Cargando"
   },
+  "errorBoundary": {
+    "title": "Algo salió mal",
+    "body": "Esta pantalla tuvo un error inesperado. Tus datos están a salvo. Inténtalo de nuevo; si sigue pasando, cierra y vuelve a abrir la aplicación.",
+    "retry": "Intentar de nuevo"
+  },
   "nav": {
     "home": "Inicio",
     "trips": "Viajes",
@@ -261,7 +266,7 @@
       "reportFailed": "No se pudo enviar el reporte. Inténtalo de nuevo.",
       "cancel": "Cancelar el viaje",
       "cancelTitle": "¿Cancelar tu viaje?",
-      "cancelMessage": "Liberarás tu cupo y el conductor recibirá un aviso.",
+      "cancelMessage": "Liberarás tu cupo y el conductor lo verá en sus solicitudes.",
       "cancelConfirm": "Sí, cancelar",
       "cancelled": "Cancelaste el viaje.",
       "cancelFailed": "No se pudo cancelar el viaje."
@@ -360,6 +365,10 @@
       "upload_failed": {
         "title": "No se pudo subir el video",
         "text": "Revisa tu conexión e inténtalo de nuevo."
+      },
+      "storage_quota": {
+        "title": "Tienes demasiados videos guardados",
+        "text": "Espera unos minutos e inténtalo de nuevo."
       },
       "network_error": {
         "title": "No pudimos conectar con la verificación",
@@ -497,7 +506,36 @@
     "takeAnotherPhoto": "Tomar otra foto",
     "reviewData": "Revisar datos del vehículo",
     "verifying": "Verificando…",
-    "later": "Verificar después"
+    "later": "Verificar después",
+    "reasons": {
+      "plate_match": "¡Listo! Verificamos que la placa de la foto coincide con la de tu vehículo.",
+      "plate_mismatch": "La placa de la foto ({{read}}) no coincide con la registrada ({{expected}}). Revisa la placa del vehículo o toma la foto a tu carro.",
+      "vehicle_mismatch": "La placa coincide, pero la marca y el color no corresponden al vehículo registrado. Revisa los datos del vehículo.",
+      "plate_uncertain": "La placa casi coincide, pero no la leímos con claridad. Toma otra foto más cerca de la placa.",
+      "no_car": "No encontramos un carro en la foto. Encuadra el carro completo y vuelve a intentarlo.",
+      "multiple_cars": "Hay más de un carro en la foto. Toma la foto solo a tu carro.",
+      "car_too_far": "El carro se ve muy lejos. Acércate un poco, sin cortar el carro.",
+      "no_plate": "No se ve la placa. Toma la foto de frente o de atrás, con la placa visible.",
+      "not_live_photo": "Parece una foto de una pantalla o de una impresión. Toma la foto directamente al carro.",
+      "poor_quality": "La foto quedó borrosa u oscura. Tómala de nuevo con buena luz y sin moverte.",
+      "plate_unreadable": "No pudimos leer la placa completa. Acércate y asegúrate de que se vea entera y sin reflejos.",
+      "low_confidence": "No estamos seguros de lo que leímos. Toma otra foto con la placa más cerca y bien iluminada.",
+      "unsupported_plate": "La verificación con IA está disponible solo para carros (placa de 3 letras y 3 números).",
+      "too_many_attempts": "Hiciste muchos intentos seguidos. Espera un rato antes de volver a verificar.",
+      "timeout": "La verificación tardó demasiado. Inténtalo de nuevo en un momento.",
+      "rate_limited": "Hay muchas verificaciones en curso. Espera un minuto y vuelve a intentarlo.",
+      "service_unavailable": "El servicio de verificación no está disponible ahora. Inténtalo de nuevo en unos minutos.",
+      "bad_model_response": "No pudimos analizar la foto. Inténtalo de nuevo.",
+      "save_failed": "No pudimos guardar el resultado. Inténtalo de nuevo.",
+      "server_error": "Algo falló de nuestro lado. Inténtalo de nuevo en un momento.",
+      "not_connected": "La verificación del vehículo necesita conexión con el servidor.",
+      "auth_required": "Tu sesión expiró. Vuelve a iniciar sesión.",
+      "photo_unreadable": "No se pudo leer la foto. Tómala de nuevo.",
+      "upload_failed": "No se pudo subir la foto. Revisa tu conexión e inténtalo de nuevo.",
+      "storage_quota": "Alcanzaste el límite de fotos guardadas. Inténtalo más tarde.",
+      "not_found": "No encontramos el vehículo o la foto. Guarda el vehículo e inténtalo de nuevo.",
+      "network_error": "No se pudo conectar con el servicio de verificación. Inténtalo de nuevo."
+    }
   },
   "weekdays": {
     "short": {
@@ -554,7 +592,7 @@
     "updatedNotified_one": "Viaje actualizado. Avisamos a {{count}} pasajero: {{changes}}.",
     "updatedNotified_other": "Viaje actualizado. Avisamos a {{count}} pasajeros: {{changes}}.",
     "updated": "Viaje actualizado.",
-    "published": "¡Viaje publicado! Te avisaremos cuando alguien pida un cupo",
+    "published": "¡Viaje publicado! Las solicitudes de cupo aparecerán en Solicitudes",
     "notVerified": "Solo conductores con identidad verificada pueden publicar viajes. Verifícate desde tu perfil.",
     "publishFailed": "No se pudo publicar el viaje.",
     "kicker": {
@@ -569,8 +607,8 @@
       "new": "Publicar viaje"
     },
     "repeated": "Copiamos tu viaje anterior. Revisa la fecha y la hora, cambia lo que necesites y publícalo.",
-    "accepted_one": "Tienes {{count}} pasajero aceptado. Le avisaremos qué cambiaste.",
-    "accepted_other": "Tienes {{count}} pasajeros aceptados. Les avisaremos qué cambiaste.",
+    "accepted_one": "Tienes {{count}} pasajero aceptado. Verá los cambios en los detalles del viaje.",
+    "accepted_other": "Tienes {{count}} pasajeros aceptados. Verán los cambios en los detalles del viaje.",
     "vehicle": "Vehículo",
     "loadingVehicles": "Cargando tus vehículos…",
     "registerVehicle": "Registrar un vehículo",
@@ -783,7 +821,7 @@
     "title": "Solicitudes",
     "scanQr": "Escanear QR de abordaje",
     "findTrip": "Buscar un viaje",
-    "emptyDriver": "Cuando alguien pida un cupo en tus viajes próximos, aparecerá aquí y te enviaremos una notificación.",
+    "emptyDriver": "Cuando alguien pida un cupo en tus viajes próximos, aparecerá aquí.",
     "emptyPassenger": "Cuando pidas un cupo en un viaje verás aquí si el conductor te aceptó y tu código de abordaje.",
     "emptyDriverTitle": "Aún no hay solicitudes",
     "emptyPassengerTitle": "Todavía no has pedido cupos",
@@ -800,9 +838,9 @@
     "cancel": "Cancelar solicitud",
     "confirmReject": "Sí, rechazar",
     "confirmCancel": "Sí, cancelar",
-    "rejectMessage": "Se le avisará al pasajero que no puede unirse a este viaje.",
-    "cancelMessage": "Liberarás tu cupo y el conductor recibirá un aviso.",
-    "rejected": "Solicitud rechazada. Le avisamos al pasajero",
+    "rejectMessage": "El pasajero verá en sus viajes que no puede unirse a este viaje.",
+    "cancelMessage": "Liberarás tu cupo y el conductor lo verá en sus solicitudes.",
+    "rejected": "Solicitud rechazada. El pasajero lo verá en sus viajes",
     "rejectFailed": "No se pudo rechazar la solicitud.",
     "cancelled": "Cancelaste tu solicitud y liberaste el cupo",
     "cancelFailed": "No se pudo cancelar la solicitud.",
@@ -828,7 +866,7 @@
     "mark": "Marcar",
     "vehiclePhoto": "Foto del vehículo {{brand}}",
     "sentTitle": "¡Solicitud enviada!",
-    "sentText": "Le avisamos al conductor. Cuando acepte tu punto de recogida recibirás una notificación y se habilitará el chat del viaje.",
+    "sentText": "Tu solicitud ya está en la lista del conductor. Cuando acepte tu punto de recogida lo verás en Viajes y se habilitará el chat del viaje.",
     "myRequests": "Ver mis solicitudes",
     "full": "Este viaje ya llenó sus cupos. Busca otro en la lista de viajes.",
     "pickupLabel": "Punto de recogida",
@@ -948,7 +986,8 @@
     "institutionRequestPending": "Ya tienes una solicitud pendiente.",
     "institutionAlreadyVerified": "Tu institución ya está verificada.",
     "tooManyAttempts": "Demasiados intentos por hoy. Inténtalo mañana.",
-    "noInstitutionChosen": "Primero elige tu institución."
+    "noInstitutionChosen": "Primero elige tu institución.",
+    "storageQuota": "Alcanzaste el límite de archivos guardados. Inténtalo más tarde."
   },
   "distance": {
     "meters": "{{value}} m",
@@ -1079,6 +1118,80 @@
       "title": "Permiso suspendido",
       "body": "Tu permiso de conductor está suspendido. Contacta al administrador de tu institución."
     }
+  },
+  "driverLicense": {
+    "kicker": "CONDUCTOR",
+    "title": "Licencia de conducción",
+    "intro": "Para ser conductor debes completar la siguiente verificación.",
+    "subtitle": "Comparamos tu rostro con la foto de tu licencia para confirmar que eres tú quien conduce. Esto no valida que la licencia sea auténtica ni consulta el RUNT u otra fuente oficial.",
+    "loadFailed": "No se pudo cargar tu permiso de conductor.",
+    "suspendedTitle": "Permiso suspendido",
+    "suspendedBody": "Tu permiso de conductor está suspendido. Contacta al administrador de tu institución.",
+    "verifiedTitle": "Identidad de conductor verificada",
+    "verifiedBody": "Tu identidad coincide con la foto de tu licencia. Ya puedes publicar viajes.",
+    "nowDriver": "Tu identidad coincide con la foto de tu licencia. Ya estás en modo conductor.",
+    "switchFromProfile": "Tu identidad coincide con la foto de tu licencia. Activa el modo conductor desde tu perfil.",
+    "photoProcessed": "Foto de la licencia procesada. Ahora confirma que eres tú con una selfie.",
+    "cameraNeeded": "Necesitamos acceso a la cámara para fotografiar tu licencia. También puedes subir una foto que ya tengas.",
+    "pickFailed": "No se pudo abrir la cámara o la galería.",
+    "openSettings": "Abrir ajustes del teléfono",
+    "steps": {
+      "photo": "Foto de la licencia cargada",
+      "face": "Rostro detectado",
+      "verified": "Identidad de conductor verificada",
+      "ready": "Verificación de identidad lista",
+      "selfieMissing": "Falta tomarte una selfie para compararla con tu licencia."
+    },
+    "verifyIdentity": "Verificar mi identidad",
+    "changePhoto": "Cambiar la foto de tu licencia",
+    "section": "Licencia de conducción",
+    "tips": {
+      "whole": "Captura la licencia completa, por el lado de la foto.",
+      "flat": "Mantén la licencia plana, sobre una superficie.",
+      "glare": "Evita brillos y reflejos sobre la foto.",
+      "faceClear": "Asegúrate de que tu foto se vea clara.",
+      "light": "Usa buena luz.",
+      "focus": "Evita fotos borrosas: enfoca antes de capturar."
+    },
+    "processing": "Buscando tu rostro en la licencia… la foto se analiza en el teléfono y luego se borra.",
+    "takePhoto": "Tomar foto",
+    "uploadPhoto": "Subir foto",
+    "changeNote": "Si cambias la foto de tu licencia tendrás que verificar tu identidad de nuevo.",
+    "storageNote": "No guardamos la foto de tu licencia: solo una representación numérica de tu rostro, que nunca sale del servidor."
+  },
+  "boardingQr": {
+    "kicker": "ABORDAJE",
+    "title": "Tu código de abordaje",
+    "titleBoarded": "¡Estás a bordo!",
+    "subtitle": "Muéstrale este código al conductor cuando subas al vehículo.",
+    "notFound": "No encontramos esta solicitud.",
+    "notFoundCancelled": "No encontramos esta solicitud. Puede que se haya cancelado.",
+    "loadFailed": "No pudimos cargar tu código.",
+    "boardedToast": "¡Listo! Ya estás a bordo. Buen viaje",
+    "brightness": "Sube el brillo de la pantalla si el conductor no logra leerlo.",
+    "boardedTitle": "El conductor validó tu código",
+    "boardedText": "Ponte el cinturón y disfruta el trayecto.",
+    "waiting": "El código aparece cuando el conductor acepta tu solicitud. Esta pantalla se actualiza sola.",
+    "pickup": "Recogida: {{place}}"
+  },
+  "qrScanner": {
+    "cameraTitle": "Necesitamos la cámara",
+    "cameraText": "La usamos para leer el código que muestra cada pasajero al subir. Nada se graba ni se guarda.",
+    "allowCamera": "Permitir cámara",
+    "openSettings": "Abrir ajustes del teléfono",
+    "notConviaTitle": "Este no es un código de ConVía",
+    "notConviaText": "Pídele al pasajero que abra su código de abordaje en la app.",
+    "boardedTitle": "¡Pasajero a bordo!",
+    "boardedText": "El código es válido. Ya puedes escanear al siguiente.",
+    "failedTitle": "No pudimos validar este código",
+    "failedText": "El código no corresponde a un pasajero aceptado en tu viaje en curso.",
+    "notYourTrip": "Este código no es de uno de tus viajes.",
+    "notAccepted": "El pasajero no tiene un cupo aceptado.",
+    "boardedCount": "{{count}} a bordo",
+    "close": "Cerrar escáner",
+    "instruction": "Apunta al código del pasajero",
+    "validating": "Validando…",
+    "scanAgain": "Escanear otro"
   },
   "modeSwitch": {
     "failed": "No se pudo cambiar de modo.",
@@ -1272,7 +1385,7 @@
     "verifyWithCard": "Verificar con mi carné",
     "change": "Elegir otra institución",
     "notListed": "Mi institución no aparece",
-    "requestPending": "Pediste agregar «{{name}}». Te avisaremos cuando la revisemos.",
+    "requestPending": "Pediste agregar «{{name}}». Verás aquí el resultado cuando la revisemos.",
     "reviewHint": "Tu carné está en revisión manual. Mientras tanto puedes intentarlo de nuevo con otra foto.",
     "retryHint": "No pudimos leer tu carné. Intenta con una foto más nítida.",
     "verifiedHint": "Ya puedes ver y pedir viajes de tu institución.",
@@ -1285,7 +1398,7 @@
   },
   "institutionRequest": {
     "title": "Agregar mi institución",
-    "subtitle": "Cuéntanos cuál es; la revisamos y te avisamos.",
+    "subtitle": "Cuéntanos cuál es; la revisamos y verás el resultado en la app.",
     "name": "Nombre de la institución",
     "namePlaceholder": "Nombre completo de la institución",
     "city": "Ciudad",
@@ -1361,7 +1474,7 @@
       "face_unusable": "La foto de tu carné no se ve con suficiente nitidez. Acércate un poco, con buena luz y sin reflejos.",
       "nothing_to_read": "La foto del carné ocupa casi toda la imagen. Aléjate un poco para que se vea el carné completo.",
       "requestReview": "Pedir revisión manual",
-      "reviewNote": "Una persona revisará tu solicitud; no se envía ninguna foto. Te avisaremos cuando quede lista."
+      "reviewNote": "Una persona revisará tu solicitud; no se envía ninguna foto. Verás el resultado en la app cuando quede lista."
     }
   },
   "verifyCard": {
@@ -1378,7 +1491,7 @@
     },
     "review": {
       "title": "Tu verificación está en revisión",
-      "text": "Te avisaremos cuando quede lista. Puedes intentarlo de nuevo con otra foto.",
+      "text": "Verás el resultado en la app cuando quede lista. Puedes intentarlo de nuevo con otra foto.",
       "action": "Ver estado"
     },
     "yourInstitution": "tu institución"
@@ -1398,7 +1511,7 @@
     "send": "Enviar para revisión",
     "reviewNote": "Este camino siempre lo revisa una persona: las capturas son fáciles de alterar.",
     "reviewTitle": "Enviado a revisión",
-    "reviewText": "Una persona revisará tus documentos y te avisaremos. Mientras tanto puedes usar la app, pero no ver ni pedir viajes.",
+    "reviewText": "Una persona revisará tus documentos; verás el resultado en la app. Mientras tanto puedes usar la app, pero no ver ni pedir viajes.",
     "reviewerNotes": "Lo que verá quien revisa:",
     "retryTitle": "No pudimos leer los documentos",
     "retryText": "Intenta con imágenes más nítidas: el nombre en el carné, y el nombre y el correo en la captura.",
@@ -1528,7 +1641,7 @@
     "notifyRecurring": "Viajes recurrentes publicados",
     "notifyRecurringHint": "Un resumen cuando publicamos los viajes de tu horario semanal.",
     "pushHint": "Las solicitudes, respuestas, mensajes y cambios de tus viajes siguen el interruptor de Notificaciones de tu perfil.",
-    "pushWebHint": "Las notificaciones llegan a la app de ConVía en tu celular; en la versión web no se envían. Allí puedes apagarlas desde tu perfil."
+    "pushUnavailableHint": "Esta versión de ConVía no envía notificaciones push. Las solicitudes, respuestas, mensajes y cambios de tus viajes aparecen en la app al abrirla."
   },
   "placeKinds": {
     "home": "Casa",
@@ -1579,12 +1692,12 @@
   "savedRoutes": {
     "kicker": "TUS VIAJES",
     "title": "Rutas y alertas",
-    "subtitle": "Guarda los trayectos que haces seguido para buscarlos con un toque. Con la alerta activa te avisamos cuando se publica un viaje compatible.",
+    "subtitle": "Guarda los trayectos que haces seguido para buscarlos con un toque. Con la alerta activa, los viajes compatibles nuevos aparecen en esta pantalla.",
     "anyDay": "Cualquier día",
     "between": "{{days}} · {{from}} a {{to}}",
     "anyTime": "{{days}} · cualquier hora",
     "loadFailed": "No se pudieron cargar tus rutas.",
-    "alertOn": "Te avisaremos de viajes compatibles nuevos",
+    "alertOn": "Los viajes compatibles nuevos aparecerán aquí",
     "alertOff": "Alerta desactivada",
     "alertFailed": "No se pudo cambiar la alerta.",
     "deleted": "Ruta eliminada",
@@ -1603,7 +1716,7 @@
     "betaAlerts": "Las alertas son de ConVía+ y están abiertas durante la beta.",
     "new": "Nueva ruta",
     "found": "Viajes que encontraron tus alertas",
-    "foundNone": "Aún no hay viajes nuevos compatibles con tus rutas. Te avisaremos apenas se publique uno.",
+    "foundNone": "Aún no hay viajes nuevos compatibles con tus rutas. Aparecerán aquí apenas se publique uno.",
     "foundNoAlerts": "Activa la alerta de una ruta para ver aquí los viajes compatibles que se publiquen.",
     "back": "Volver",
     "confirmDelete": "Sí, eliminar",
@@ -1614,7 +1727,7 @@
     "kicker": "TUS RUTAS",
     "newTitle": "Nueva ruta",
     "editTitle": "Editar ruta",
-    "subtitle": "Úsala para buscar con un toque y, si quieres, te avisamos cuando se publique un viaje compatible.",
+    "subtitle": "Úsala para buscar con un toque y, si quieres, ver en Rutas y alertas los viajes compatibles que se publiquen.",
     "errors": {
       "origin": "Elige dónde te recogen.",
       "destination": "Elige a dónde vas.",
@@ -1622,7 +1735,7 @@
       "time": "La hora final debe ser después de la inicial."
     },
     "saved": "Ruta guardada",
-    "savedWithAlert": "Ruta guardada. Te avisaremos cuando aparezca un viaje compatible",
+    "savedWithAlert": "Ruta guardada. Los viajes compatibles aparecerán en Rutas y alertas",
     "saveFailed": "No se pudo guardar la ruta.",
     "name": "Nombre (opcional)",
     "namePlaceholder": "Por ejemplo: Casa a la universidad",

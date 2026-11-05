@@ -7,6 +7,7 @@ import { createMockClient, mockOutcome } from './mock.ts';
 import { createModelClient } from './model.ts';
 import { analyzeClip, DEFAULT_PIPELINE_CONFIG, type FrameSource, type PipelineResult, type ProgressStep } from './pipeline.ts';
 import { ndjsonStream } from './stream.ts';
+import { MB, modelMode, readJsonBody } from '../_shared/guard.ts';
 
 /**
  * verify-pickup: the passenger films the arriving car for up to 5 s and we
@@ -15,12 +16,15 @@ import { ndjsonStream } from './stream.ts';
  * full plate is revealed to them. The clip and its frames are deleted from
  * Storage and from the model provider when the check ends; only the result
  * is stored. The response carries reason codes, never text: the app
- * translates them. Without MODEL_API_KEY it runs in mock mode.
+ * translates them. Without MODEL_API_KEY it runs in mock mode, but only when
+ * ALLOW_MOCK=true; otherwise it answers 503 MODEL_UNAVAILABLE.
  */
 
 const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 const MODEL_API_KEY = Deno.env.get('MODEL_API_KEY') ?? '';
-const MOCK = !MODEL_API_KEY.trim();
+const MODE = modelMode(MODEL_API_KEY, Deno.env.get('ALLOW_MOCK'));
+const MOCK = MODE === 'mock';
+const MAX_BODY_BYTES = 1 * MB;
 const BUCKET = 'pickup-clips';
 const MIN_CONFIDENCE = Number(Deno.env.get('PICKUP_MIN_CONFIDENCE')) || DEFAULT_PIPELINE_CONFIG.minConfidence;
 const REASONING_EFFORT = (['minimal', 'low', 'medium', 'high'] as const).find((effort) => effort === Deno.env.get('PICKUP_REASONING_EFFORT')) ?? 'minimal';
@@ -120,6 +124,7 @@ async function download(path: string, bucket = BUCKET) {
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers });
   if (request.method !== 'POST') return response({ error: 'METHOD_NOT_ALLOWED' }, 405);
+  if (MODE === 'unavailable') return response({ error: 'MODEL_UNAVAILABLE' }, 503);
   const started = performance.now();
 
   const token = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
@@ -128,12 +133,11 @@ Deno.serve(async (request) => {
   if (authError || !authData.user) return response({ error: 'AUTH_REQUIRED' }, 401);
   const userId = authData.user.id;
 
-  let body: { request_id?: unknown; clip_path?: unknown; frames?: unknown; sample?: unknown; mock_outcome?: unknown };
-  try {
-    body = await request.json();
-  } catch {
-    return response({ error: 'INVALID_BODY' }, 400);
-  }
+  const read = await readJsonBody(request, MAX_BODY_BYTES);
+  if (!read.ok) return response({ error: read.error }, read.status);
+  const body = read.body as { request_id?: unknown; clip_path?: unknown; frames?: unknown; sample?: unknown; mock_outcome?: unknown };
+  // A requested outcome is honored only in mock mode, which itself requires ALLOW_MOCK.
+  const requestedOutcome = MOCK ? body.mock_outcome : undefined;
   const requestId = typeof body.request_id === 'string' ? body.request_id : '';
   let args: VerifyArgs;
   if (body.sample !== undefined) {
@@ -148,11 +152,11 @@ Deno.serve(async (request) => {
     }
     const { clipPath, frames } = sampleFiles;
     // Sample files are shared and kept: nothing to delete afterwards.
-    args = { userId, requestId, clipPath, frames, uploaded: [], bucket: SAMPLE_BUCKET, demo: true, mockOutcome: body.mock_outcome, started };
+    args = { userId, requestId, clipPath, frames, uploaded: [], bucket: SAMPLE_BUCKET, demo: true, mockOutcome: requestedOutcome, started };
   } else {
     const parsed = parseUpload(body, userId, requestId);
     if (!parsed) return response({ error: 'INVALID_BODY' }, 400);
-    args = { userId, requestId, ...parsed, bucket: BUCKET, demo: false, mockOutcome: body.mock_outcome, started };
+    args = { userId, requestId, ...parsed, bucket: BUCKET, demo: false, mockOutcome: requestedOutcome, started };
   }
   return answerRequest(request, args);
 });
